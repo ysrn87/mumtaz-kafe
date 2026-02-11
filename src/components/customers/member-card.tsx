@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Mail, Phone, Calendar, Award, CreditCard } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Award, CreditCard, Sparkles } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 interface MemberCardProps {
@@ -34,92 +34,108 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
     : null;
 
   return (
-    <Card className="overflow-hidden">
-      {/* Header with gradient background */}
-      <div className="bg-gradient-to-r from-blue-500 to-green-500 p-6 text-white">
-        <div className="flex items-start gap-4">
-          <Avatar className="w-40 h-40 border-4 border-white">
+    <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 border-0">
+      {/* Header with gradient background - Responsive layout */}
+      <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-500 p-4 sm:p-6 lg:p-8 text-white relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
+        
+        {/* Content - Stack on mobile, side-by-side on larger screens */}
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative z-10">
+          {/* Avatar - Responsive sizing */}
+          <Avatar className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 border-4 border-white shadow-lg ring-4 ring-white/20">
             <AvatarImage
               src={user.photoUrl || undefined}
               alt={user.name}
               className="object-cover object-center"
             />
-            <AvatarFallback className="text-2xl bg-white text-blue-600">
+            <AvatarFallback className="text-xl sm:text-2xl bg-white text-purple-600 font-bold">
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="flex-1">
-            <div className="mt-3 flex items-center gap-2 bg-white/20 rounded-full px-4 py-2 w-fit mb-12">
-              <Award className="w-5 h-5" />
-              <span className="font-semibold">{user.points} Points</span>
 
-            </div>
-            <div className="text-2xl">
-              <h2 className="text-2xl font-bold mb-1">{user.name}</h2>
-              {showMembershipId && (
-                <h3 className="text-sm opacity-90 flex items-center gap-2 text-right">
-                  <CreditCard className="w-4 h-4" />
-                  Member ID: {user.id.slice(-8).toUpperCase()}
-                  
-                </h3>
-              )}
+          {/* User info - Centered on mobile, left-aligned on larger screens */}
+          <div className="flex-1 text-center sm:text-left w-full">
+            {/* Name - Responsive font size */}
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 drop-shadow-md">
+              {user.name}
+            </h2>
+            
+            {/* Points badge - Prominent and responsive */}
+            <div className="inline-flex items-center gap-2 bg-white/25 backdrop-blur-sm rounded-full px-4 sm:px-5 py-2 sm:py-2.5 mb-3 shadow-lg border border-white/30">
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
+              <span className="font-bold text-sm sm:text-base">{user.points.toLocaleString()} Points</span>
             </div>
 
+            {/* Member ID - Responsive */}
+            {showMembershipId && (
+              <div className="flex items-center justify-center sm:justify-start gap-2 text-white/90 text-xs sm:text-sm">
+                <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="font-mono tracking-wider">
+                  ID: {user.id.slice(-8).toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Card body with details */}
-      <CardContent className="p-6 space-y-4 text-sm">
-        <div className="grid gap-4">
+      {/* Card body with details - Responsive grid */}
+      <CardContent className="p-4 sm:p-6 lg:p-8">
+        <div className="grid gap-3 sm:gap-4">
           {/* Email */}
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-blue-50 rounded-lg">
-              <Mail className="w-5 h-5 text-blue-600" />
+          <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+            <div className="p-2 sm:p-2.5 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200 shrink-0">
+              <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Email</p>
-              <p className="font-medium">{user.email}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Email</p>
+              <p className="font-semibold text-sm sm:text-base break-all">{user.email}</p>
             </div>
           </div>
 
           {/* Phone */}
           {user.phone && (
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-green-50 rounded-lg">
-                <Phone className="w-5 h-5 text-green-600" />
+            <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+              <div className="p-2 sm:p-2.5 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors duration-200 shrink-0">
+                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Phone</p>
-                <p className="font-medium">{user.phone}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Phone</p>
+                <p className="font-semibold text-sm sm:text-base">{user.phone}</p>
               </div>
             </div>
           )}
 
           {/* Birthday */}
           {user.birthday && (
-            <div className="flex items-start gap-3">
-              <div className="p-2 bg-purple-50 rounded-lg">
-                <Calendar className="w-5 h-5 text-purple-600" />
+            <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+              <div className="p-2 sm:p-2.5 bg-purple-50 rounded-lg group-hover:bg-purple-100 transition-colors duration-200 shrink-0">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground">Birthday</p>
-                <p className="font-medium">
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Birthday</p>
+                <p className="font-semibold text-sm sm:text-base">
                   {formatDate(user.birthday)}
-                  {age && <span className="text-muted-foreground ml-2">({age} years old)</span>}
+                  {age && (
+                    <span className="text-muted-foreground ml-2 text-xs sm:text-sm font-normal">
+                      ({age} years old)
+                    </span>
+                  )}
                 </p>
               </div>
             </div>
           )}
 
           {/* Member Since */}
-          <div className="flex items-start gap-3">
-            <div className="p-2 bg-amber-50 rounded-lg">
-              <User className="w-5 h-5 text-amber-600" />
+          <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+            <div className="p-2 sm:p-2.5 bg-amber-50 rounded-lg group-hover:bg-amber-100 transition-colors duration-200 shrink-0">
+              <User className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Member Since</p>
-              <p className="font-medium">{formatDate(user.createdAt)}</p>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Member Since</p>
+              <p className="font-semibold text-sm sm:text-base">{formatDate(user.createdAt)}</p>
             </div>
           </div>
         </div>

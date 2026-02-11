@@ -2,9 +2,9 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-async function resetDatabase() {
-  console.log('🧹 Starting database reset...');
-  console.log('📌 This will DELETE all business data but KEEP user credentials\n');
+async function cleanDatabase() {
+  console.log('🧹 Starting COMPLETE database clean...');
+  console.log('⚠️  WARNING: This will DELETE EVERYTHING including all users!\n');
 
   try {
     // Use transaction to ensure all or nothing
@@ -39,28 +39,25 @@ async function resetDatabase() {
       const productCount = await tx.product.deleteMany({});
       console.log(`     ✓ Deleted ${productCount.count} products`);
       
-      console.log('  🔄 Resetting user points to 0...');
-      const userUpdate = await tx.user.updateMany({
-        data: { points: 0 }
-      });
-      console.log(`     ✓ Reset points for ${userUpdate.count} users`);
+      console.log('  🗑️  Deleting ALL users...');
+      const userCount = await tx.user.deleteMany({});
+      console.log(`     ✓ Deleted ${userCount.count} users`);
     });
 
-    console.log('\n✅ Database reset completed successfully!');
-    console.log('   ✓ All business data deleted');
-    console.log('   ✓ All user credentials preserved (email, password, name, role)');
-    console.log('   ✓ User points reset to 0');
-    console.log('\n💡 Tip: Run "npm run db:seed" to add sample data');
+    console.log('\n✅ Database cleaned successfully!');
+    console.log('   ✓ ALL data deleted (including users)');
+    console.log('   ✓ Database is now completely empty');
+    console.log('\n💡 Tip: Run "npm run db:seed" to add fresh data');
     
   } catch (error) {
-    console.error('\n❌ Reset failed:', error);
+    console.error('\n❌ Clean failed:', error);
     throw error;
   } finally {
     await prisma.$disconnect();
   }
 }
 
-resetDatabase()
+cleanDatabase()
   .catch((e) => {
     console.error(e);
     process.exit(1);

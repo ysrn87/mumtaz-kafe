@@ -98,9 +98,9 @@ export default async function MemberDashboard() {
       {/* Today's Purchase Stats */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 font-semibold text-xl">
             <ShoppingBag className="w-5 h-5" />
-            Today's Purchases
+            Pembelian Hari Ini
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -108,20 +108,20 @@ export default async function MemberDashboard() {
             <div className="space-y-6">
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
-                  <p className="text-xl font-semibold">{todayPurchases.length}</p>
-                  <p className="text-sm text-muted-foreground">Transaksi</p>
+                  <p className="text-sm font-semibold">{todayPurchases.length}</p>
+                  <p className="text-xs text-muted-foreground">Transaksi</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-semibold">
+                  <p className="text-sm font-semibold">
                     {todayPurchases.reduce((sum, p) => sum + p.items.reduce((s, i) => s + i.quantity, 0), 0)}
                   </p>
-                  <p className="text-sm text-muted-foreground">Item</p>
+                  <p className="text-xs text-muted-foreground">Item</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-xl font-semibold">
+                  <p className="text-sm font-semibold">
                     {formatCurrency(todayPurchases.reduce((sum, p) => sum + Number(p.total), 0))}
                   </p>
-                  <p className="text-sm text-muted-foreground">Total Spent</p>
+                  <p className="text-xs text-muted-foreground">Total Spent</p>
                 </div>
               </div>
 
@@ -162,13 +162,16 @@ export default async function MemberDashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Points History</CardTitle>
+          <CardTitle className="flex items-center gap-2 font-semibold text-xl">
+            <Award className="w-5 h-5" />
+            Riwayat Poin
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {pointsHistory.length === 0 ? (
             <p className="text-muted-foreground text-center py-8">No points activity yet</p>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 text-xs">
               {pointsHistory.map((history) => (
                 <div
                   key={history.id}
@@ -189,7 +192,7 @@ export default async function MemberDashboard() {
                     </div>
                     <div>
                       <p className="font-medium">{history.description}</p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {formatDate(history.createdAt)}
                       </p>
                     </div>

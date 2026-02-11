@@ -125,6 +125,7 @@ export default async function ManagerProductsPage() {
                                   cost: variant.cost,
                                   stock: variant.stock,
                                   lowStock: variant.lowStock,
+                                  points:variant.points,
                                 }} 
                               />
                             </TableCell>

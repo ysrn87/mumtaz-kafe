@@ -132,6 +132,7 @@ export default async function AdminProductsPage() {
                                     cost: variant.cost,
                                     stock: variant.stock,
                                     lowStock: variant.lowStock,
+                                    points: variant.points,
                                   }} 
                                 />
                                 <VariantDeleteButton variantId={variant.id} />

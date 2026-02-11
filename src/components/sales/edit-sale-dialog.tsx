@@ -1,0 +1,269 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/components/ui/use-toast';
+import { updateSaleAction } from '@/actions/sales';
+import { Trash2 } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
+
+interface EditSaleDialogProps {
+  sale: {
+    id: string;
+    customerId: string | null;
+    paymentMethod: string;
+    discount: number;
+    tax: number;
+    notes: string | null;
+    items: Array<{
+      id: string;
+      quantity: number;
+      price: number;
+      variant: {
+        id: string;
+        name: string;
+        stock: number;
+        product: {
+          name: string;
+        };
+      };
+    }>;
+  };
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
+}
+
+interface SaleItem {
+  variantId: string;
+  variantName: string;
+  quantity: number;
+  price: number;
+  currentStock: number;
+}
+
+export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSaleDialogProps) {
+  const [loading, setLoading] = useState(false);
+  const [items, setItems] = useState<SaleItem[]>([]);
+  const [customerId, setCustomerId] = useState<string>(sale.customerId || 'WALK_IN');
+  const [paymentMethod, setPaymentMethod] = useState<string>(sale.paymentMethod);
+  const [discount, setDiscount] = useState<number>(sale.discount);
+  const [tax, setTax] = useState<number>(sale.tax);
+  const [notes, setNotes] = useState<string>(sale.notes || '');
+  const { toast } = useToast();
+
+  useEffect(() => {
+    setItems(sale.items.map(item => ({
+      variantId: item.variant.id,
+      variantName: `${item.variant.product.name} - ${item.variant.name}`,
+      quantity: item.quantity,
+      price: item.price,
+      currentStock: item.variant.stock + item.quantity, // Add back the current sale quantity to available stock
+    })));
+  }, [sale]);
+
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const total = subtotal - discount + tax;
+
+  const updateQuantity = (index: number, newQty: number) => {
+    const newItems = [...items];
+    if (newQty > 0 && newQty <= newItems[index].currentStock) {
+      newItems[index].quantity = newQty;
+      setItems(newItems);
+    }
+  };
+
+  const removeItem = (index: number) => {
+    setItems(items.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async () => {
+    if (items.length === 0) {
+      toast({
+        title: 'Error',
+        description: 'Sale must have at least one item.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const result = await updateSaleAction(sale.id, {
+        items: items.map(item => ({
+          variantId: item.variantId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        customerId: customerId === 'WALK_IN' ? null : customerId,
+        paymentMethod,
+        discount,
+        tax,
+        notes: notes || undefined,
+      });
+      
+      if (result.success) {
+        toast({
+          title: 'Success!',
+          description: 'Sale updated successfully.',
+        });
+        onOpenChange(false);
+        if (onSuccess) onSuccess();
+      } else {
+        toast({
+          title: 'Error',
+          description: result.error || 'Failed to update sale.',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[700px]">
+        <DialogHeader>
+          <DialogTitle>Edit Sale</DialogTitle>
+        </DialogHeader>
+        
+        <div className="grid gap-6 py-4">
+          {/* Items List */}
+          <div className="space-y-2">
+            <h3 className="font-semibold">Items</h3>
+            <div className="border rounded-lg divide-y max-h-[300px] overflow-y-auto">
+              {items.map((item, index) => (
+                <div key={index} className="flex items-center gap-4 p-3">
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{item.variantName}</p>
+                    <p className="text-xs text-gray-600">Price: {formatCurrency(item.price)} • Available: {item.currentStock}</p>
+                  </div>
+                  <Input
+                    type="number"
+                    min="1"
+                    max={item.currentStock}
+                    value={item.quantity}
+                    onChange={(e) => updateQuantity(index, parseInt(e.target.value) || 1)}
+                    className="w-20"
+                    disabled={loading}
+                  />
+                  <span className="font-semibold w-24 text-right">
+                    {formatCurrency(item.price * item.quantity)}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeItem(index)}
+                    disabled={loading || items.length === 1}
+                  >
+                    <Trash2 className="w-4 h-4 text-red-600" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Payment Details */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="paymentMethod">Payment Method</Label>
+              <Select value={paymentMethod} onValueChange={setPaymentMethod} disabled={loading}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="CASH">Cash</SelectItem>
+                  <SelectItem value="CARD">Card</SelectItem>
+                  <SelectItem value="TRANSFER">Bank Transfer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="discount">Discount</Label>
+              <Input
+                id="discount"
+                type="number"
+                step="0.01"
+                min="0"
+                value={discount}
+                onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+                disabled={loading}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="tax">Tax</Label>
+              <Input
+                id="tax"
+                type="number"
+                step="0.01"
+                min="0"
+                value={tax}
+                onChange={(e) => setTax(parseFloat(e.target.value) || 0)}
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div className="grid gap-2">
+            <Label htmlFor="notes">Notes</Label>
+            <Input
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Optional notes"
+              disabled={loading}
+            />
+          </div>
+
+          {/* Summary */}
+          <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+            <div className="flex justify-between text-sm">
+              <span>Subtotal:</span>
+              <span>{formatCurrency(subtotal)}</span>
+            </div>
+            {discount > 0 && (
+              <div className="flex justify-between text-sm text-green-600">
+                <span>Discount:</span>
+                <span>-{formatCurrency(discount)}</span>
+              </div>
+            )}
+            {tax > 0 && (
+              <div className="flex justify-between text-sm">
+                <span>Tax:</span>
+                <span>{formatCurrency(tax)}</span>
+              </div>
+            )}
+            <div className="flex justify-between text-lg font-bold pt-2 border-t">
+              <span>Total:</span>
+              <span>{formatCurrency(total)}</span>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+            Cancel
+          </Button>
+          <Button type="button" onClick={handleSubmit} disabled={loading || items.length === 0}>
+            {loading ? 'Updating...' : 'Update Sale'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

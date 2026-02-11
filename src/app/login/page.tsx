@@ -1,21 +1,31 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { loginAction } from '@/actions/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (searchParams.get('registered') === 'true') {
+      setSuccessMessage('Account created successfully! Please sign in.');
+    }
+  }, [searchParams]);
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
     setError(null);
+    setSuccessMessage(null);
 
     const result = await loginAction(formData);
 
@@ -59,6 +69,11 @@ export default function LoginPage() {
                 disabled={loading}
               />
             </div>
+            {successMessage && (
+              <div className="text-sm text-green-600 bg-green-50 p-3 rounded">
+                {successMessage}
+              </div>
+            )}
             {error && (
               <div className="text-sm text-red-600 bg-red-50 p-3 rounded">
                 {error}
@@ -68,7 +83,15 @@ export default function LoginPage() {
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          <div className="mt-6 text-sm text-gray-600">
+
+          <div className="mt-4 text-center text-sm">
+            <span className="text-gray-600">Don't have an account? </span>
+            <Link href="/register" className="text-blue-600 hover:underline font-medium">
+              Register as Member
+            </Link>
+          </div>
+
+          <div className="mt-6 text-sm text-gray-600 border-t pt-4">
             <p className="font-semibold mb-2">Demo Credentials:</p>
             <p>Admin: admin@example.com / password123</p>
             <p>Manager: manager@example.com / password123</p>

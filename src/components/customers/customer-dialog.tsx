@@ -29,16 +29,34 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [photoUrl, setPhotoUrl] = useState(customer?.photoUrl || '');
+  const [points, setPoints] = useState(customer?.points || 0);
+  const [initialPoints] = useState(customer?.points || 0);
   const { toast } = useToast();
 
-  // Sync photoUrl state when dialog opens or customer changes
+  // Sync photoUrl and points state when dialog opens or customer changes
   useEffect(() => {
     if (open) {
       setPhotoUrl(customer?.photoUrl || '');
+      setPoints(customer?.points || 0);
     }
-  }, [open, customer?.photoUrl]);
+  }, [open, customer?.photoUrl, customer?.points]);
+
+  const pointsChanged = mode === 'edit' && points !== initialPoints;
 
   const handleSubmit = async (formData: FormData) => {
+    // Validate points reason if points changed
+    if (mode === 'edit' && pointsChanged) {
+      const pointsReason = formData.get('pointsReason') as string;
+      if (!pointsReason || pointsReason.trim() === '') {
+        toast({
+          title: 'Error',
+          description: 'Please provide a reason for changing loyalty points.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const result = mode === 'create'
@@ -197,13 +215,36 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                     name="points"
                     type="number"
                     min="0"
-                    defaultValue={customer?.points}
+                    value={points}
+                    onChange={(e) => setPoints(parseInt(e.target.value) || 0)}
                     disabled={loading}
                   />
                   <p className="text-xs text-muted-foreground">
-                    Changes will be recorded in points history
+                    Current: {initialPoints} points
                   </p>
                 </div>
+
+                {pointsChanged && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="pointsReason" className="flex items-center gap-1">
+                      Reason for Points Change
+                      <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
+                      id="pointsReason"
+                      name="pointsReason"
+                      type="text"
+                      required={pointsChanged}
+                      placeholder="e.g., Promotional bonus, Error correction, etc."
+                      disabled={loading}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {points > initialPoints 
+                        ? `Adding ${points - initialPoints} points` 
+                        : `Deducting ${initialPoints - points} points`}
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid gap-2">
                   <Label htmlFor="password">New Password (Optional)</Label>

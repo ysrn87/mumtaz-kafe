@@ -214,6 +214,7 @@ export async function updateCustomerAction(id: string, formData: FormData) {
     const photoUrl = formData.get('photoUrl') as string;
     const newPassword = formData.get('password') as string;
     const points = formData.get('points') ? parseInt(formData.get('points') as string) : undefined;
+    const pointsReason = formData.get('pointsReason') as string;
 
     if (!name || !email) {
       return { success: false, error: 'Name and email are required' };
@@ -263,18 +264,23 @@ export async function updateCustomerAction(id: string, formData: FormData) {
 
     // Update points if changed
     if (points !== undefined && points !== currentUser.points) {
+      // Validate that reason is provided when points are changed
+      if (!pointsReason || pointsReason.trim() === '') {
+        return { success: false, error: 'Reason is required when updating loyalty points' };
+      }
+
       updateData.points = points;
       
       // Calculate points difference
       const pointsDifference = points - currentUser.points;
       
-      // Create point history record
+      // Create point history record with custom reason
       await db.pointHistory.create({
         data: {
           userId: id,
           points: pointsDifference,
           type: 'ADJUSTED',
-          description: `Points ${pointsDifference > 0 ? 'added' : 'deducted'} by ${session.user.name || 'Admin'} (${pointsDifference > 0 ? '+' : ''}${pointsDifference} points)`,
+          description: pointsReason,
         },
       });
     }

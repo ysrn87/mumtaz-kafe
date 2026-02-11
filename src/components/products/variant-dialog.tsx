@@ -20,6 +20,7 @@ interface VariantDialogProps {
     cost: number;
     stock: number;
     lowStock: number;
+    points: number;
   };
   trigger?: React.ReactNode;
 }
@@ -144,6 +145,22 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
                   disabled={loading}
                 />
               </div>
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="points">Points Per Item</Label>
+              <Input
+                id="points"
+                name="points"
+                type="number"
+                min="0"
+                defaultValue={variant?.points || 0}
+                placeholder="0"
+                disabled={loading}
+              />
+              <p className="text-xs text-muted-foreground">
+                Points earned by members for each unit purchased
+              </p>
             </div>
 
             {mode === 'create' && (

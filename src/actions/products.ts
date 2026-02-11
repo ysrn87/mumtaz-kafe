@@ -126,6 +126,7 @@ export async function createVariantAction(formData: FormData) {
     const cost = parseFloat(formData.get('cost') as string);
     const stock = parseInt(formData.get('stock') as string);
     const lowStock = parseInt(formData.get('lowStock') as string);
+    const points = parseInt(formData.get('points') as string) || 0;
 
     if (!productId || !name || !sku || isNaN(price) || isNaN(cost) || isNaN(stock) || isNaN(lowStock)) {
       return { success: false, error: 'All fields are required' };
@@ -149,6 +150,7 @@ export async function createVariantAction(formData: FormData) {
         cost,
         stock,
         lowStock,
+        points,
       },
     });
 
@@ -201,6 +203,7 @@ export async function updateVariantAction(id: string, formData: FormData) {
     const price = parseFloat(formData.get('price') as string);
     const cost = parseFloat(formData.get('cost') as string);
     const lowStock = parseInt(formData.get('lowStock') as string);
+    const points = parseInt(formData.get('points') as string) || 0;
 
     if (!name || !sku || isNaN(price) || isNaN(cost) || isNaN(lowStock)) {
       return { success: false, error: 'All fields are required' };
@@ -226,6 +229,7 @@ export async function updateVariantAction(id: string, formData: FormData) {
         price,
         cost,
         lowStock,
+        points,
       },
     });
 

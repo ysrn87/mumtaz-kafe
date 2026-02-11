@@ -66,6 +66,7 @@ model ProductVariant {
   sku         String   @unique
   price       Decimal  @db.Decimal(10, 2)
   cost        Decimal  @db.Decimal(10, 2)
+  points      Int      @default(0)
   stock       Int      @default(0)
   lowStock    Int      @default(10)
   isActive    Boolean  @default(true)

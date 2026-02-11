@@ -33,7 +33,8 @@ export async function createSaleAction(input: CreateSaleInput) {
       return { success: false, error: 'No items in sale' };
     }
 
-    // Validate stock availability
+    // Validate stock availability and calculate points
+    let pointsEarned = 0;
     for (const item of items) {
       const variant = await db.productVariant.findUnique({
         where: { id: item.variantId },
@@ -46,12 +47,14 @@ export async function createSaleAction(input: CreateSaleInput) {
       if (variant.stock < item.quantity) {
         return { success: false, error: `Insufficient stock for ${variant.name}` };
       }
+
+      // Calculate points from variant points
+      pointsEarned += variant.points * item.quantity;
     }
 
     // Calculate totals
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const total = subtotal - discount + tax;
-    const pointsEarned = Math.floor(total)/1000;
 
     // Create sale with items in a transaction
     const sale = await db.$transaction(async (tx) => {
@@ -227,7 +230,8 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
       return { success: false, error: 'Sale not found' };
     }
 
-    // Validate stock availability for new quantities
+    // Validate stock availability for new quantities and calculate points
+    let pointsEarned = 0;
     for (const item of items) {
       const variant = await db.productVariant.findUnique({
         where: { id: item.variantId },
@@ -245,12 +249,14 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
       if (qtyDifference > 0 && variant.stock < qtyDifference) {
         return { success: false, error: `Insufficient stock for ${variant.name}` };
       }
+
+      // Calculate points from variant points
+      pointsEarned += variant.points * item.quantity;
     }
 
     // Calculate totals
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     const total = subtotal - discount + tax;
-    const pointsEarned = Math.floor(total) / 1000;
 
     // Update sale in transaction
     await db.$transaction(async (tx) => {

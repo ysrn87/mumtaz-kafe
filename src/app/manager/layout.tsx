@@ -1,5 +1,6 @@
-import { Navigation } from '@/components/navigation';
 import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
+import { Navigation } from '@/components/navigation';
 
 export default async function ManagerLayout({
   children,
@@ -8,10 +9,18 @@ export default async function ManagerLayout({
 }) {
   const session = await auth();
   
+  if (!session) {
+    redirect('/login');
+  }
+  
+  if (session.user.role !== 'MANAGER' && session.user.role !== 'ADMINISTRATOR') {
+    redirect('/unauthorized');
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navigation role="MANAGER" userName={session?.user?.name || undefined} />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Navigation role={session.user.role} userName={session.user.name}/>
+      <main className="container mx-auto p-8">
         {children}
       </main>
     </div>

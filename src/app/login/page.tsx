@@ -1,5 +1,7 @@
 'use client';
 
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { loginAction } from '@/actions/auth';
@@ -8,7 +10,18 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const session = await auth();
+  
+  // Redirect if already logged in
+  if (session) {
+    const dashboardUrl = session.user.role === 'ADMINISTRATOR' ? '/admin' 
+      : session.user.role === 'MANAGER' ? '/manager' 
+      : '/member';
+    redirect(dashboardUrl);
+  }
+
+
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

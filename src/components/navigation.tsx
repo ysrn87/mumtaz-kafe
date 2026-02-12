@@ -28,9 +28,9 @@ export function Navigation({ role, userName }: NavigationProps) {
   const adminNavItems: NavItem[] = [
     { href: '/admin', label: 'Dashboard', icon: <Home className="w-4 h-4" /> },
     { href: '/admin/customers', label: 'Member', icon: <Users className="w-4 h-4" /> },
+    { href: '/admin/sales', label: 'Penjualan', icon: <ShoppingCart className="w-4 h-4" /> },
     { href: '/admin/products', label: 'Produk', icon: <Package className="w-4 h-4" /> },
     { href: '/admin/stock', label: 'Stok', icon: <Warehouse className="w-4 h-4" /> },
-    { href: '/admin/sales', label: 'Penjualan', icon: <ShoppingCart className="w-4 h-4" /> },
     { href: '/admin/cashflow', label: 'Cashflow', icon: <DollarSign className="w-4 h-4" /> },
     { href: '/admin/reports', label: 'Laporan', icon: <FileText className="w-4 h-4" /> },
     { href: '/admin/settings', label: 'Pengaturan', icon: <FileText className="w-4 h-4" /> },

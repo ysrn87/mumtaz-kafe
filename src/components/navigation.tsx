@@ -127,7 +127,7 @@ export function Navigation({ role, userName }: NavigationProps) {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = '';
     } else {
       document.body.style.overflow = '';
     }
@@ -315,12 +315,13 @@ export function Navigation({ role, userName }: NavigationProps) {
 
           {/* Mobile menu button with enhanced animation */}
           <div className="flex items-center lg:hidden ml-4">
+            <span className='mr-2'>menu </span>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="
                 relative inline-flex items-center justify-center p-2 rounded-md 
                 text-gray-700 hover:text-gray-900 hover:bg-gray-100 
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2
+                focus:outline-none focus:ring-2
                 transition-all duration-300 hover:scale-110
               "
               aria-label="Toggle menu"
@@ -328,9 +329,9 @@ export function Navigation({ role, userName }: NavigationProps) {
             >
               <span className="sr-only">{mobileMenuOpen ? 'Close menu' : 'Open menu'}</span>
               {mobileMenuOpen ? (
-                <X className="w-6 h-6 transition-transform duration-300 rotate-90" />
+                <X className="w-4 h-4 transition-transform duration-300 rotate-90" />
               ) : (
-                <Menu className="w-6 h-6 transition-transform duration-300" />
+                <Menu className="w-4 h-4 transition-transform duration-300" />
               )}
             </button>
           </div>

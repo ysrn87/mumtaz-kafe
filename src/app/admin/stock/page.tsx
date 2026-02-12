@@ -1,9 +1,8 @@
 import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatDateTime } from '@/lib/utils';
 import { Package, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
-import { StockAdjustmentDialog } from '@/components/stock/stock-adjustment-dialog';
+import { StockTable } from '@/components/stock/stock-table';
 
 async function getStockData() {
   const [totalVariants, lowStockCount, stockValue, recentMovements] = await Promise.all([
@@ -41,21 +40,45 @@ async function getStockData() {
   };
 }
 
-async function getAllStock() {
-  return await db.productVariant.findMany({
-    include: {
-      product: true,
-    },
-    orderBy: [
-      { stock: 'asc' },
-      { product: { name: 'asc' } },
-    ],
-  });
+async function getAllStock(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+  
+  const [items, total] = await Promise.all([
+    db.productVariant.findMany({
+      skip,
+      take: limit,
+      include: {
+        product: true,
+      },
+      orderBy: [
+        { stock: 'asc' },
+        { product: { name: 'asc' } },
+      ],
+    }),
+    db.productVariant.count(),
+  ]);
+
+  // Convert Decimal to Number for client component
+  const serializedItems = items.map(item => ({
+    ...item,
+    price: Number(item.price),
+    cost: Number(item.cost),
+  }));
+
+  return { items: serializedItems, total };
 }
 
-export default async function AdminStockPage() {
+export default async function AdminStockPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; limit?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const limit = Number(params.limit) || 10;
+
   const stats = await getStockData();
-  const stockItems = await getAllStock();
+  const { items: stockItems, total } = await getAllStock(page, limit);
 
   return (
     <div className="space-y-8">
@@ -108,66 +131,12 @@ export default async function AdminStockPage() {
           <CardTitle>Ketersediaan Item</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Produk</TableHead>
-                  <TableHead>Varian</TableHead>
-                  <TableHead>Stok Tersedia</TableHead>
-                  <TableHead>Stok Minimum</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {stockItems.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground">
-                      Tidak ada produk tersedia
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  stockItems.map((item) => {
-                    const isLowStock = item.stock <= item.lowStock;
-                    return (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.product.name}</TableCell>
-                        <TableCell>{item.name}</TableCell>
-                        <TableCell>
-                          <span className={isLowStock ? 'text-red-600 font-bold' : ''}>
-                            {item.stock}
-                          </span>
-                        </TableCell>
-                        <TableCell>{item.lowStock}</TableCell>
-                        <TableCell>
-                          {isLowStock ? (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                              <AlertTriangle className="w-3 h-3 mr-1" />
-                              Stok rendah
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              Tersedia
-                            </span>
-                          )}
-                        </TableCell>
-                        <TableCell>{item.sku}</TableCell>
-                        <TableCell>
-                          <StockAdjustmentDialog 
-                            variantId={item.id} 
-                            variantName={`${item.product.name} - ${item.name}`} 
-                            currentStock={item.stock} 
-                          />
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
+          <StockTable 
+            stockItems={stockItems}
+            currentPage={page}
+            pageSize={limit}
+            totalItems={total}
+          />
         </CardContent>
       </Card>
 

@@ -1,14 +1,15 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { formatCurrency } from '@/lib/utils';
-import { MoreHorizontal, Eye, Award } from 'lucide-react';
+import { Eye, Award } from 'lucide-react';
 import { CustomerDetailsDialog } from './customer-details-dialog';
-import { useState } from 'react';
 import { CustomerDialog } from './customer-dialog';
 import { CustomerDeleteButton } from './customer-delete-button';
+import { Pagination } from '@/components/ui/pagination';
 
 interface Customer {
   id: string;
@@ -31,11 +32,37 @@ interface Customer {
 interface CustomersTableProps {
   customers: Customer[];
   showActions?: boolean;
+  currentPage: number;
+  pageSize: number;
+  totalItems: number;
 }
 
-export function CustomersTable({ customers, showActions = false }: CustomersTableProps) {
+export function CustomersTable({ 
+  customers, 
+  showActions = false,
+  currentPage,
+  pageSize,
+  totalItems
+}: CustomersTableProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', page.toString());
+    router.push(`?${params.toString()}`);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('limit', size.toString());
+    params.set('page', '1');
+    router.push(`?${params.toString()}`);
+  };
 
   const handleViewDetails = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -133,6 +160,15 @@ export function CustomersTable({ customers, showActions = false }: CustomersTabl
           </TableBody>
         </Table>
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalItems={totalItems}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
 
       {selectedCustomer && (
         <CustomerDetailsDialog

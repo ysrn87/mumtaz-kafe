@@ -1,19 +1,41 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
 import { SaleDetailsDialog } from './sale-details-dialog';
+import { Pagination } from '@/components/ui/pagination';
 import { Eye } from 'lucide-react';
 
 interface SalesTableProps {
   sales: any[];
+  currentPage: number;
+  pageSize: number;
+  totalItems: number;
 }
 
-export function SalesTable({ sales }: SalesTableProps) {
+export function SalesTable({ sales, currentPage, pageSize, totalItems }: SalesTableProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+
+  const totalPages = Math.ceil(totalItems / pageSize);
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('page', page.toString());
+    router.push(`?${params.toString()}`);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('limit', size.toString());
+    params.set('page', '1'); // Reset to page 1
+    router.push(`?${params.toString()}`);
+  };
 
   const handleViewDetails = (sale: any) => {
     setSelectedSale(sale);
@@ -50,7 +72,7 @@ export function SalesTable({ sales }: SalesTableProps) {
               <TableCell>{formatDateTime(sale.createdAt)}</TableCell>
               <TableCell>{sale.customer?.name || 'Walk-in'}</TableCell>
               <TableCell>{sale.cashier.name}</TableCell>
-              <TableCell>{sale.items.length} unit</TableCell>
+              <TableCell>{sale.items.reduce((sum: any, item: any) => sum + item.quantity, 0)} unit</TableCell>
               <TableCell>{formatCurrency(sale.total)}</TableCell>
               <TableCell>
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -70,6 +92,15 @@ export function SalesTable({ sales }: SalesTableProps) {
           ))}
         </TableBody>
       </Table>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        pageSize={pageSize}
+        totalItems={totalItems}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+      />
 
       {selectedSale && (
         <SaleDetailsDialog

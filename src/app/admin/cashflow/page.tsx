@@ -1,58 +1,75 @@
 import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
-import { DollarSign, TrendingUp, TrendingDown, Wallet } from 'lucide-react';
-import { CashflowDialog } from '@/components/cashflow/cashflow-dialog'; 
+import { CashflowDialog } from '@/components/cashflow/cashflow-dialog';
 import { CashflowTable } from '@/components/cashflow/cashflow-table';
+import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 
-async function getCashflowStats() {
-  const [totalIncome, totalExpense, recentTransactions] = await Promise.all([
-    db.cashflow.aggregate({
-      _sum: { amount: true },
-      where: { type: 'INCOME' },
-    }),
-    db.cashflow.aggregate({
-      _sum: { amount: true },
-      where: { type: 'EXPENSE' },
-    }),
+async function getCashflowData(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+  
+  const [transactions, total] = await Promise.all([
     db.cashflow.findMany({
-      take: 20,
+      skip,
+      take: limit,
       orderBy: { date: 'desc' },
       include: {
         createdBy: {
-          select: { name: true },
+          select: {
+            name: true,
+          },
         },
       },
     }),
+    db.cashflow.count(),
   ]);
 
-  const income = Number(totalIncome._sum.amount) || 0;
-  const expense = Number(totalExpense._sum.amount) || 0;
-  const netCashflow = income - expense;
-
-  // Convert Decimal to number
-  const serializedTransactions = recentTransactions.map(transaction => ({
-    ...transaction,
-    amount: Number(transaction.amount),
-  }));
-
   return {
-    totalIncome: income,
-    totalExpense: expense,
-    netCashflow,
-    recentTransactions: serializedTransactions,
+    transactions: transactions.map(t => ({
+      ...t,
+      amount: Number(t.amount),
+    })),
+    total,
   };
 }
 
-export default async function AdminCashflowPage() {
+async function getCashflowStats() {
+  const [totalIncome, totalExpense] = await Promise.all([
+    db.cashflow.aggregate({
+      where: { type: 'INCOME' },
+      _sum: { amount: true },
+    }),
+    db.cashflow.aggregate({
+      where: { type: 'EXPENSE' },
+      _sum: { amount: true },
+    }),
+  ]);
+
+  const income = Number(totalIncome._sum.amount || 0);
+  const expense = Number(totalExpense._sum.amount || 0);
+  const balance = income - expense;
+
+  return { income, expense, balance };
+}
+
+export default async function AdminCashflowPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; limit?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const limit = Number(params.limit) || 10;
+
+  const { transactions, total } = await getCashflowData(page, limit);
   const stats = await getCashflowStats();
 
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Kelola Arus Kas</h1>
-          <p className="text-gray-600">Catatan pemasukan dan pengeluaran</p>
+          <h1 className="text-3xl font-bold">Cashflow</h1>
+          <p className="text-gray-600">Kelola pemasukan dan pengeluaran operasional</p>
         </div>
         <CashflowDialog />
       </div>
@@ -66,9 +83,9 @@ export default async function AdminCashflowPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {formatCurrency(Number(stats.totalIncome))}
+              {formatCurrency(stats.income)}
             </div>
-            <p className="text-xs text-muted-foreground">Seluruh pemasukan</p>
+            <p className="text-xs text-muted-foreground">Total pendapatan</p>
           </CardContent>
         </Card>
 
@@ -79,33 +96,38 @@ export default async function AdminCashflowPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">
-              {formatCurrency(Number(stats.totalExpense))}
+              {formatCurrency(stats.expense)}
             </div>
-            <p className="text-xs text-muted-foreground">Seluruh pengeluaran</p>
+            <p className="text-xs text-muted-foreground">Total biaya</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Net Cashflow</CardTitle>
-            <Wallet className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium">Saldo Bersih</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${stats.netCashflow >= 0 ? 'text-blue-600' : 'text-red-600'}`}>
-              {formatCurrency(stats.netCashflow)}
+            <div className={`text-2xl font-bold ${stats.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {formatCurrency(stats.balance)}
             </div>
-            <p className="text-xs text-muted-foreground">Pemasukan - Pengeluaran</p>
+            <p className="text-xs text-muted-foreground">Pendapatan - Pengeluaran</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Cashflow Table */}
+      {/* Transactions Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Transaksi Terbaru</CardTitle>
+          <CardTitle>Riwayat Transaksi</CardTitle>
         </CardHeader>
         <CardContent>
-          <CashflowTable transactions={stats.recentTransactions} />
+          <CashflowTable 
+            transactions={transactions}
+            currentPage={page}
+            pageSize={limit}
+            totalItems={total}
+          />
         </CardContent>
       </Card>
     </div>

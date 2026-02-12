@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
 import { DEFAULT_SETTINGS } from '@/lib/settings';
+import bcrypt from 'bcryptjs';
 
 // Get a setting value
 export async function getSetting(key: string): Promise<string | null> {
@@ -136,6 +137,133 @@ export async function initializeSettings() {
       create: setting,
     });
   }
+
+  revalidatePath('/admin/settings');
+}
+
+// Get current admin profile
+export async function getAdminProfile() {
+  const session = await auth();
+  if (!session || session.user.role !== 'ADMINISTRATOR') {
+    throw new Error('Unauthorized - Admin access required');
+  }
+
+  const admin = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      address: true,
+    },
+  });
+
+  if (!admin) {
+    throw new Error('Admin not found');
+  }
+
+  return admin;
+}
+
+// Update admin profile
+export async function updateAdminProfile(data: {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+}) {
+  const session = await auth();
+  if (!session || session.user.role !== 'ADMINISTRATOR') {
+    throw new Error('Unauthorized - Admin access required');
+  }
+
+  // Validate email if provided
+  if (data.email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      throw new Error('Invalid email format');
+    }
+
+    // Check if email is already taken by another user
+    const existingUser = await db.user.findFirst({
+      where: {
+        email: data.email,
+        NOT: { id: session.user.id },
+      },
+    });
+
+    if (existingUser) {
+      throw new Error('Email already in use');
+    }
+  }
+
+  // Validate phone if provided
+  if (data.phone) {
+    const phoneRegex = /^[0-9+\-\s()]+$/;
+    if (!phoneRegex.test(data.phone)) {
+      throw new Error('Invalid phone format');
+    }
+
+    // Check if phone is already taken by another user
+    const existingUser = await db.user.findFirst({
+      where: {
+        phone: data.phone,
+        NOT: { id: session.user.id },
+      },
+    });
+
+    if (existingUser) {
+      throw new Error('Phone number already in use');
+    }
+  }
+
+  await db.user.update({
+    where: { id: session.user.id },
+    data: {
+      ...(data.name && { name: data.name }),
+      ...(data.email && { email: data.email }),
+      ...(data.phone && { phone: data.phone }),
+      ...(data.address !== undefined && { address: data.address }),
+    },
+  });
+
+  revalidatePath('/admin/settings');
+}
+
+// Update admin password
+export async function updateAdminPassword(currentPassword: string, newPassword: string) {
+  const session = await auth();
+  if (!session || session.user.role !== 'ADMINISTRATOR') {
+    throw new Error('Unauthorized - Admin access required');
+  }
+
+  const admin = await db.user.findUnique({
+    where: { id: session.user.id },
+  });
+
+  if (!admin) {
+    throw new Error('Admin not found');
+  }
+
+  // Verify current password
+  const isPasswordValid = await bcrypt.compare(currentPassword, admin.password);
+  if (!isPasswordValid) {
+    throw new Error('Current password is incorrect');
+  }
+
+  // Validate new password
+  if (newPassword.length < 6) {
+    throw new Error('Password must be at least 6 characters');
+  }
+
+  // Hash new password
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await db.user.update({
+    where: { id: session.user.id },
+    data: { password: hashedPassword },
+  });
 
   revalidatePath('/admin/settings');
 }

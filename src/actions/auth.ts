@@ -80,8 +80,8 @@ export async function registerMemberAction(formData: FormData) {
       data: {
         name,
         phone,
-        email: email,
-        address: address,
+        email,
+        address,
         password: hashedPassword,
         birthday: birthday ? new Date(birthday) : null,
         role: 'MEMBER',

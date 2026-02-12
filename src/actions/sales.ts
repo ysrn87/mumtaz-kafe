@@ -416,7 +416,7 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
         await tx.cashflow.create({
           data: {
             type: cashflowDiff > 0 ? 'INCOME' : 'EXPENSE',
-            category: 'Sales Adjustment',
+            category: 'Penyesuaian Penjualan',
             amount: Math.abs(cashflowDiff),
             description: `Adjusted sale ${originalSale.saleNumber}`,
             date: new Date(),

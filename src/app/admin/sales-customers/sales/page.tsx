@@ -118,10 +118,6 @@ export default async function AdminSalesPage({
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Penjualan</h1>
-          <p className="text-gray-600">Lihat dan kelola semua transaksi penjualan</p>
-        </div>
         <NewSaleDialog variants={variants} customers={customers} conversionRate={conversionRate} />
       </div>
 

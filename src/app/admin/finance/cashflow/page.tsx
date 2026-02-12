@@ -67,10 +67,6 @@ export default async function AdminCashflowPage({
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Cashflow</h1>
-          <p className="text-gray-600">Kelola pemasukan dan pengeluaran operasional</p>
-        </div>
         <CashflowDialog />
       </div>
 

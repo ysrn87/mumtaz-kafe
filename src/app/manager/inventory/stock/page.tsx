@@ -68,14 +68,13 @@ async function getAllStock(page: number = 1, limit: number = 10) {
   return { items: serializedItems, total };
 }
 
-export default async function AdminStockPage({
+export default async function ManagerStockPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; limit?: string }>;
+  searchParams: { page?: string; limit?: string };
 }) {
-  const params = await searchParams;
-  const page = Number(params.page) || 1;
-  const limit = Number(params.limit) || 10;
+  const page = Number(searchParams.page) || 1;
+  const limit = Number(searchParams.limit) || 10;
 
   const stats = await getStockData();
   const { items: stockItems, total } = await getAllStock(page, limit);
@@ -83,10 +82,6 @@ export default async function AdminStockPage({
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold">Kelola Stok Produk</h1>
-          <p className="text-gray-600">Memantau dan mengelola ketersediaan barang</p>
-        </div>
       </div>
 
       {/* Stats Cards */}
@@ -98,18 +93,18 @@ export default async function AdminStockPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalVariants}</div>
-            <p className="text-xs text-muted-foreground">Varian produk</p>
+            <p className="text-xs text-muted-foreground">Varian Produk</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Stok Kurang</CardTitle>
+            <CardTitle className="text-sm font-medium">Stok Menipis</CardTitle>
             <AlertTriangle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-red-600">{stats.lowStockCount}</div>
-            <p className="text-xs text-muted-foreground">Butuh penambahan</p>
+            <p className="text-xs text-muted-foreground">Butuh pembaruan</p>
           </CardContent>
         </Card>
 
@@ -128,7 +123,7 @@ export default async function AdminStockPage({
       {/* Stock Items Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Ketersediaan Item</CardTitle>
+          <CardTitle>Semua Stok</CardTitle>
         </CardHeader>
         <CardContent>
           <StockTable 
@@ -143,12 +138,12 @@ export default async function AdminStockPage({
       {/* Recent Stock Movements */}
       <Card>
         <CardHeader>
-          <CardTitle>Riwayat Sirkulasi Barang</CardTitle>
+          <CardTitle>Pembaruan Stok Terkini</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             {stats.recentMovements.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Belum ada riwayat tercatat</p>
+              <p className="text-sm text-muted-foreground">Belum ada pembaharuan</p>
             ) : (
               stats.recentMovements.map((movement) => (
                 <div key={movement.id} className="flex items-center justify-between border-b pb-3">
@@ -161,7 +156,7 @@ export default async function AdminStockPage({
                       <Package className="h-5 w-5 text-blue-600" />
                     )}
                     <div>
-                      <p className="text-xs font-medium">
+                      <p className="text-sm font-medium">
                         {movement.variant.product.name} - {movement.variant.name}
                       </p>
                       <p className="text-xs text-muted-foreground">

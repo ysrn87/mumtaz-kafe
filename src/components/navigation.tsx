@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Home, Package, Warehouse, ShoppingCart, DollarSign, Users, FileText, LogOut, Menu, X } from 'lucide-react';
+import { Home, Package, ShoppingCart, DollarSign, Settings, Menu, X, LogOut } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { logoutAction } from '@/actions/auth';
 
@@ -11,6 +11,7 @@ interface NavItem {
   href: string;
   label: string;
   icon: React.ReactNode;
+  matchPaths?: string[]; // Additional paths that should highlight this nav item
 }
 
 interface NavigationProps {
@@ -26,22 +27,55 @@ export function Navigation({ role, userName }: NavigationProps) {
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const adminNavItems: NavItem[] = [
-    { href: '/admin', label: 'Dashboard', icon: <Home className="w-4 h-4" /> },
-    { href: '/admin/customers', label: 'Member', icon: <Users className="w-4 h-4" /> },
-    { href: '/admin/sales', label: 'Penjualan', icon: <ShoppingCart className="w-4 h-4" /> },
-    { href: '/admin/products', label: 'Produk', icon: <Package className="w-4 h-4" /> },
-    { href: '/admin/stock', label: 'Stok', icon: <Warehouse className="w-4 h-4" /> },
-    { href: '/admin/cashflow', label: 'Cashflow', icon: <DollarSign className="w-4 h-4" /> },
-    { href: '/admin/reports', label: 'Laporan', icon: <FileText className="w-4 h-4" /> },
-    { href: '/admin/settings', label: 'Pengaturan', icon: <FileText className="w-4 h-4" /> },
+    { 
+      href: '/admin', 
+      label: 'Dashboard', 
+      icon: <Home className="w-4 h-4" /> 
+    },
+    { 
+      href: '/admin/sales-customers/sales', 
+      label: 'Penjualan & Pelanggan', 
+      icon: <ShoppingCart className="w-4 h-4" />,
+      matchPaths: ['/admin/sales-customers/sales', '/admin/sales-customers/customers']
+    },
+    { 
+      href: '/admin/inventory/products', 
+      label: 'Inventori', 
+      icon: <Package className="w-4 h-4" />,
+      matchPaths: ['/admin/inventory/products', '/admin/inventory/stock', '/admin/inventory/reports']
+    },
+    { 
+      href: '/admin/finance/cashflow', 
+      label: 'Keuangan', 
+      icon: <DollarSign className="w-4 h-4" />,
+      matchPaths: ['/admin/finance/cashflow', '/admin/finance/reports']
+    },
+    { 
+      href: '/admin/settings/points', 
+      label: 'Pengaturan', 
+      icon: <Settings className="w-4 h-4" />,
+      matchPaths: ['/admin/settings/points', '/admin/settings/profile']
+    },
   ];
 
   const managerNavItems: NavItem[] = [
-    { href: '/manager', label: 'Dashboard', icon: <Home className="w-4 h-4" /> },
-    { href: '/manager/products', label: 'Products', icon: <Package className="w-4 h-4" /> },
-    { href: '/manager/stock', label: 'Stock', icon: <Warehouse className="w-4 h-4" /> },
-    { href: '/manager/sales', label: 'Sales', icon: <ShoppingCart className="w-4 h-4" /> },
-    { href: '/manager/customers', label: 'Customers', icon: <Users className="w-4 h-4" /> },
+    { 
+      href: '/manager', 
+      label: 'Dashboard', 
+      icon: <Home className="w-4 h-4" /> 
+    },
+    { 
+      href: '/manager/sales-customers/sales', 
+      label: 'Penjualan & Pelanggan', 
+      icon: <ShoppingCart className="w-4 h-4" />,
+      matchPaths: ['/manager/sales-customers/sales', '/manager/sales-customers/customers']
+    },
+    { 
+      href: '/manager/inventory/products', 
+      label: 'Inventori', 
+      icon: <Package className="w-4 h-4" />,
+      matchPaths: ['/manager/inventory/products', '/manager/inventory/stock']
+    },
   ];
 
   const memberNavItems: NavItem[] = [
@@ -55,6 +89,15 @@ export function Navigation({ role, userName }: NavigationProps) {
       ? managerNavItems
       : memberNavItems;
 
+  // Check if a nav item should be active
+  const isNavItemActive = (item: NavItem) => {
+    if (pathname === item.href) return true;
+    if (item.matchPaths) {
+      return item.matchPaths.some(path => pathname.startsWith(path));
+    }
+    return false;
+  };
+
   // Smart multi-level responsive detection with user info consideration
   useEffect(() => {
     const checkNavSpace = () => {
@@ -63,21 +106,16 @@ export function Navigation({ role, userName }: NavigationProps) {
       const container = navContainerRef.current;
       const containerWidth = container.offsetWidth;
       
-      // Account for user info section width based on screen size
-      // At lg (1024px): ~160px (badge + logout icon + gaps)
-      // At xl (1280px): ~280px (name + badge + logout text + gaps)
       const screenWidth = window.innerWidth;
       const userInfoWidth = screenWidth >= 1280 ? 280 : screenWidth >= 1024 ? 160 : 0;
       const availableNavWidth = containerWidth - userInfoWidth;
       
-      // Progressive breakpoints for smoother transitions
       const itemCount = navItems.length;
-      const fullWidth = itemCount * 110; // Full width with text and padding
-      const mediumWidth = itemCount * 85; // Slightly compressed
-      const compactWidth = itemCount * 65; // More compressed
-      const iconsOnlyWidth = itemCount * 48; // Just icons
+      const fullWidth = itemCount * 140; // Adjusted for longer labels
+      const mediumWidth = itemCount * 100;
+      const compactWidth = itemCount * 75;
+      const iconsOnlyWidth = itemCount * 48;
 
-      // Determine compact level based on available space
       if (availableNavWidth >= fullWidth) {
         setCompactLevel('full');
       } else if (availableNavWidth >= mediumWidth) {
@@ -89,7 +127,6 @@ export function Navigation({ role, userName }: NavigationProps) {
       }
     };
 
-    // Debounced resize handler for better performance
     const handleResize = () => {
       if (resizeTimeoutRef.current) {
         clearTimeout(resizeTimeoutRef.current);
@@ -97,17 +134,13 @@ export function Navigation({ role, userName }: NavigationProps) {
       resizeTimeoutRef.current = setTimeout(checkNavSpace, 50);
     };
 
-    // Use ResizeObserver for more efficient detection
     const resizeObserver = new ResizeObserver(handleResize);
     
     if (navContainerRef.current) {
       resizeObserver.observe(navContainerRef.current);
     }
 
-    // Initial check
     checkNavSpace();
-    
-    // Also listen to window resize for user info width changes
     window.addEventListener('resize', handleResize);
 
     return () => {
@@ -127,7 +160,7 @@ export function Navigation({ role, userName }: NavigationProps) {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = '';
+      document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
     }
@@ -136,7 +169,6 @@ export function Navigation({ role, userName }: NavigationProps) {
     };
   }, [mobileMenuOpen]);
 
-  // Determine styling based on compact level
   const getNavItemStyles = () => {
     switch (compactLevel) {
       case 'full':
@@ -172,7 +204,7 @@ export function Navigation({ role, userName }: NavigationProps) {
             >
               <div className={`flex items-center transition-all duration-500 ease-in-out ${navStyles.gap}`}>
                 {navItems.map((item) => {
-                  const isActive = pathname === item.href;
+                  const isActive = isNavItemActive(item);
                   return (
                     <Link
                       key={item.href}
@@ -196,47 +228,16 @@ export function Navigation({ role, userName }: NavigationProps) {
                       <span 
                         className={`
                           whitespace-nowrap font-medium 
-                          transition-all duration-500 ease-in-out
-                          overflow-hidden
+                          overflow-hidden transition-all duration-500 ease-in-out
                           ${navStyles.textWidth} ${navStyles.textOpacity}
-                          ${compactLevel === 'full' ? 'text-sm' : 'text-xs'}
+                          ${compactLevel === 'compact' ? 'text-xs' : 'text-sm'}
                         `}
-                        style={{
-                          transitionProperty: 'width, opacity, font-size',
-                        }}
                       >
                         {item.label}
                       </span>
-                      
-                      {/* Enhanced Tooltip for icons-only mode */}
-                      {showTooltip && (
-                        <span className="
-                          absolute left-1/2 -translate-x-1/2 bottom-full mb-2
-                          px-3 py-1.5 bg-gray-900 text-white text-xs rounded-lg
-                          opacity-0 group-hover:opacity-100 pointer-events-none
-                          transition-all duration-300 ease-out
-                          whitespace-nowrap z-50 shadow-lg
-                          transform group-hover:translate-y-0 translate-y-1
-                          after:content-[''] after:absolute after:top-full after:left-1/2 
-                          after:-translate-x-1/2 after:border-4 after:border-transparent 
-                          after:border-t-gray-900
-                        ">
-                          {item.label}
-                        </span>
-                      )}
-                      
-                      {/* Active indicator with smooth animation */}
-                      {isActive && (
-                        <span 
-                          className="absolute bottom-0 left-0 right-0 h-1 bg-blue-400 rounded-full
-                          transition-all duration-300 ease-out"
-                        />
-                      )}
-
-                      {/* Hover glow effect */}
                       <span 
                         className={`
-                          absolute inset-0 rounded-lg opacity-0 
+                          absolute inset-0 -z-10 rounded-lg
                           group-hover:opacity-100 transition-opacity duration-300
                           ${isActive ? 'bg-white/10' : 'bg-blue-600/5'}
                         `}
@@ -248,20 +249,18 @@ export function Navigation({ role, userName }: NavigationProps) {
             </div>
           </div>
 
-          {/* Right side - User Info and Logout with progressive display */}
+          {/* Right side - User Info and Logout */}
           <div className={`
             hidden lg:flex items-center flex-shrink-0 
             transition-all duration-500 ease-in-out
             ${compactLevel === 'icons-only' ? 'gap-1 ml-2' : 
               compactLevel === 'compact' ? 'gap-2 ml-3' : 'gap-3 ml-6'}
           `}>
-            {/* User info - progressive disclosure */}
             <div className={`
               text-sm text-right 
               transition-all duration-500 ease-in-out overflow-hidden
               ${compactLevel === 'icons-only' ? 'w-0 opacity-0' : 'opacity-100'}
             `}>
-              {/* Full name - only show at xl+ (1280px and above) */}
               <p className={`
                 font-medium text-gray-900 whitespace-nowrap 
                 transition-all duration-300
@@ -271,7 +270,6 @@ export function Navigation({ role, userName }: NavigationProps) {
                 {userName || 'User'}
               </p>
               
-              {/* Role badge - show at lg+ (1024px and above) */}
               <span className={`
                 inline-flex items-center px-2 py-0.5 rounded-full font-medium 
                 bg-blue-100 text-blue-800 whitespace-nowrap
@@ -282,7 +280,6 @@ export function Navigation({ role, userName }: NavigationProps) {
               </span>
             </div>
 
-            {/* Logout button with adaptive text */}
             <form action={logoutAction}>
               <Button
                 variant="outline"
@@ -302,7 +299,6 @@ export function Navigation({ role, userName }: NavigationProps) {
                   ${compactLevel === 'icons-only' ? '' : 'xl:mr-2'}
                   group-hover:rotate-12
                 `} />
-                {/* Show "Logout" text only at xl+ (1280px and above) */}
                 <span className={`
                   transition-all duration-500 ease-in-out overflow-hidden inline-block
                   ${compactLevel === 'icons-only' ? 'w-0 opacity-0' : 'w-0 opacity-0 xl:w-auto xl:opacity-100'}
@@ -313,15 +309,14 @@ export function Navigation({ role, userName }: NavigationProps) {
             </form>
           </div>
 
-          {/* Mobile menu button with enhanced animation */}
+          {/* Mobile menu button */}
           <div className="flex items-center lg:hidden ml-4">
-            <span className='mr-2'>menu </span>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="
                 relative inline-flex items-center justify-center p-2 rounded-md 
                 text-gray-700 hover:text-gray-900 hover:bg-gray-100 
-                focus:outline-none focus:ring-2
+                focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2
                 transition-all duration-300 hover:scale-110
               "
               aria-label="Toggle menu"
@@ -329,16 +324,16 @@ export function Navigation({ role, userName }: NavigationProps) {
             >
               <span className="sr-only">{mobileMenuOpen ? 'Close menu' : 'Open menu'}</span>
               {mobileMenuOpen ? (
-                <X className="w-4 h-4 transition-transform duration-300 rotate-90" />
+                <X className="w-6 h-6 transition-transform duration-300 rotate-90" />
               ) : (
-                <Menu className="w-4 h-4 transition-transform duration-300" />
+                <Menu className="w-6 h-6 transition-transform duration-300" />
               )}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu with enhanced smooth animation */}
+      {/* Mobile menu */}
       <div
         className={`
           lg:hidden overflow-hidden 
@@ -356,7 +351,7 @@ export function Navigation({ role, userName }: NavigationProps) {
         `}>
           <div className="px-3 pt-3 pb-3 space-y-1.5">
             {navItems.map((item, index) => {
-              const isActive = pathname === item.href;
+              const isActive = isNavItemActive(item);
               return (
                 <Link
                   key={item.href}
@@ -393,7 +388,7 @@ export function Navigation({ role, userName }: NavigationProps) {
             })}
           </div>
 
-          {/* Mobile User Info and Logout with stagger animation */}
+          {/* Mobile User Info and Logout */}
           <div className="pt-4 pb-4 border-t border-gray-200 bg-gradient-to-b from-gray-50 to-white">
             <div 
               className="px-5 mb-3 transition-all duration-300"

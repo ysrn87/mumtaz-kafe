@@ -133,10 +133,6 @@ export default async function AdminReportsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Laporan & Analisis</h1>
-        <p className="text-gray-600">Laporan umum bisnis secara menyeluruh</p>
-      </div>
 
       {/* Overview Stats */}
       <div className="grid gap-4 md:grid-cols-4">

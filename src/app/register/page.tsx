@@ -61,24 +61,38 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email *</Label>
+              <Label htmlFor="phone">WhatsApp Number *</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                placeholder="+62 812-3456-7890"
+                disabled={loading}
+              />
+              <p className="text-xs text-muted-foreground">
+                Required for order notifications and support
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                required
-                placeholder="you@example.com"
+                placeholder="you@example.com (optional)"
                 disabled={loading}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">WhatsApp Number</Label>
+              <Label htmlFor="address">Address</Label>
               <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                placeholder="+62 812-3456-7890"
+                id="address"
+                name="address"
+                type="text"
+                placeholder="Street, City, Postal Code"
                 disabled={loading}
               />
             </div>

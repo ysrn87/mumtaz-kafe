@@ -2,6 +2,7 @@ import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NewSaleDialog } from '@/components/sales/new-sale-dialog';
 import { SalesTable } from '@/components/sales/sales-table';
+import { getPointsConversionRate } from '@/actions/settings';
 
 async function getSales() {
   const sales = await db.sale.findMany({
@@ -83,16 +84,18 @@ async function getCustomers() {
     select: {
       id: true,
       name: true,
+      points: true, // Add points field
     },
     orderBy: { name: 'asc' },
   });
 }
 
 export default async function AdminSalesPage() {
-  const [sales, variants, customers] = await Promise.all([
+  const [sales, variants, customers, conversionRate] = await Promise.all([
     getSales(),
     getVariants(),
     getCustomers(),
+    getPointsConversionRate(),
   ]);
 
   return (
@@ -102,7 +105,7 @@ export default async function AdminSalesPage() {
           <h1 className="text-3xl font-bold">Penjualan</h1>
           <p className="text-gray-600">Lihat dan kelola semua transaksi penjualan</p>
         </div>
-        <NewSaleDialog variants={variants} customers={customers} />
+        <NewSaleDialog variants={variants} customers={customers} conversionRate={conversionRate} />
       </div>
 
       <Card>

@@ -8,16 +8,22 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
     Credentials({
       credentials: {
-        email: { label: 'Email', type: 'email' },
+        identifier: { label: 'Email or Phone', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        if (!credentials?.identifier || !credentials?.password) {
           return null;
         }
 
-        const user = await db.user.findUnique({
-          where: { email: credentials.email as string },
+        // Try to find user by email OR phone
+        const user = await db.user.findFirst({
+          where: {
+            OR: [
+              { email: credentials.identifier as string },
+              { phone: credentials.identifier as string },
+            ],
+          },
         });
 
         if (!user) {
@@ -35,7 +41,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         return {
           id: user.id,
-          email: user.email,
+          email: user.email || user.phone, // Use phone if no email
           name: user.name,
           role: user.role,
         };

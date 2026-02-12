@@ -4,12 +4,12 @@ import { signIn, signOut } from '@/auth';
 import { AuthError } from 'next-auth';
 
 export async function loginAction(formData: FormData) {
-  const email = formData.get('email') as string;
+  const identifier = formData.get('identifier') as string;
   const password = formData.get('password') as string;
 
   try {
     await signIn('credentials', {
-      email,
+      identifier,
       password,
       redirect: false,
     });
@@ -34,13 +34,14 @@ export async function logoutAction() {
 export async function registerMemberAction(formData: FormData) {
   try {
     const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
     const phone = formData.get('phone') as string;
+    const email = formData.get('email') as string;
+    const address = formData.get('address') as string;
+    const password = formData.get('password') as string;
     const birthday = formData.get('birthday') as string;
 
-    if (!name || !email || !password) {
-      return { success: false, error: 'Name, email, and password are required' };
+    if (!name || !phone || !password) {
+      return { success: false, error: 'Name, phone number, and password are required' };
     }
 
     if (password.length < 6) {
@@ -51,13 +52,24 @@ export async function registerMemberAction(formData: FormData) {
     const { db } = await import('@/lib/db');
     const bcrypt = await import('bcryptjs');
 
-    // Check if email already exists
-    const existingUser = await db.user.findUnique({
-      where: { email },
+    // Check if phone already exists
+    const existingPhone = await db.user.findFirst({
+      where: { phone },
     });
 
-    if (existingUser) {
-      return { success: false, error: 'Email already exists' };
+    if (existingPhone) {
+      return { success: false, error: 'Phone number already registered' };
+    }
+
+    // Check if email exists (if provided)
+    if (email) {
+      const existingEmail = await db.user.findFirst({
+        where: { email },
+      });
+
+      if (existingEmail) {
+        return { success: false, error: 'Email already registered' };
+      }
     }
 
     // Hash password
@@ -67,9 +79,10 @@ export async function registerMemberAction(formData: FormData) {
     await db.user.create({
       data: {
         name,
-        email,
+        phone,
+        email: email || null,
+        address: address || null,
         password: hashedPassword,
-        phone: phone || null,
         birthday: birthday ? new Date(birthday) : null,
         role: 'MEMBER',
         points: 0,

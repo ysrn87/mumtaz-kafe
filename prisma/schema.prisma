@@ -21,10 +21,11 @@ enum TransactionType {
 
 model User {
   id        String    @id @default(cuid())
-  email     String    @unique
+  email     String?   @unique // Now optional
   password  String
   name      String
-  phone     String?   // (optional)
+  phone     String    // Now required for members
+  address   String?   // New field
   birthday  DateTime? // (optional)
   photoUrl  String?   // (optional)
   role      Role      @default(MEMBER)
@@ -66,9 +67,9 @@ model ProductVariant {
   sku         String   @unique
   price       Decimal  @db.Decimal(10, 2)
   cost        Decimal  @db.Decimal(10, 2)
-  points      Int      @default(0)
   stock       Int      @default(0)
   lowStock    Int      @default(10)
+  points      Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -93,6 +94,17 @@ model StockMovement {
   @@map("stock_movements")
 }
 
+model Settings {
+  id                      String   @id @default(cuid())
+  key                     String   @unique
+  value                   String
+  description             String?
+  updatedAt               DateTime @updatedAt
+  
+  @@map("settings")
+}
+
+
 model Sale {
   id            String   @id @default(cuid())
   saleNumber    String   @unique
@@ -105,6 +117,7 @@ model Sale {
   paymentMethod String   // CASH, CARD, TRANSFER
   notes         String?
   pointsEarned  Int      @default(0)
+  pointsRedeemed Int     @default(0) // Points used as discount
   createdAt     DateTime @default(now())
 
   customer  User?      @relation("CustomerSales", fields: [customerId], references: [id])
@@ -129,12 +142,13 @@ model SaleItem {
 }
 
 model PointHistory {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   userId      String
   points      Int
-  type        String   // EARNED, REDEEMED, ADJUSTED
+  type        String    // EARNED, REDEEMED, ADJUSTED, EXPIRED
   description String
-  createdAt   DateTime @default(now())
+  expiresAt   DateTime? // Points expire on Dec 31 of earning year
+  createdAt   DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id])
 

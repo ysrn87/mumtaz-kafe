@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
 import { generateSaleNumber } from '@/lib/utils';
+import { getAvailablePoints, getPointsExpiryDate } from '@/lib/points-utils';
 
 interface SaleItemInput {
   variantId: string;
@@ -18,6 +19,7 @@ interface CreateSaleInput {
   discount?: number;
   tax?: number;
   notes?: string;
+  pointsRedeemed?: number; // Points used as discount
 }
 
 export async function createSaleAction(input: CreateSaleInput) {
@@ -27,10 +29,18 @@ export async function createSaleAction(input: CreateSaleInput) {
       return { success: false, error: 'Unauthorized' };
     }
 
-    const { items, customerId, paymentMethod, discount = 0, tax = 0, notes } = input;
+    const { items, customerId, paymentMethod, discount = 0, tax = 0, notes, pointsRedeemed = 0 } = input;
 
     if (!items || items.length === 0) {
       return { success: false, error: 'No items in sale' };
+    }
+
+    // Validate point redemption
+    if (pointsRedeemed > 0 && customerId) {
+      const availablePoints = await getAvailablePoints(customerId);
+      if (pointsRedeemed > availablePoints) {
+        return { success: false, error: `Insufficient points. Available: ${availablePoints}` };
+      }
     }
 
     // Validate stock availability and calculate points
@@ -48,8 +58,10 @@ export async function createSaleAction(input: CreateSaleInput) {
         return { success: false, error: `Insufficient stock for ${variant.name}` };
       }
 
-      // Calculate points from variant points
-      pointsEarned += variant.points * item.quantity;
+      // Calculate points from variant points (only if NOT redeeming points)
+      if (pointsRedeemed === 0) {
+        pointsEarned += variant.points * item.quantity;
+      }
     }
 
     // Calculate totals
@@ -70,7 +82,8 @@ export async function createSaleAction(input: CreateSaleInput) {
           total,
           paymentMethod,
           notes,
-          pointsEarned: customerId ? pointsEarned : 0,
+          pointsEarned: customerId && pointsRedeemed === 0 ? pointsEarned : 0,
+          pointsRedeemed: customerId ? pointsRedeemed : 0,
           items: {
             create: items.map((item) => ({
               variantId: item.variantId,
@@ -102,21 +115,40 @@ export async function createSaleAction(input: CreateSaleInput) {
         });
       }
 
-      // Award points to customer
-      if (customerId && pointsEarned > 0) {
-        await tx.user.update({
-          where: { id: customerId },
-          data: { points: { increment: pointsEarned } },
-        });
+      // Handle points (either earn or redeem, not both)
+      if (customerId) {
+        if (pointsRedeemed > 0) {
+          // Redeem points
+          await tx.user.update({
+            where: { id: customerId },
+            data: { points: { decrement: pointsRedeemed } },
+          });
 
-        await tx.pointHistory.create({
-          data: {
-            userId: customerId,
-            points: pointsEarned,
-            type: 'EARNED',
-            description: `Earned from sale ${newSale.saleNumber}`,
-          },
-        });
+          await tx.pointHistory.create({
+            data: {
+              userId: customerId,
+              points: -pointsRedeemed,
+              type: 'REDEEMED',
+              description: `Redeemed in sale ${newSale.saleNumber}`,
+            },
+          });
+        } else if (pointsEarned > 0) {
+          // Award points
+          await tx.user.update({
+            where: { id: customerId },
+            data: { points: { increment: pointsEarned } },
+          });
+
+          await tx.pointHistory.create({
+            data: {
+              userId: customerId,
+              points: pointsEarned,
+              type: 'EARNED',
+              description: `Earned from sale ${newSale.saleNumber}`,
+              expiresAt: getPointsExpiryDate(),
+            },
+          });
+        }
       }
 
       // Create cashflow entry for the sale

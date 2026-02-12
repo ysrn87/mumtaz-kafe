@@ -12,7 +12,7 @@ interface SalesReportTableProps {
     createdAt: Date;
     customer: {
       name: string;
-      email: string;
+      email: string | null;
     } | null;
     items: Array<{
       quantity: number;

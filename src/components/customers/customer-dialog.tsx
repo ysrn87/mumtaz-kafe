@@ -15,8 +15,8 @@ interface CustomerDialogProps {
   customer?: {
     id: string;
     name: string;
-    email: string;
-    phone?: string;
+    email?: string;
+    phone: string;
     birthday?: Date;
     photoUrl?: string;
     points: number;

@@ -13,8 +13,8 @@ import { CustomerDeleteButton } from './customer-delete-button';
 interface Customer {
   id: string;
   name: string;
-  email: string;
-  phone?: string | null;
+  phone: string;
+  email?: string | null;
   birthday?: Date | null;
   photoUrl?: string | null;
   points: number;
@@ -105,8 +105,8 @@ export function CustomersTable({ customers, showActions = false }: CustomersTabl
                             customer={{
                               id: customer.id,
                               name: customer.name,
-                              email: customer.email,
-                              phone: customer.phone ?? undefined,
+                              phone: customer.phone,
+                              email: customer.email ?? undefined,
                               birthday: customer.birthday ?? undefined,
                               photoUrl: customer.photoUrl ?? undefined,
                               points: customer.points,

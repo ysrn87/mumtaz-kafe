@@ -5,6 +5,7 @@ import { formatCurrency, formatDateTime } from '@/lib/utils';
 import { NewSaleDialog } from '@/components/sales/new-sale-dialog';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
+import { getPointsConversionRate } from '@/actions/settings';
 
 async function getSales() {
   const sales = await db.sale.findMany({
@@ -64,16 +65,18 @@ async function getCustomers() {
     select: {
       id: true,
       name: true,
+      points: true, // Add points field
     },
     orderBy: { name: 'asc' },
   });
 }
 
 export default async function ManagerSalesPage() {
-  const [sales, variants, customers] = await Promise.all([
+  const [sales, variants, customers, conversionRate] = await Promise.all([
     getSales(),
     getVariants(),
     getCustomers(),
+    getPointsConversionRate(),
   ]);
 
   return (
@@ -83,7 +86,7 @@ export default async function ManagerSalesPage() {
           <h1 className="text-3xl font-bold">Penjualan</h1>
           <p className="text-gray-600">Proses dan lihat transaksi penjualan</p>
         </div>
-        <NewSaleDialog variants={variants} customers={customers} />
+        <NewSaleDialog variants={variants} customers={customers} conversionRate={conversionRate} />
       </div>
 
       <Card>

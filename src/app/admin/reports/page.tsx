@@ -211,7 +211,7 @@ export default async function AdminReportsPage() {
               <CardTitle>Transaksi Penjualan Terbaru</CardTitle>
             </CardHeader>
             <CardContent>
-              <SalesReportTable sales={salesData.sales} />
+              <SalesReportTable sales={salesData.sales} /> 
             </CardContent>
           </Card>
         </TabsContent>

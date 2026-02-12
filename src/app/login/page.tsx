@@ -48,13 +48,13 @@ function LoginForm() {
         <CardContent>
           <form action={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="identifier">Email or Phone Number</Label>
               <Input
-                id="email"
-                name="email"
-                type="email"
+                id="identifier"
+                name="identifier"
+                type="text"
                 required
-                placeholder="you@example.com"
+                placeholder="you@example.com or +62812345678"
                 disabled={loading}
               />
             </div>

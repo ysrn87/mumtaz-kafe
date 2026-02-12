@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 interface Customer {
   id: string;
   name: string;
-  email: string;
-  phone?: string | null;
+  phone: string;
+  email?: string | null;
   birthday?: Date | null;
   photoUrl?: string | null;
   points: number;

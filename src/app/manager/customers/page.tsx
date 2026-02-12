@@ -22,39 +22,54 @@ async function getCustomerStats() {
   };
 }
 
-async function getAllCustomers() {
-  const customers = await db.user.findMany({
-    where: { role: 'MEMBER' },
-    orderBy: { createdAt: 'desc' },
-    include: {
-      sales: {
-        select: {
-          id: true,
-          total: true,
+async function getAllCustomers(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+  
+  const [customers, total] = await Promise.all([
+    db.user.findMany({
+      where: { role: 'MEMBER' },
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        sales: {
+          select: {
+            id: true,
+            total: true,
+          },
+        },
+        _count: {
+          select: {
+            sales: true,
+          },
         },
       },
-      _count: {
-        select: {
-          sales: true,
-        },
-      },
-    },
-  });
+    }),
+    db.user.count({ where: { role: 'MEMBER' } }),
+  ]);
 
+  // Convert Decimal to Number for client component
   const serializedCustomers = customers.map(customer => ({
     ...customer,
     sales: customer.sales.map(sale => ({
-      ...sale,
+      id: sale.id,
       total: Number(sale.total),
     })),
   }));
 
-  return serializedCustomers;
+  return { customers: serializedCustomers, total };
 }
 
-export default async function ManagerCustomersPage() {
+export default async function ManagerCustomersPage({
+  searchParams,
+}: {
+  searchParams: { page?: string; limit?: string };
+}) {
+  const page = Number(searchParams.page) || 1;
+  const limit = Number(searchParams.limit) || 10;
+
   const stats = await getCustomerStats();
-  const customers = await getAllCustomers();
+  const { customers, total } = await getAllCustomers(page, limit);
 
   return (
     <div className="space-y-8">
@@ -107,7 +122,13 @@ export default async function ManagerCustomersPage() {
           <CardTitle>Semua Pelanggan</CardTitle>
         </CardHeader>
         <CardContent>
-          <CustomersTable customers={customers} />
+          <CustomersTable 
+            customers={customers} 
+            showActions={false}
+            currentPage={page}
+            pageSize={limit}
+            totalItems={total}
+          />
         </CardContent>
       </Card>
     </div>

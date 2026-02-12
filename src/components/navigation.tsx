@@ -33,6 +33,7 @@ export function Navigation({ role, userName }: NavigationProps) {
     { href: '/admin/sales', label: 'Penjualan', icon: <ShoppingCart className="w-4 h-4" /> },
     { href: '/admin/cashflow', label: 'Cashflow', icon: <DollarSign className="w-4 h-4" /> },
     { href: '/admin/reports', label: 'Laporan', icon: <FileText className="w-4 h-4" /> },
+    { href: '/admin/settings', label: 'Poin', icon: <FileText className="w-4 h-4" /> },
   ];
 
   const managerNavItems: NavItem[] = [

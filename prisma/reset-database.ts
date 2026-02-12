@@ -39,6 +39,10 @@ async function resetDatabase() {
       const productCount = await tx.product.deleteMany({});
       console.log(`     ✓ Deleted ${productCount.count} products`);
       
+      console.log('  🗑️  Deleting settings...');
+      const settingsCount = await tx.settings.deleteMany({});
+      console.log(`     ✓ Deleted ${settingsCount.count} settings`);
+      
       console.log('  🔄 Resetting user points to 0...');
       const userUpdate = await tx.user.updateMany({
         data: { points: 0 }
@@ -48,7 +52,8 @@ async function resetDatabase() {
 
     console.log('\n✅ Database reset completed successfully!');
     console.log('   ✓ All business data deleted');
-    console.log('   ✓ All user credentials preserved (email, password, name, role)');
+    console.log('   ✓ All settings deleted');
+    console.log('   ✓ All user credentials preserved (email, phone, password, name, role, address, birthday)');
     console.log('   ✓ User points reset to 0');
     console.log('\n💡 Tip: Run "npm run db:seed" to add sample data');
     

@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 async function cleanDatabase() {
   console.log('🧹 Starting COMPLETE database clean...');
-  console.log('⚠️  WARNING: This will DELETE EVERYTHING including all users!\n');
+  console.log('⚠️  WARNING: This will DELETE EVERYTHING including all users and settings!\n');
 
   try {
     // Use transaction to ensure all or nothing
@@ -39,13 +39,17 @@ async function cleanDatabase() {
       const productCount = await tx.product.deleteMany({});
       console.log(`     ✓ Deleted ${productCount.count} products`);
       
+      console.log('  🗑️  Deleting settings...');
+      const settingsCount = await tx.settings.deleteMany({});
+      console.log(`     ✓ Deleted ${settingsCount.count} settings`);
+      
       console.log('  🗑️  Deleting ALL users...');
       const userCount = await tx.user.deleteMany({});
       console.log(`     ✓ Deleted ${userCount.count} users`);
     });
 
     console.log('\n✅ Database cleaned successfully!');
-    console.log('   ✓ ALL data deleted (including users)');
+    console.log('   ✓ ALL data deleted (including users and settings)');
     console.log('   ✓ Database is now completely empty');
     console.log('\n💡 Tip: Run "npm run db:seed" to add fresh data');
     

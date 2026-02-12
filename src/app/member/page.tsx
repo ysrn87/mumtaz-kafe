@@ -74,8 +74,8 @@ export default async function MemberDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Welcome, {user?.name}!</h1>
-        <p className="text-gray-600">Your membership profile and rewards</p>
+        <h1 className="text-3xl font-bold">Selamat datang, {user?.name}!</h1>
+        <p className="text-gray-600">Profil dan poin keanggotaan Anda</p>
       </div>
 
       {/* Member Card */}

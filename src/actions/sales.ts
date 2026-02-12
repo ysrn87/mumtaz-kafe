@@ -110,7 +110,7 @@ export async function createSaleAction(input: CreateSaleInput) {
             variantId: item.variantId,
             quantity: -item.quantity,
             type: 'OUT',
-            notes: `Sale ${newSale.saleNumber}`,
+            notes: `PENJUALAN ${newSale.saleNumber}`,
           },
         });
       }
@@ -129,7 +129,7 @@ export async function createSaleAction(input: CreateSaleInput) {
               userId: customerId,
               points: -pointsRedeemed,
               type: 'REDEEMED',
-              description: `Redeemed in sale ${newSale.saleNumber}`,
+              description: `Punukaran poin ${newSale.saleNumber}`,
             },
           });
         } else if (pointsEarned > 0) {
@@ -144,7 +144,7 @@ export async function createSaleAction(input: CreateSaleInput) {
               userId: customerId,
               points: pointsEarned,
               type: 'EARNED',
-              description: `Earned from sale ${newSale.saleNumber}`,
+              description: `Poin pembelian ${newSale.saleNumber}`,
               expiresAt: getPointsExpiryDate(),
             },
           });
@@ -155,7 +155,7 @@ export async function createSaleAction(input: CreateSaleInput) {
       await tx.cashflow.create({
         data: {
           type: 'INCOME',
-          category: 'Sales',
+          category: 'Penjualan',
           amount: total,
           description: `Sale ${newSale.saleNumber}${customerId ? ` - ${await tx.user.findUnique({ where: { id: customerId }, select: { name: true } }).then(u => u?.name || 'Customer')}` : ' - Walk-in'}`,
           date: new Date(),
@@ -369,7 +369,7 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
               userId: customerId,
               points: pointsDiff,
               type: pointsDiff > 0 ? 'EARNED' : 'ADJUSTED',
-              description: `Adjusted from edited sale ${originalSale.saleNumber}`,
+              description: `Penyesuaian pembelian ${originalSale.saleNumber}`,
             },
           });
         }
@@ -404,7 +404,7 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
               userId: customerId,
               points: pointsEarned,
               type: 'EARNED',
-              description: `Earned from edited sale ${originalSale.saleNumber}`,
+              description: `Didapat dari perubahan pembelian ${originalSale.saleNumber}`,
             },
           });
         }

@@ -215,7 +215,7 @@ export function SaleDetailsDialog({ sale, open, onOpenChange, onUpdate }: SaleDe
                   <>
                     <p className="text-sm font-medium">{sale.customer.name}</p>
                     <p className="text-sm text-gray-600">{sale.customer.email}</p>
-                    <p className="text-sm text-blue-600 mt-2">+{sale.pointsEarned} points earned</p>
+                    <p className="text-sm text-blue-600 mt-2">+{sale.pointsEarned} poin bertambah</p>
                   </>
                 ) : (
                   <p className="text-sm text-gray-600">Pelanggan Umum</p>
@@ -224,7 +224,7 @@ export function SaleDetailsDialog({ sale, open, onOpenChange, onUpdate }: SaleDe
 
               <div className="bg-gray-50 rounded-lg p-4">
                 <h4 className="font-medium mb-2">Pembayaran</h4>
-                <p className="text-sm"><span className="text-gray-600">Method:</span> {sale.paymentMethod}</p>
+                <p className="text-sm"><span className="text-gray-600">Metode:</span> {sale.paymentMethod}</p>
                 <p className="text-sm"><span className="text-gray-600">Cashier:</span> {sale.cashier.name}</p>
               </div>
             </div>

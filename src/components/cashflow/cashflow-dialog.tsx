@@ -67,7 +67,7 @@ export function CashflowDialog({ mode = 'create', transaction, trigger }: Cashfl
             {mode === 'create' ? (
               <>
                 <Plus className="w-4 h-4 mr-2" />
-                Add Transaction
+                Tambah Transaksi
               </>
             ) : (
               <>

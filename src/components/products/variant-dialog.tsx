@@ -92,7 +92,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
         <form action={handleSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Variant Name *</Label>
+              <Label htmlFor="name">Nama Varian *</Label>
               <Input
                 id="name"
                 name="name"
@@ -117,7 +117,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
 
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="price">Price *</Label>
+                <Label htmlFor="price">Harga *</Label>
                 <Input
                   id="price"
                   name="price"
@@ -148,7 +148,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="points">Points Per Item</Label>
+              <Label htmlFor="points">Point Per Item</Label>
               <Input
                 id="points"
                 name="points"
@@ -159,14 +159,14 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
                 disabled={loading}
               />
               <p className="text-xs text-muted-foreground">
-                Points earned by members for each unit purchased
+                Poin yang didapatkan member tiap unit pembelian
               </p>
             </div>
 
             {mode === 'create' && (
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="stock">Initial Stock *</Label>
+                  <Label htmlFor="stock">Stok Awal *</Label>
                   <Input
                     id="stock"
                     name="stock"
@@ -217,7 +217,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : mode === 'create' ? 'Create Variant' : 'Save Changes'}
+              {loading ? 'Saving...' : mode === 'create' ? 'Buat Varian' : 'Simpan'}
             </Button>
           </DialogFooter>
         </form>

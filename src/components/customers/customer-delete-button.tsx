@@ -19,7 +19,7 @@ export function CustomerDeleteButton({ customerId, onSuccess }: CustomerDeleteBu
 
   return (
     <DeleteConfirmDialog
-      title="Delete Customer"
+      title="Hapus Member"
       description="Are you sure you want to delete this customer? This action cannot be undone if the customer has no sales history."
       onConfirm={handleDelete}
     />

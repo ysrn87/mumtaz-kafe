@@ -56,7 +56,7 @@ export default async function MemberPurchasesPage() {
                   <div className="text-right">
                     <p className="text-2xl font-bold">{formatCurrency(Number(purchase.total))}</p>
                     <p className="text-sm text-green-600 font-medium">
-                      +{purchase.pointsEarned} points earned
+                      +{purchase.pointsEarned} poin bertambah
                     </p>
                   </div>
                 </div>
@@ -114,7 +114,7 @@ export default async function MemberPurchasesPage() {
                 </div>
                 <div className="mt-4 pt-4 border-t">
                   <p className="text-sm text-muted-foreground">
-                    Payment Method: <span className="font-medium">{purchase.paymentMethod}</span>
+                    Metode Bayar: <span className="font-medium">{purchase.paymentMethod}</span>
                   </p>
                   {purchase.notes && (
                     <p className="text-sm text-muted-foreground mt-1">

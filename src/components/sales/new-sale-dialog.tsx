@@ -238,10 +238,10 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
           <div className="space-y-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
             <h3 className="font-semibold text-blue-900">Langkah 1: Pilih Pelanggan *</h3>
             <div className="grid gap-2">
-              <Label htmlFor="customer">Customer *</Label>
+              <Label htmlFor="customer">Cari member *</Label>
               <Select value={customerId} onValueChange={handleCustomerChange}>
                 <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="Select customer" />
+                  <SelectValue placeholder="Pilih member" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="WALK_IN">Pelanggan Umum</SelectItem>
@@ -263,7 +263,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 <div className="grid grid-cols-[1fr,100px,auto] gap-2">
                   <Select value={selectedVariantId} onValueChange={setSelectedVariantId}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih product" />
+                      <SelectValue placeholder="Pilih produk" />
                     </SelectTrigger>
                     <SelectContent>
                       {variants.filter(v => v.stock > 0).map((variant) => (
@@ -275,12 +275,12 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   </Select>
                   <Input
                     type="number"
-                    min="1"
+                    min="0"
                     value={quantity}
-                    onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                    onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
                     placeholder="Qty"
                   />
-                  <Button className="bg-blue-900 text-white" type="button" onClick={addItem} variant="outline">
+                  <Button className="bg-blue-600 text-white" type="button" onClick={addItem} variant="outline">
                     + Add
                   </Button>
                 </div>
@@ -320,7 +320,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
 
               {/* Payment Method */}
               <div className="grid gap-2">
-                <Label htmlFor="paymentMethod">Methode Pembayaran</Label>
+                <Label htmlFor="paymentMethod">Metode Bayar</Label>
                 <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                   <SelectTrigger>
                     <SelectValue />
@@ -368,18 +368,18 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 <div className="space-y-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
                   <div className="flex items-center gap-2">
                     <Gift className="w-5 h-5 text-purple-600" />
-                    <h3 className="font-semibold text-purple-900">Redeem Points</h3>
+                    <h3 className="font-semibold text-purple-900">Tukar Point</h3>
                   </div>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-purple-700">Available Points:</span>
+                      <span className="text-purple-700">Poin Tersedia:</span>
                       <span className="font-semibold text-purple-900">{availablePoints} points</span>
                     </div>
                     
                     <div className="grid gap-2">
                       <Label htmlFor="pointsRedeem" className="text-purple-900">
-                        Points to Redeem (Max: {availablePoints})
+                        Point yang dapat ditukar (Max: {availablePoints})
                       </Label>
                       <Input
                         id="pointsRedeem"
@@ -392,7 +392,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                         className="bg-white"
                       />
                       <p className="text-xs text-purple-600">
-                        1 point = Rp {conversionRate.toLocaleString('id-ID')} discount • {pointsToRedeem} points = {formatCurrency(pointDiscount)}
+                        1 poin = Rp {conversionRate.toLocaleString('id-ID')} discount • {pointsToRedeem} points = {formatCurrency(pointDiscount)}
                       </p>
                     </div>
 
@@ -403,7 +403,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                           <span className="text-lg font-bold text-purple-900">-{formatCurrency(pointDiscount)}</span>
                         </div>
                         <p className="text-xs text-orange-600 mt-1">
-                          ⚠️ Note: You won't earn points from this sale when redeeming points
+                          ⚠️ Note: Anda tidak mendapatkan poin saat menukar point
                         </p>
                       </div>
                     )}

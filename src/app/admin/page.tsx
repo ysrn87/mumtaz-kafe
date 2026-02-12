@@ -126,7 +126,7 @@ export default async function AdminDashboard() {
           <CardContent>
             <div className="space-y-4">
               {recentSales.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Belum ada penjulan</p>
+                <p className="text-sm text-muted-foreground">Belum ada penjualan</p>
               ) : (
                 recentSales.map((sale) => (
                   <div key={sale.id} className="flex items-center justify-between">
@@ -151,7 +151,7 @@ export default async function AdminDashboard() {
           <CardContent>
             <div className="space-y-4">
               {lowStockProducts.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Stok aman tersedia</p>
+                <p className="text-sm text-muted-foreground">Semua stok produk tersedia</p>
               ) : (
                 lowStockProducts.map((variant) => (
                   <div key={variant.id} className="flex items-center justify-between">

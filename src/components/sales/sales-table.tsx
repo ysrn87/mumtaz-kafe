@@ -50,7 +50,7 @@ export function SalesTable({ sales }: SalesTableProps) {
               <TableCell>{formatDateTime(sale.createdAt)}</TableCell>
               <TableCell>{sale.customer?.name || 'Walk-in'}</TableCell>
               <TableCell>{sale.cashier.name}</TableCell>
-              <TableCell>{sale.items.length}</TableCell>
+              <TableCell>{sale.items.length} unit</TableCell>
               <TableCell>{formatCurrency(sale.total)}</TableCell>
               <TableCell>
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">

@@ -10,8 +10,8 @@ interface ProductDeleteButtonProps {
 export function ProductDeleteButton({ productId }: ProductDeleteButtonProps) {
   return (
     <DeleteConfirmDialog
-      title="Delete Product"
-      description="Are you sure you want to delete this product? All variants will also be deleted."
+      title="Hapus Produk"
+      description="Apakah Anda yakin ingin menghapus produk ini? Semua varian akan terhapus juga."
       onConfirm={async () => await deleteProductAction(productId)}
     />
   );
@@ -24,8 +24,8 @@ interface VariantDeleteButtonProps {
 export function VariantDeleteButton({ variantId }: VariantDeleteButtonProps) {
   return (
     <DeleteConfirmDialog
-      title="Delete Variant"
-      description="Are you sure you want to delete this variant?"
+      title="Hapus Varian"
+      description="Apakah Anda yakin ingin menghapus varian ini?"
       onConfirm={async () => await deleteVariantAction(variantId)}
     />
   );

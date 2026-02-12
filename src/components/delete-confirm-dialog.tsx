@@ -66,7 +66,7 @@ export function DeleteConfirmDialog({ title, description, onConfirm, trigger }: 
             Cancel
           </Button>
           <Button type="button" variant="destructive" onClick={handleConfirm} disabled={loading}>
-            {loading ? 'Deleting...' : 'Delete'}
+            {loading ? 'Deleting...' : 'Hapus'}
           </Button>
         </DialogFooter>
       </DialogContent>

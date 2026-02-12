@@ -96,7 +96,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
             {mode === 'create' ? (
               <>
                 <Plus className="w-4 h-4 mr-2" />
-                Add Member
+                Tambah Member
               </>
             ) : (
               <>
@@ -247,17 +247,17 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 )}
 
                 <div className="grid gap-2">
-                  <Label htmlFor="password">New Password (Optional)</Label>
+                  <Label htmlFor="password" className='text-red-600'>Ubah Password (Optional)</Label>
                   <Input
                     id="password"
                     name="password"
                     type="password"
-                    placeholder="Leave empty to keep current password"
+                    placeholder="Konfirmasi member jika ada perubahan"
                     minLength={6}
                     disabled={loading}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Min. 6 characters. Leave empty to keep current password.
+                  <p className="text-xs text-muted-foreground text-red-600">
+                    Min. 6 karakter. Biarkan kosong untuk tetap password saat ini
                   </p>
                 </div>
               </>

@@ -35,7 +35,7 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
       } else {
         toast({
           title: 'Error',
-          description: result.error || 'Failed to adjust stock.',
+          description: result.error || 'Gagal atur stok.',
           variant: 'destructive',
         });
       }
@@ -54,12 +54,12 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          Adjust Stock
+          Atur Stok
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Adjust Stock</DialogTitle>
+          <DialogTitle>Atur Stok</DialogTitle>
         </DialogHeader>
         <form action={handleSubmit}>
           <input type="hidden" name="variantId" value={variantId} />
@@ -131,7 +131,7 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Adjusting...' : 'Adjust Stock'}
+              {loading ? 'Adjusting...' : 'Atur Stok'}
             </Button>
           </DialogFooter>
         </form>

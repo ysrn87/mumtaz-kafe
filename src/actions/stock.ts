@@ -66,7 +66,7 @@ export async function adjustStockAction(formData: FormData) {
         await tx.cashflow.create({
           data: {
             type: 'EXPENSE',
-            category: 'Inventory Purchase',
+            category: 'Pembelian Inventaris',
             amount: totalCost,
             description: `Purchased ${quantity} units of ${variant.product.name} - ${variant.name}${notes ? ` (${notes})` : ''}`,
             date: new Date(),
@@ -82,6 +82,6 @@ export async function adjustStockAction(formData: FormData) {
     return { success: true };
   } catch (error) {
     console.error('Stock adjustment error:', error);
-    return { success: false, error: 'Failed to adjust stock' };
+    return { success: false, error: 'Gagal atur stok' };
   }
 }

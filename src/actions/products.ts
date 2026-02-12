@@ -161,7 +161,7 @@ export async function createVariantAction(formData: FormData) {
           variantId: variant.id,
           quantity: stock,
           type: 'IN',
-          notes: 'Initial stock',
+          notes: 'Stok Awal',
         },
       });
 
@@ -170,9 +170,9 @@ export async function createVariantAction(formData: FormData) {
       await db.cashflow.create({
         data: {
           type: 'EXPENSE',
-          category: 'Inventory Purchase',
+          category: 'Pembelian Inventaris',
           amount: totalCost,
-          description: `Initial stock purchase: ${name} (${sku}) - ${stock} units`,
+          description: `Penambahan Stok Awal: ${name} (${sku}) - ${stock} units`,
           date: new Date(),
           createdById: session.user.id,
         },

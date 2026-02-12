@@ -85,7 +85,7 @@ export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSale
     if (items.length === 0) {
       toast({
         title: 'Error',
-        description: 'Sale must have at least one item.',
+        description: 'Penjualan harus ada min. 1 item.',
         variant: 'destructive',
       });
       return;
@@ -109,7 +109,7 @@ export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSale
       if (result.success) {
         toast({
           title: 'Success!',
-          description: 'Sale updated successfully.',
+          description: 'Berhasil update penjualan.',
         });
         onOpenChange(false);
         if (onSuccess) onSuccess();
@@ -147,14 +147,14 @@ export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSale
                 <div key={index} className="flex items-center gap-4 p-3">
                   <div className="flex-1">
                     <p className="font-medium text-sm">{item.variantName}</p>
-                    <p className="text-xs text-gray-600">Price: {formatCurrency(item.price)} • Available: {item.currentStock}</p>
+                    <p className="text-xs text-gray-600">Harga: {formatCurrency(item.price)} • Tersedia: {item.currentStock}</p>
                   </div>
                   <Input
                     type="number"
-                    min="1"
+                    min="0"
                     max={item.currentStock}
                     value={item.quantity}
-                    onChange={(e) => updateQuantity(index, parseInt(e.target.value) || 1)}
+                    onChange={(e) => updateQuantity(index, parseInt(e.target.value) || 0)}
                     className="w-20"
                     disabled={loading}
                   />
@@ -178,7 +178,7 @@ export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSale
           {/* Payment Details */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="paymentMethod">Payment Method</Label>
+              <Label htmlFor="paymentMethod">Metode Bayar</Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod} disabled={loading}>
                 <SelectTrigger>
                   <SelectValue />

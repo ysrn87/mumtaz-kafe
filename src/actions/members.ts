@@ -183,7 +183,7 @@ export async function createCustomerAction(formData: FormData) {
         name,
         email,
         password: hashedPassword,
-        phone: phone || null,
+        phone: phone,
         birthday: birthday ? new Date(birthday) : null,
         photoUrl: photoUrl || null,
         role: 'MEMBER',

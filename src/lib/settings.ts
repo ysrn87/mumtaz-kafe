@@ -1,141 +1,24 @@
-'use server';
+// System Settings Configuration
+// This file stores adjustable system-wide settings
 
-import { db } from '@/lib/db';
-import { auth } from '@/auth';
-import { revalidatePath } from 'next/cache';
-import { DEFAULT_SETTINGS } from '@/lib/settings';
-
-// Get a setting value
-export async function getSetting(key: string): Promise<string | null> {
-  const setting = await db.settings.findUnique({
-    where: { key },
-  });
-  
-  return setting?.value || null;
+export interface SystemSettings {
+  pointsConversionRate: number; // How much discount per point (in Rupiah)
+  pointsExpiryEnabled: boolean;
+  pointsExpiryMonths: number;
+  minPointsForRedemption: number;
+  maxPointsPerTransaction: number;
 }
 
-// Get points conversion rate
-export async function getPointsConversionRate(): Promise<number> {
-  const setting = await getSetting('pointsConversionRate');
-  return setting ? parseInt(setting) : DEFAULT_SETTINGS.pointsConversionRate;
-}
+// Default settings
+export const DEFAULT_SETTINGS: SystemSettings = {
+  pointsConversionRate: 1000, // 1 point = Rp 1,000
+  pointsExpiryEnabled: true,
+  pointsExpiryMonths: 12, // Points expire after 12 months
+  minPointsForRedemption: 10, // Minimum 10 points to redeem
+  maxPointsPerTransaction: 1000, // Max 1000 points per transaction
+};
 
-// Get all settings
-export async function getAllSettings() {
-  const settings = await db.settings.findMany({
-    orderBy: { key: 'asc' },
-  });
-  
-  // Create map of settings
-  const settingsMap: Record<string, string> = {};
-  settings.forEach(s => {
-    settingsMap[s.key] = s.value;
-  });
-  
-  // Return with defaults for missing values
-  return {
-    pointsConversionRate: settingsMap.pointsConversionRate || DEFAULT_SETTINGS.pointsConversionRate.toString(),
-    minPointsForRedemption: settingsMap.minPointsForRedemption || DEFAULT_SETTINGS.minPointsForRedemption.toString(),
-    maxPointsPerTransaction: settingsMap.maxPointsPerTransaction || DEFAULT_SETTINGS.maxPointsPerTransaction.toString(),
-  };
-}
-
-// Update a setting (Admin only)
-export async function updateSetting(key: string, value: string, description?: string) {
-  const session = await auth();
-  if (!session || session.user.role !== 'ADMINISTRATOR') {
-    throw new Error('Unauthorized - Admin access required');
-  }
-
-  await db.settings.upsert({
-    where: { key },
-    update: { 
-      value,
-      description: description || undefined,
-    },
-    create: { 
-      key, 
-      value,
-      description: description || undefined,
-    },
-  });
-
-  revalidatePath('/admin/settings');
-  revalidatePath('/admin/sales');
-  revalidatePath('/manager/sales');
-}
-
-// Update points conversion rate
-export async function updatePointsConversionRate(rate: number) {
-  if (rate < 100 || rate > 10000) {
-    throw new Error('Conversion rate must be between 100 and 10,000');
-  }
-
-  await updateSetting(
-    'pointsConversionRate', 
-    rate.toString(),
-    'Points to Rupiah conversion rate (1 point = X Rupiah)'
-  );
-}
-
-// Update min points for redemption
-export async function updateMinPointsForRedemption(minPoints: number) {
-  if (minPoints < 1 || minPoints > 1000) {
-    throw new Error('Minimum points must be between 1 and 1,000');
-  }
-
-  await updateSetting(
-    'minPointsForRedemption',
-    minPoints.toString(),
-    'Minimum points required to redeem'
-  );
-}
-
-// Update max points per transaction
-export async function updateMaxPointsPerTransaction(maxPoints: number) {
-  if (maxPoints < 10) {
-    throw new Error('Maximum points must be at least 10');
-  }
-
-  await updateSetting(
-    'maxPointsPerTransaction',
-    maxPoints.toString(),
-    'Maximum points that can be redeemed in a single transaction'
-  );
-}
-
-// Initialize default settings
-export async function initializeSettings() {
-  const session = await auth();
-  if (!session || session.user.role !== 'ADMINISTRATOR') {
-    throw new Error('Unauthorized');
-  }
-
-  const defaults = [
-    { 
-      key: 'pointsConversionRate', 
-      value: DEFAULT_SETTINGS.pointsConversionRate.toString(),
-      description: 'Points to Rupiah conversion rate (1 point = X Rupiah)'
-    },
-    { 
-      key: 'minPointsForRedemption', 
-      value: DEFAULT_SETTINGS.minPointsForRedemption.toString(),
-      description: 'Minimum points required to redeem'
-    },
-    { 
-      key: 'maxPointsPerTransaction', 
-      value: DEFAULT_SETTINGS.maxPointsPerTransaction.toString(),
-      description: 'Maximum points that can be redeemed in a single transaction'
-    },
-  ];
-
-  for (const setting of defaults) {
-    await db.settings.upsert({
-      where: { key: setting.key },
-      update: {},
-      create: setting,
-    });
-  }
-
-  revalidatePath('/admin/settings');
+// Helper function to format conversion rate
+export function formatConversionRate(rate: number): string {
+  return `1 point = Rp ${rate.toLocaleString('id-ID')}`;
 }

@@ -63,6 +63,7 @@ export function SalesTable({ sales, currentPage, pageSize, totalItems, conversio
             <TableHead>Item</TableHead>
             <TableHead>Total</TableHead>
             <TableHead>Pembayaran</TableHead>
+            <TableHead>Note</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -80,6 +81,7 @@ export function SalesTable({ sales, currentPage, pageSize, totalItems, conversio
                   {sale.paymentMethod}
                 </span>
               </TableCell>
+              <TableCell>{sale.notes || '-'}</TableCell>
               <TableCell className="text-right">
                 <Button
                   variant="ghost"

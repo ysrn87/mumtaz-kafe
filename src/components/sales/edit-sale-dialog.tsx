@@ -110,6 +110,7 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
         discount,
         tax,
         notes: notes || undefined,
+        pointsRedeemed: pointsRedeemed,
       });
       
       if (result.success) {

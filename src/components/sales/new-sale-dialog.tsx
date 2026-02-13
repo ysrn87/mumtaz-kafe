@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { createSaleAction } from '@/actions/sales';
 import { Plus, Trash2, Gift } from 'lucide-react';
@@ -47,6 +48,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
   const [discount, setDiscount] = useState<number>(0);
   const [tax, setTax] = useState<number>(0);
   const [pointsToRedeem, setPointsToRedeem] = useState<number>(0);
+  const [notes, setNotes] = useState<string>('');
   const { toast } = useToast();
 
   // Get selected customer's available points
@@ -231,6 +233,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
         paymentMethod,
         discount,
         tax,
+        notes,
         pointsRedeemed: customerId !== 'WALK_IN' ? pointsToRedeem : 0,
       });
       
@@ -244,6 +247,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
         setDiscount(0);
         setTax(0);
         setPointsToRedeem(0);
+        setNotes('');
         setOpen(false);
       } else {
         toast({
@@ -404,6 +408,18 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     placeholder="0.00"
                   />
                 </div>
+              </div>
+
+              {/* Notes */}
+              <div className="grid gap-2">
+                <Label htmlFor="notes">Catatan (Optional)</Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add notes for this sale..."
+                  rows={3}
+                />
               </div>
 
               {/* Point Redemption - Only for members */}

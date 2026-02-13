@@ -75,9 +75,9 @@ export async function createSaleAction(input: CreateSaleInput) {
     // Validate total discount doesn't exceed subtotal
     const totalDiscount = discount + pointDiscount;
     if (totalDiscount > subtotal) {
-      return { 
-        success: false, 
-        error: `Total discount (Rp ${totalDiscount.toLocaleString('id-ID')}) cannot exceed subtotal (Rp ${subtotal.toLocaleString('id-ID')})` 
+      return {
+        success: false,
+        error: `Total discount (Rp ${totalDiscount.toLocaleString('id-ID')}) cannot exceed subtotal (Rp ${subtotal.toLocaleString('id-ID')})`
       };
     }
 
@@ -267,7 +267,7 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
       return { success: false, error: 'Unauthorized - Admin access required' };
     }
 
-    const { items, customerId, paymentMethod, discount = 0, tax = 0, notes } = input;
+    const { items, customerId, paymentMethod, discount = 0, tax = 0, notes, pointsRedeemed = 0 } = input;
 
     if (!items || items.length === 0) {
       return { success: false, error: 'No items in sale' };
@@ -285,6 +285,10 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
 
     // Validate stock availability for new quantities and calculate points
     let pointsEarned = 0;
+
+    // Only calculate earned points if original sale didn't redeem points
+    const shouldEarnPoints = Number(originalSale.pointsRedeemed) === 0;
+
     for (const item of items) {
       const variant = await db.productVariant.findUnique({
         where: { id: item.variantId },
@@ -303,13 +307,17 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
         return { success: false, error: `Insufficient stock for ${variant.name}` };
       }
 
-      // Calculate points from variant points
-      pointsEarned += variant.points * item.quantity;
+      // Calculate points from variant points ONLY if not redeeming
+      if (shouldEarnPoints) {
+        pointsEarned += variant.points * item.quantity;
+      }
     }
 
     // Calculate totals
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const total = subtotal - discount + tax;
+    const conversionRate = await getPointsConversionRate();
+    const pointDiscount = pointsRedeemed * conversionRate;
+    const total = subtotal - discount - pointDiscount + tax;
 
     // Update sale in transaction
     await db.$transaction(async (tx) => {
@@ -347,6 +355,7 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
           paymentMethod,
           notes,
           pointsEarned: customerId ? pointsEarned : 0,
+          pointsRedeemed: pointsRedeemed,
           items: {
             create: items.map((item) => ({
               variantId: item.variantId,

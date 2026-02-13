@@ -154,6 +154,15 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
                   <div className="flex-1">
                     <p className="font-medium text-sm">{item.variantName}</p>
                     <p className="text-xs text-gray-600">Harga: {formatCurrency(item.price)} • Tersedia: {item.currentStock}</p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeItem(index)}
+                      disabled={loading || items.length === 1}
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </Button>
                   </div>
                   <div className="flex items-center gap-2 sm:gap-4">
                     <Input
@@ -168,15 +177,6 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
                     <span className="font-semibold w-20 sm:w-24 text-right">
                       {formatCurrency(item.price * item.quantity)}
                     </span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeItem(index)}
-                      disabled={loading || items.length === 1}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-600" />
-                    </Button>
                   </div>
                 </div>
               ))}

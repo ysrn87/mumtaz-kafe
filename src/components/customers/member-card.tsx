@@ -1,9 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { User, Mail, Phone, Calendar, Award, CreditCard, Sparkles } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { User, Mail, Phone, Calendar, Award, CreditCard, Sparkles, X } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 
 interface MemberCardProps {
   user: {
@@ -21,6 +25,8 @@ interface MemberCardProps {
 }
 
 export function MemberCard({ user, showMembershipId = false }: MemberCardProps) {
+  const [showImagePreview, setShowImagePreview] = useState(false);
+
   // Generate initials from name
   const initials = user.name
     .split(' ')
@@ -44,17 +50,31 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
         
         {/* Content - Stack on mobile, side-by-side on larger screens */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative z-10">
-          {/* Avatar - Responsive sizing */}
-          <Avatar className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 border-4 border-white shadow-lg ring-4 ring-white/20">
-            <AvatarImage
-              src={user.photoUrl || undefined}
-              alt={user.name}
-              className="object-cover object-center"
-            />
-            <AvatarFallback className="text-xl sm:text-2xl bg-white text-purple-600 font-bold">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+          {/* Avatar - Responsive sizing - Rounded rectangle - Clickable */}
+          <div className="relative group">
+            <button
+              onClick={() => user.photoUrl && setShowImagePreview(true)}
+              disabled={!user.photoUrl}
+              className={`relative ${user.photoUrl ? 'cursor-pointer' : 'cursor-default'}`}
+              aria-label="View profile picture"
+            >
+              <Avatar className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 border-4 border-white shadow-lg ring-4 ring-white/20 rounded-2xl transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+                <AvatarImage
+                  src={user.photoUrl || undefined}
+                  alt={user.name}
+                  className="object-cover object-center rounded-2xl"
+                />
+                <AvatarFallback className="text-xl sm:text-2xl bg-white text-purple-600 font-bold rounded-2xl">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              {user.photoUrl && (
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
+                  <span className="text-white text-xs font-medium">View</span>
+                </div>
+              )}
+            </button>
+          </div>
 
           {/* User info - Centered on mobile, left-aligned on larger screens */}
           <div className="flex-1 text-center sm:text-left w-full">
@@ -154,6 +174,55 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
           </div>
         </div>
       </CardContent>
+
+      {/* Image Preview Dialog */}
+      <Dialog open={showImagePreview} onOpenChange={setShowImagePreview}>
+        <DialogTitle></DialogTitle>
+        <DialogContent className="max-w-4xl w-full p-0 overflow-hidden bg-black/95 border-0">
+          <div className="relative">
+            {/* Close button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/70 text-white rounded-full"
+              onClick={() => setShowImagePreview(false)}
+            >
+              <X className="w-6 h-6" />
+            </Button>
+
+            {/* Image container */}
+            <div className="relative w-full min-h-[300px] max-h-[80vh] flex items-center justify-center p-4 sm:p-8">
+              {user.photoUrl ? (
+                <img
+                  src={user.photoUrl}
+                  alt={user.name}
+                  className="max-w-full max-h-[75vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-4 p-8">
+                  <div className="w-32 h-32 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+                    <span className="text-5xl font-bold text-white">{initials}</span>
+                  </div>
+                  <p className="text-white/70 text-sm">No profile picture available</p>
+                </div>
+              )}
+            </div>
+
+            {/* User info overlay at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4 sm:p-6">
+              <div className="flex items-center gap-3">
+                <div className="flex-1">
+                  <h3 className="text-white font-bold text-lg sm:text-xl mb-1">{user.name}</h3>
+                  <div className="flex items-center gap-2 text-white/80 text-sm">
+                    <Sparkles className="w-4 h-4" />
+                    <span>{user.points.toLocaleString()} Points</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

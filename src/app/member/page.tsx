@@ -110,6 +110,23 @@ export default async function MemberDashboard({
         />
       )}
 
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-semibold text-xl">
+            <Award className="w-5 h-5" />
+            Riwayat Poin
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PointsHistoryTable 
+            pointsHistory={pointsHistory}
+            currentPage={page}
+            pageSize={limit}
+            totalItems={pointsTotal}
+          />
+        </CardContent>
+      </Card>
+
       {/* Today's Purchase Stats */}
       <Card>
         <CardHeader>
@@ -172,23 +189,6 @@ export default async function MemberDashboard({
               })()}
             </div>
           
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 font-semibold text-xl">
-            <Award className="w-5 h-5" />
-            Riwayat Poin
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <PointsHistoryTable 
-            pointsHistory={pointsHistory}
-            currentPage={page}
-            pageSize={limit}
-            totalItems={pointsTotal}
-          />
         </CardContent>
       </Card>
     </div>

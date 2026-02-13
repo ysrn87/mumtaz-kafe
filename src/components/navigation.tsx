@@ -80,7 +80,7 @@ export function Navigation({ role, userName }: NavigationProps) {
 
   const memberNavItems: NavItem[] = [
     { href: '/member', label: 'My Points', icon: <Home className="w-4 h-4" /> },
-    { href: '/member/purchases', label: 'Purchase History', icon: <ShoppingCart className="w-4 h-4" /> },
+    { href: '/member/purchases', label: 'Riwayat Belanja', icon: <ShoppingCart className="w-4 h-4" /> },
   ];
 
   const navItems = role === 'ADMINISTRATOR'

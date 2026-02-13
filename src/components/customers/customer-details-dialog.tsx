@@ -12,6 +12,7 @@ interface Customer {
   name: string;
   phone: string;
   email?: string | null;
+  address?: string | null;
   birthday?: Date | null;
   photoUrl?: string | null;
   points: number;
@@ -55,6 +56,7 @@ export function CustomerDetailsDialog({ customer, open, onOpenChange }: Customer
                 name: customer.name,
                 email: customer.email,
                 phone: customer.phone,
+                address: customer.address,
                 birthday: customer.birthday,
                 photoUrl: customer.photoUrl,
                 points: customer.points,

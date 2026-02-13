@@ -83,11 +83,11 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
       </div>
 
       {/* Card body with details - Responsive grid */}
-      <CardContent className="p-4 sm:p-6 lg:p-8">
-        <div className="grid gap-3 sm:gap-4">
+      <CardContent className="p-4 sm:p-3 lg:p-8">
+        <div className="grid gap-3 sm:gap-3">
           {/* Email */}
           <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
-            <div className="p-2 sm:p-2.5 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200 shrink-0">
+            <div className="p-2 sm:p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200 shrink-0">
               <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
             </div>
             <div className="min-w-0 flex-1">
@@ -108,6 +108,19 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
               </div>
             </div>
           )}
+          
+          {/* Address */}
+          {user.address && (
+            <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+              <div className="p-2 sm:p-2.5 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors duration-200 shrink-0">
+                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Alamat</p>
+                <p className="font-semibold text-sm sm:text-base">{user.address}</p>
+              </div>
+            </div>
+          )}
 
           {/* Birthday */}
           {user.birthday && (
@@ -125,7 +138,6 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
                     </span>
                   )}
                 </p>
-                <p>{user.address}</p>
               </div>
             </div>
           )}

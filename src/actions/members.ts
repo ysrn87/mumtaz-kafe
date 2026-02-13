@@ -210,6 +210,7 @@ export async function updateCustomerAction(id: string, formData: FormData) {
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
     const phone = formData.get('phone') as string;
+    const address = formData.get('address') as string;
     const birthday = formData.get('birthday') as string;
     const photoUrl = formData.get('photoUrl') as string;
     const newPassword = formData.get('password') as string;
@@ -249,8 +250,9 @@ export async function updateCustomerAction(id: string, formData: FormData) {
 
     const updateData: any = {
       name,
-      email,
-      phone: phone || null,
+      phone,
+      email: email || null,
+      address: address || null,
       birthday: birthday ? new Date(birthday) : null,
       photoUrl: photoUrl || null,
     };

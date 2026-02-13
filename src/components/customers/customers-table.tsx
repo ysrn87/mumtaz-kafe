@@ -136,6 +136,7 @@ export function CustomersTable({
                               id: customer.id,
                               name: customer.name,
                               phone: customer.phone,
+                              address: customer.address ?? undefined,
                               email: customer.email ?? undefined,
                               birthday: customer.birthday ?? undefined,
                               photoUrl: customer.photoUrl ?? undefined,

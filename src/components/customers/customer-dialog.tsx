@@ -17,6 +17,7 @@ interface CustomerDialogProps {
     name: string;
     email?: string;
     phone: string;
+    address?: string;
     birthday?: Date;
     photoUrl?: string;
     points: number;
@@ -146,6 +147,18 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 type="tel"
                 defaultValue={customer?.phone}
                 placeholder="+62 812-3456-7890"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="address">Alamat</Label>
+              <Input
+                id="address"
+                name="address"
+                type="text"
+                defaultValue={customer?.address}
+                placeholder="Street, City, Postal Code"
                 disabled={loading}
               />
             </div>

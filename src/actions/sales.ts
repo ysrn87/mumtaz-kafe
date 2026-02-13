@@ -5,6 +5,7 @@ import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
 import { generateSaleNumber } from '@/lib/utils';
 import { getAvailablePoints, getPointsExpiryDate } from '@/lib/points-utils';
+import { getPointsConversionRate } from './settings';
 
 interface SaleItemInput {
   variantId: string;
@@ -66,8 +67,13 @@ export async function createSaleAction(input: CreateSaleInput) {
 
     // Calculate totals
     const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const total = subtotal - discount + tax;
 
+    // Get conversion rate and calculate point discount
+    const conversionRate = await getPointsConversionRate();
+    const pointDiscount = pointsRedeemed * conversionRate;
+
+    // Calculate final total (subtract both regular discount AND point discount)
+    const total = subtotal - discount - pointDiscount + tax;
     // Create sale with items in a transaction
     const sale = await db.$transaction(async (tx) => {
       // Create sale

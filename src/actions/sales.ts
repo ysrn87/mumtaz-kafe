@@ -72,8 +72,23 @@ export async function createSaleAction(input: CreateSaleInput) {
     const conversionRate = await getPointsConversionRate();
     const pointDiscount = pointsRedeemed * conversionRate;
 
+    // Validate total discount doesn't exceed subtotal
+    const totalDiscount = discount + pointDiscount;
+    if (totalDiscount > subtotal) {
+      return { 
+        success: false, 
+        error: `Total discount (Rp ${totalDiscount.toLocaleString('id-ID')}) cannot exceed subtotal (Rp ${subtotal.toLocaleString('id-ID')})` 
+      };
+    }
+
     // Calculate final total (subtract both regular discount AND point discount)
     const total = subtotal - discount - pointDiscount + tax;
+
+    // Prevent negative total
+    if (total < 0) {
+      return { success: false, error: 'Total payment cannot be negative. Please adjust discounts.' };
+    }
+
     // Create sale with items in a transaction
     const sale = await db.$transaction(async (tx) => {
       // Create sale
@@ -332,7 +347,6 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
           paymentMethod,
           notes,
           pointsEarned: customerId ? pointsEarned : 0,
-          pointsRedeemed: originalSale.pointsRedeemed,
           items: {
             create: items.map((item) => ({
               variantId: item.variantId,
@@ -388,24 +402,6 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
             where: { id: originalSale.customerId },
             data: { points: { decrement: Number(originalSale.pointsEarned) } },
           });
-
-          // ADD THIS: Restore redeemed points to original customer
-          if (originalSale.pointsRedeemed > 0) {
-            await tx.user.update({
-              where: { id: originalSale.customerId },
-              data: { points: { increment: Number(originalSale.pointsRedeemed) } },
-            });
-
-            await tx.pointHistory.create({
-              data: {
-                userId: originalSale.customerId,
-                points: Number(originalSale.pointsRedeemed),
-                type: 'ADJUSTED',
-                description: `Restored from edited sale ${originalSale.saleNumber}`,
-              },
-            });
-          }
-
 
           await tx.pointHistory.create({
             data: {

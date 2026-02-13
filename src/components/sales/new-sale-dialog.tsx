@@ -59,13 +59,22 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
 
   // Validate discount doesn't exceed subtotal
   const handleDiscountChange = (value: number) => {
+    const totalDiscount = value + pointDiscount;
+    
     if (value > subtotal) {
       toast({
         title: 'Invalid Discount',
         description: 'Discount cannot exceed subtotal amount.',
         variant: 'destructive',
       });
-      setDiscount(subtotal);
+      setDiscount(subtotal - pointDiscount);
+    } else if (totalDiscount > subtotal) {
+      toast({
+        title: 'Total Discount Too High',
+        description: `Combined discount and point discount (${formatCurrency(totalDiscount)}) cannot exceed subtotal (${formatCurrency(subtotal)}).`,
+        variant: 'destructive',
+      });
+      setDiscount(Math.max(0, subtotal - pointDiscount));
     } else {
       setDiscount(value);
     }
@@ -73,6 +82,9 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
 
   // Handle point redemption
   const handlePointsRedeemChange = (value: number) => {
+    const newPointDiscount = value * conversionRate;
+    const totalDiscount = discount + newPointDiscount;
+
     if (value > availablePoints) {
       toast({
         title: 'Insufficient Points',
@@ -82,6 +94,16 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       setPointsToRedeem(availablePoints);
     } else if (value < 0) {
       setPointsToRedeem(0);
+    } else if (totalDiscount > subtotal) {
+      const maxPointDiscount = subtotal - discount;
+      const maxPoints = Math.floor(maxPointDiscount / conversionRate);
+      
+      toast({
+        title: 'Total Discount Too High',
+        description: `Combined discount and point discount cannot exceed subtotal. Maximum ${maxPoints} points can be redeemed.`,
+        variant: 'destructive',
+      });
+      setPointsToRedeem(Math.max(0, maxPoints));
     } else {
       setPointsToRedeem(value);
     }
@@ -171,6 +193,27 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       toast({
         title: 'Error',
         description: 'Points to redeem exceed available points.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Validate total discount (regular + point) doesn't exceed subtotal
+    const totalDiscount = discount + pointDiscount;
+    if (totalDiscount > subtotal) {
+      toast({
+        title: 'Error',
+        description: `Total discount (${formatCurrency(totalDiscount)}) cannot exceed subtotal (${formatCurrency(subtotal)}).`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Prevent negative total
+    if (total < 0) {
+      toast({
+        title: 'Error',
+        description: 'Total payment cannot be negative. Please adjust discounts.',
         variant: 'destructive',
       });
       return;
@@ -436,9 +479,24 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                       <span>{formatCurrency(tax)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                  
+                  {/* Warning when total discount is too high */}
+                  {(discount + pointDiscount) > subtotal * 0.8 && (discount + pointDiscount) <= subtotal && (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded p-2 text-xs text-yellow-800">
+                      ⚠️ Total discount is {Math.round((discount + pointDiscount) / subtotal * 100)}% of subtotal
+                    </div>
+                  )}
+                  
+                  {/* Error when total discount exceeds subtotal */}
+                  {(discount + pointDiscount) > subtotal && (
+                    <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-800">
+                      ❌ Total discount exceeds subtotal! Please reduce discount or points.
+                    </div>
+                  )}
+                  
+                  <div className={`flex justify-between text-lg font-bold pt-2 border-t ${total < 0 ? 'text-red-600' : total === 0 ? 'text-yellow-600' : ''}`}>
                     <span>Total:</span>
-                    <span>{formatCurrency(total)}</span>
+                    <span>{formatCurrency(Math.max(0, total))}</span>
                   </div>
                 </div>
               )}
@@ -450,7 +508,11 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
           <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>
             Batal
           </Button>
-          <Button type="button" onClick={handleSubmit} disabled={loading || items.length === 0 || !customerId}>
+          <Button 
+            type="button" 
+            onClick={handleSubmit} 
+            disabled={loading || items.length === 0 || !customerId || (discount + pointDiscount) > subtotal || total < 0}
+          >
             {loading ? 'Processing...' : 'Simpan'}
           </Button>
         </DialogFooter>

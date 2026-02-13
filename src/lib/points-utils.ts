@@ -7,7 +7,7 @@ import { db } from '@/lib/db';
  */
 export async function getAvailablePoints(userId: string): Promise<number> {
   const now = new Date();
-  
+
   // Get all point history for the user
   const history = await db.pointHistory.findMany({
     where: { userId },
@@ -22,12 +22,8 @@ export async function getAvailablePoints(userId: string): Promise<number> {
       continue;
     }
 
-    // Add earned/adjusted points, subtract redeemed points
-    if (entry.type === 'EARNED' || entry.type === 'ADJUSTED') {
-      availablePoints += entry.points;
-    } else if (entry.type === 'REDEEMED') {
-      availablePoints -= Math.abs(entry.points);
-    }
+    // All types: just add the points (REDEEMED are already negative)
+    availablePoints += entry.points;
   }
 
   return Math.max(0, availablePoints);
@@ -48,7 +44,7 @@ export function getPointsExpiryDate(earnedDate: Date = new Date()): Date {
  */
 export async function expireOldPoints() {
   const now = new Date();
-  
+
   // Find all users with points
   const users = await db.user.findMany({
     where: { points: { gt: 0 } },

@@ -326,6 +326,7 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
           paymentMethod,
           notes,
           pointsEarned: customerId ? pointsEarned : 0,
+          pointsRedeemed: originalSale.pointsRedeemed,
           items: {
             create: items.map((item) => ({
               variantId: item.variantId,
@@ -381,6 +382,24 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
             where: { id: originalSale.customerId },
             data: { points: { decrement: Number(originalSale.pointsEarned) } },
           });
+
+          // ADD THIS: Restore redeemed points to original customer
+          if (originalSale.pointsRedeemed > 0) {
+            await tx.user.update({
+              where: { id: originalSale.customerId },
+              data: { points: { increment: Number(originalSale.pointsRedeemed) } },
+            });
+
+            await tx.pointHistory.create({
+              data: {
+                userId: originalSale.customerId,
+                points: Number(originalSale.pointsRedeemed),
+                type: 'ADJUSTED',
+                description: `Restored from edited sale ${originalSale.saleNumber}`,
+              },
+            });
+          }
+
 
           await tx.pointHistory.create({
             data: {

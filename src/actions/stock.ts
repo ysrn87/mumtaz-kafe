@@ -68,7 +68,7 @@ export async function adjustStockAction(formData: FormData) {
             type: 'EXPENSE',
             category: 'Pembelian Inventaris',
             amount: totalCost,
-            description: `Purchased ${quantity} units of ${variant.product.name} - ${variant.name}${notes ? ` (${notes})` : ''}`,
+            description: `Pembelian ${quantity} unit ${variant.product.name} - ${variant.name}${notes ? ` (${notes})` : ''}`,
             date: new Date(),
             createdById: session.user.id,
           },

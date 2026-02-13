@@ -25,21 +25,42 @@ export function Pagination({
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
   return (
-    <div className="flex items-center justify-between px-2 py-4">
+    <div className="items-center justify-between px-2 py-4 text-xs">
+
       <div className="flex items-center gap-2">
-        <p className="text-sm text-muted-foreground">
-          Menampilkan {startItem} - {endItem} dari {totalItems} data
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-3 w-3" />
+        </Button>
+        <p>
+          Halaman {currentPage} dari {totalPages}
         </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          <ChevronRight className="h-3 w-3" />
+        </Button>
       </div>
-      
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-muted-foreground">Baris per halaman:</p>
+      <div className='flex justify-between'>
+        <div className="items-center gap-2">
+          <p className="text-muted-foreground pt-3">
+            Menampilkan {startItem} - {endItem} dari {totalItems} data
+          </p>
+          <p className="text-muted-foreground">
+            Baris per halaman:
+          </p>
           <Select
             value={pageSize.toString()}
             onValueChange={(value) => onPageSizeChange(Number(value))}
           >
-            <SelectTrigger className="w-[70px]">
+            <SelectTrigger className="w-20 h-9">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -50,27 +71,6 @@ export function Pagination({
           </Select>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <p className="text-sm">
-            Halaman {currentPage} dari {totalPages}
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onPageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
     </div>
   );

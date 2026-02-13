@@ -15,7 +15,7 @@ export default function ManagerSalesCustomersLayout({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Penjualan & Pelanggan</h1>
+        <h1 className="text-3xl font-bold">Penjualan & Member</h1>
         <p className="text-gray-600">Proses penjualan dan lihat data pelanggan</p>
       </div>
 
@@ -25,7 +25,7 @@ export default function ManagerSalesCustomersLayout({
             <Link href="/manager/sales-customers/sales">Penjualan</Link>
           </TabsTrigger>
           <TabsTrigger value="customers" asChild>
-            <Link href="/manager/sales-customers/customers">Pelanggan</Link>
+            <Link href="/manager/sales-customers/customers">Member</Link>
           </TabsTrigger>
         </TabsList>
 

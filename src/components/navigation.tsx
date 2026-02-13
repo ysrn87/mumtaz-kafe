@@ -34,7 +34,7 @@ export function Navigation({ role, userName }: NavigationProps) {
     },
     { 
       href: '/admin/sales-customers/sales', 
-      label: 'Penjualan & Pelanggan', 
+      label: 'Penjualan & Member', 
       icon: <ShoppingCart className="w-4 h-4" />,
       matchPaths: ['/admin/sales-customers/sales', '/admin/sales-customers/customers']
     },
@@ -66,7 +66,7 @@ export function Navigation({ role, userName }: NavigationProps) {
     },
     { 
       href: '/manager/sales-customers/sales', 
-      label: 'Penjualan & Pelanggan', 
+      label: 'Penjualan & Member', 
       icon: <ShoppingCart className="w-4 h-4" />,
       matchPaths: ['/manager/sales-customers/sales', '/manager/sales-customers/customers']
     },

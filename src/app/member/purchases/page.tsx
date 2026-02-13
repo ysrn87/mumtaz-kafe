@@ -31,8 +31,8 @@ export default async function MemberPurchasesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Purchase History</h1>
-        <p className="text-gray-600">View all your past purchases</p>
+        <h1 className="text-3xl font-bold">Riwayat Pembelian</h1>
+        <p className="text-gray-600">Lihat semua pembelian terdahulu</p>
       </div>
 
       {purchases.length === 0 ? (
@@ -48,16 +48,18 @@ export default async function MemberPurchasesPage() {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
+
+                    <p className="inline-flex items-center px-2 py-1 rounded-full text-sm 
+                   font-medium bg-blue-100 text-blue-800">
+                      +{purchase.pointsEarned} poin
+                    </p>
                     <CardTitle className="text-lg">Order {purchase.saleNumber}</CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">
                       {formatDateTime(purchase.createdAt)}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold">{formatCurrency(Number(purchase.total))}</p>
-                    <p className="text-sm text-green-600 font-medium">
-                      +{purchase.pointsEarned} poin bertambah
-                    </p>
+
                   </div>
                 </div>
               </CardHeader>

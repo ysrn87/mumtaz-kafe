@@ -61,7 +61,7 @@ export function FinancialSummary({ data }: FinancialSummaryProps) {
               {formatCurrency(Number(data.totalSalesRevenue))}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              Dasri seluruh transaksi penjualan
+              Dari seluruh transaksi penjualan
             </p>
           </CardContent>
         </Card>

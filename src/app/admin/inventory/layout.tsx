@@ -26,13 +26,13 @@ export default function InventoryLayout({
       <Tabs value={currentTab} className="space-y-6">
         <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="products" asChild>
-            <Link href="/admin/inventory/products">Produk & Varian</Link>
+            <Link href="/admin/inventory/products">Produk</Link>
           </TabsTrigger>
           <TabsTrigger value="stock" asChild>
-            <Link href="/admin/inventory/stock">Kelola Stok</Link>
+            <Link href="/admin/inventory/stock">Stok</Link>
           </TabsTrigger>
           <TabsTrigger value="reports" asChild>
-            <Link href="/admin/inventory/reports">Laporan Inventori</Link>
+            <Link href="/admin/inventory/reports">Laporan</Link>
           </TabsTrigger>
         </TabsList>
 

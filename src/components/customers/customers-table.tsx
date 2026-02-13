@@ -17,6 +17,7 @@ interface Customer {
   phone: string;
   email?: string | null;
   birthday?: Date | null;
+  address?: string | null;
   photoUrl?: string | null;
   points: number;
   createdAt: Date;
@@ -76,8 +77,9 @@ export function CustomersTable({
           <TableHeader>
             <TableRow>
               <TableHead>Nama</TableHead>
-              <TableHead>Email</TableHead>
               <TableHead>Telepon</TableHead>
+              <TableHead>Alamat</TableHead>
+              <TableHead>Email</TableHead>
               <TableHead>Poin</TableHead>
               <TableHead>Total Pembelian</TableHead>
               <TableHead>Total Spent</TableHead>
@@ -99,10 +101,11 @@ export function CustomersTable({
                 return (
                   <TableRow key={customer.id}>
                     <TableCell className="font-medium">{customer.name}</TableCell>
-                    <TableCell>{customer.email}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {customer.phone || '-'}
                     </TableCell>
+                    <TableCell>{customer.address}</TableCell>
+                    <TableCell>{customer.email}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Award className="h-4 w-4 text-yellow-600" />

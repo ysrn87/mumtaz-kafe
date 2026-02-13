@@ -2,8 +2,10 @@ import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatCurrency } from '@/lib/utils';
-import { FileText, Package } from 'lucide-react';
+import { FileText, TrendingUp, Package, DollarSign } from 'lucide-react';
+import { SalesReportTable } from '@/components/reports/sales-report-table';
 import { InventoryReportTable } from '@/components/reports/inventory-report-table';
+import { FinancialSummary } from '@/components/reports/financial-summary';
 
 async function getSalesReport() {
   const sales = await db.sale.findMany({
@@ -134,7 +136,34 @@ export default async function AdminReportsPage() {
 
       {/* Overview Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Pendapatan Penjualan</CardTitle>
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {formatCurrency(salesData.totalRevenue)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {salesData.totalTransactions} transaksi
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Laba Bersih</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${financialData.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {formatCurrency(financialData.netProfit)}
+            </div>
+            <p className="text-xs text-muted-foreground">Pemasukan - Pengeluaran</p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Inventory Value</CardTitle>
@@ -149,26 +178,26 @@ export default async function AdminReportsPage() {
             </p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Stok Rendah</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {inventoryData.lowStockCount}
-            </div>
-            <p className="text-xs text-muted-foreground">Butuh penambahan</p>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Tabbed Reports */}
-      <Tabs defaultValue="inventory" className="space-y-4">
+      <Tabs defaultValue="financial" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="financial">Keuangan</TabsTrigger>
+          <TabsTrigger value="sales">Penjualan</TabsTrigger>
           <TabsTrigger value="inventory">Inventory</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="sales" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Transaksi Penjualan Terbaru</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <SalesReportTable sales={salesData.sales} /> 
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="inventory" className="space-y-4">
           <Card>
@@ -181,6 +210,9 @@ export default async function AdminReportsPage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="financial" className="space-y-4">
+          <FinancialSummary data={financialData} />
+        </TabsContent>
       </Tabs>
     </div>
   );

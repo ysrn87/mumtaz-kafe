@@ -9,9 +9,10 @@ interface MemberCardProps {
   user: {
     id: string;
     name: string;
-    email?: string | null;
     phone: string;
+    email?: string | null;
     birthday?: Date | null;
+    address?: string | null;
     photoUrl?: string | null;
     points: number;
     createdAt: Date;
@@ -124,6 +125,7 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
                     </span>
                   )}
                 </p>
+                <p>{user.address}</p>
               </div>
             </div>
           )}

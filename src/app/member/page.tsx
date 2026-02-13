@@ -74,8 +74,9 @@ export default async function MemberDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Selamat datang, {user?.name}!</h1>
-        <p className="text-gray-600">Profil dan poin keanggotaan Anda</p>
+        <h1 className="text-xl font-medium">Selamat datang,</h1>
+        <h1 className="text-3xl font-bold">{user?.name}</h1>
+        <p className="text-gray-600">Lihat profil dan poin keanggotaan</p>
       </div>
 
       {/* Member Card */}
@@ -106,7 +107,7 @@ export default async function MemberDashboard() {
         <CardContent>
           
             <div className="space-y-6">
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
                   <p className="text-sm font-semibold">{todayPurchases.length}</p>
                   <p className="text-xs text-muted-foreground">Transaksi</p>
@@ -117,13 +118,13 @@ export default async function MemberDashboard() {
                   </p>
                   <p className="text-xs text-muted-foreground">Item</p>
                 </div>
+              </div>
                 <div className="text-center">
                   <p className="text-sm font-semibold">
                     {formatCurrency(todayPurchases.reduce((sum, p) => sum + Number(p.total), 0))}
                   </p>
                   <p className="text-xs text-muted-foreground">Total Spent</p>
                 </div>
-              </div>
 
               {/* Comparison with Yesterday */}
               {(() => {

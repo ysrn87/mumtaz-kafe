@@ -160,7 +160,7 @@ export function Navigation({ role, userName }: NavigationProps) {
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
     if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = '';
     } else {
       document.body.style.overflow = '';
     }
@@ -311,14 +311,14 @@ export function Navigation({ role, userName }: NavigationProps) {
 
           {/* Mobile menu button */}
           <div className="flex items-center lg:hidden ml-4">
+            menu
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="
                 relative inline-flex items-center justify-center p-2 rounded-md 
-                text-gray-700 hover:text-gray-900 hover:bg-gray-100 
-                focus:outline-none focus:ring-2 focus:ring-blue-500 focus-visible:ring-offset-2
                 transition-all duration-300 hover:scale-110
               "
+              
               aria-label="Toggle menu"
               aria-expanded={mobileMenuOpen}
             >
@@ -336,8 +336,8 @@ export function Navigation({ role, userName }: NavigationProps) {
       {/* Mobile menu */}
       <div
         className={`
-          lg:hidden overflow-hidden 
-          transition-all duration-500 ease-in-out
+          lg:hidden overflow-hidden text-xs
+          transition-all duration-500 ease-in-out 
           ${mobileMenuOpen
             ? 'max-h-[800px] border-t border-gray-200 shadow-2xl'
             : 'max-h-0'
@@ -359,7 +359,7 @@ export function Navigation({ role, userName }: NavigationProps) {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`
                     flex items-center gap-3 px-4 py-3 rounded-xl
-                    text-base font-medium 
+                    text-xs font-medium 
                     transition-all duration-300 ease-out
                     transform hover:scale-102
                     ${isActive
@@ -396,7 +396,7 @@ export function Navigation({ role, userName }: NavigationProps) {
                 transitionDelay: mobileMenuOpen ? `${navItems.length * 30}ms` : '0ms',
               }}
             >
-              <div className="text-base font-medium text-gray-900">
+              <div className="text-sm font-bold text-gray-900">
                 {userName || 'User'}
               </div>
               <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mt-1.5">

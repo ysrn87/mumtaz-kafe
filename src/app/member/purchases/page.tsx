@@ -124,7 +124,7 @@ export default async function MemberPurchasesPage() {
                     )}
                     {pointsRedeemed > 0 && (
                       <div className="flex justify-between text-purple-600 font-medium">
-                        <span>Point Discount ({pointsRedeemed} pts):</span>
+                        <span>Discount ({pointsRedeemed} poin):</span>
                         <span>-{formatCurrency(pointDiscount)}</span>
                       </div>
                     )}

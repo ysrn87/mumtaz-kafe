@@ -446,7 +446,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                           <span className="text-lg font-bold text-purple-900">-{formatCurrency(pointDiscount)}</span>
                         </div>
                         <p className="text-xs text-orange-600 mt-1">
-                          ⚠️ Note: Anda tidak mendapatkan poin saat menukar point
+                          ⚠️ Note: Member tidak mendapatkan poin saat menukar point
                         </p>
                       </div>
                     )}
@@ -469,7 +469,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   )}
                   {pointsToRedeem > 0 && (
                     <div className="flex justify-between text-sm text-purple-600 font-medium">
-                      <span>Point Discount ({pointsToRedeem} pts):</span>
+                      <span>Discount ({pointsToRedeem} poin):</span>
                       <span>-{formatCurrency(pointDiscount)}</span>
                     </div>
                   )}

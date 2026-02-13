@@ -152,7 +152,7 @@ export function SaleDetailsDialog({ sale, conversionRate = 1000, open, onOpenCha
           ` : ''}
           ${pointsRedeemed > 0 ? `
             <div class="totals-row" style="color: purple;">
-              <span>Point Discount (${pointsRedeemed} pts):</span>
+              <span>Discount (${pointsRedeemed} poin):</span>
               <span>-${formatCurrency(pointDiscount)}</span>
             </div>
           ` : ''}
@@ -282,7 +282,7 @@ export function SaleDetailsDialog({ sale, conversionRate = 1000, open, onOpenCha
               )}
               {pointsRedeemed > 0 && (
                 <div className="flex justify-between text-xs sm:text-sm text-purple-600 font-medium">
-                  <span>Point Discount ({pointsRedeemed} pts)</span>
+                  <span>Discount ({pointsRedeemed} poin)</span>
                   <span>-{formatCurrency(pointDiscount)}</span>
                 </div>
               )}

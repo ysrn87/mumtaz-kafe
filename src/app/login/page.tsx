@@ -89,7 +89,7 @@ function LoginForm() {
                 required
                 placeholder="••••••••"
                 disabled={loading}
-                className="h-11 text-base"
+                className="h-11 text-sm"
               />
             </div>
             
@@ -129,7 +129,7 @@ function LoginForm() {
               <div className="w-full border-t border-gray-200"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-4 bg-white text-gray-500">New here?</span>
+              <span className="px-4 bg-white text-gray-500">Belum memiliki akun?</span>
             </div>
           </div>
 
@@ -139,7 +139,7 @@ function LoginForm() {
               className="w-full h-11 font-semibold border-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200"
             >
               <UserPlus className="w-4 h-4 mr-2" />
-              Create Member Account
+              Buat Akun Member
             </Button>
           </Link>
 
@@ -149,7 +149,6 @@ function LoginForm() {
               Demo Credentials:
             </p>
             <div className="space-y-1 text-xs text-gray-600">
-              <p className="font-mono">Admin: admin@example.com / password123</p>
               <p className="font-mono">Member: member@example.com / password123</p>
             </div>
           </div>

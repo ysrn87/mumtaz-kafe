@@ -154,10 +154,10 @@ export default function PointsSettingsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="w-5 h-5" />
-              Points Conversion Rate
+              Nilai Tukar Poin
             </CardTitle>
             <CardDescription>
-              Set how much money equals 1 loyalty point
+              Tentukan rasio nilai satuan poin
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -188,8 +188,9 @@ export default function PointsSettingsPage() {
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
               <h4 className="font-medium text-blue-900 mb-2">Example</h4>
               <p className="text-sm text-blue-700">
-                If a customer spends <strong>Rp {(parseInt(conversionRate) * 10).toLocaleString('id-ID')}</strong>, 
-                they will earn <strong>10 points</strong>
+                Jika member memiliki <strong>10 points</strong> maka dapat ditukar diskon
+                <strong> Rp {(parseInt(conversionRate) * 10).toLocaleString('id-ID')}</strong> 
+                , atau dengan produk senilai
               </p>
             </div>
           </CardContent>
@@ -198,14 +199,14 @@ export default function PointsSettingsPage() {
         {/* Minimum Points */}
         <Card>
           <CardHeader>
-            <CardTitle>Minimum Redemption Points</CardTitle>
+            <CardTitle>Minimal Penukaran Poin</CardTitle>
             <CardDescription>
-              Minimum points required to redeem rewards
+              Jumlah poin terendah yang dibutuhkan untuk penukaran hadiah
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-2">
-              <Label htmlFor="minPoints">Minimum Points</Label>
+              <Label htmlFor="minPoints">Minimum Poin</Label>
               <div className="flex gap-2">
                 <Input
                   id="minPoints"
@@ -223,7 +224,7 @@ export default function PointsSettingsPage() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                Customers need at least {minPoints} points to redeem
+                Member butuh minimal {minPoints} poin to ditukar
               </p>
             </div>
           </CardContent>
@@ -232,14 +233,14 @@ export default function PointsSettingsPage() {
         {/* Maximum Points */}
         <Card>
           <CardHeader>
-            <CardTitle>Maximum Points Per Transaction</CardTitle>
+            <CardTitle>Maximum Poin Per Transaksi</CardTitle>
             <CardDescription>
-              Maximum points that can be redeemed in a single transaction
+              Poin maksimal yang dapat ditukar dalam satu transaksi
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-2">
-              <Label htmlFor="maxPoints">Maximum Points</Label>
+              <Label htmlFor="maxPoints">Maximum Poin</Label>
               <div className="flex gap-2">
                 <Input
                   id="maxPoints"
@@ -256,7 +257,7 @@ export default function PointsSettingsPage() {
                 </Button>
               </div>
               <p className="text-xs text-gray-500">
-                Customers can redeem up to {maxPoints} points per transaction
+                Member dapat menukar sebanyak {maxPoints} poin per transaction
               </p>
             </div>
           </CardContent>

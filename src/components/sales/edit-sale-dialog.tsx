@@ -243,17 +243,17 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
             <div className="p-3 sm:p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
               <div className="flex items-center gap-2 mb-2">
                 <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-                <h3 className="font-semibold text-sm sm:text-base text-purple-900">Point Redeemed (Cannot be changed)</h3>
+                <h3 className="font-semibold text-sm sm:text-base text-purple-900">Point Redeemed (Tidak dapat diubah)</h3>
               </div>
               <div className="space-y-1">
                 <p className="text-xs sm:text-sm text-purple-700">
-                  <strong>{pointsRedeemed} points</strong> were redeemed in this transaction
+                  <strong>{pointsRedeemed} point</strong> telah ditukar untuk transaksi ini
                 </p>
                 <p className="text-xs sm:text-sm text-purple-600">
                   Point Discount: <strong>{formatCurrency(pointDiscount)}</strong>
                 </p>
                 <p className="text-xs text-orange-600 mt-1">
-                  ⚠️ Point redemption cannot be edited. The original points remain applied to this sale.
+                  ⚠️ Penukaran poin tidak dapat diubah. Poin asli tetap berlaku untuk penjualan ini.
                 </p>
               </div>
             </div>
@@ -273,7 +273,7 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
             )}
             {pointsRedeemed > 0 && (
               <div className="flex justify-between text-sm text-purple-600 font-medium">
-                <span className="text-xs sm:text-sm">Point Discount ({pointsRedeemed} pts):</span>
+                <span className="text-xs sm:text-sm">Discount ({pointsRedeemed} poin):</span>
                 <span>-{formatCurrency(pointDiscount)}</span>
               </div>
             )}

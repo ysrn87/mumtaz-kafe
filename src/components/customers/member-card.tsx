@@ -58,7 +58,7 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
               className={`relative ${user.photoUrl ? 'cursor-pointer' : 'cursor-default'}`}
               aria-label="View profile picture"
             >
-              <Avatar className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32 border-4 border-white shadow-lg ring-4 ring-white/20 rounded-2xl transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
+              <Avatar className="w-48 h-24 sm:w-48 sm:h-28 lg:w-48 lg:h-32 border-4 border-white shadow-lg ring-4 ring-white/20 rounded-2xl transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl">
                 <AvatarImage
                   src={user.photoUrl || undefined}
                   alt={user.name}

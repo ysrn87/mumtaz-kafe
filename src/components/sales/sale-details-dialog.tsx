@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, formatDateTime } from '@/lib/utils';
-import { Printer, Pencil } from 'lucide-react';
+import { Printer, Pencil, Gift } from 'lucide-react';
 import { EditSaleDialog } from './edit-sale-dialog';
 
 interface SaleDetailsDialogProps {
@@ -20,6 +20,7 @@ interface SaleDetailsDialogProps {
     paymentMethod: string;
     notes: string | null;
     pointsEarned: number;
+    pointsRedeemed?: number;
     customer: {
       name: string;
       email: string;
@@ -44,13 +45,17 @@ interface SaleDetailsDialogProps {
       };
     }>;
   };
+  conversionRate?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onUpdate?: () => void;
 }
 
-export function SaleDetailsDialog({ sale, open, onOpenChange, onUpdate }: SaleDetailsDialogProps) {
+export function SaleDetailsDialog({ sale, conversionRate = 1000, open, onOpenChange, onUpdate }: SaleDetailsDialogProps) {
   const [showEditDialog, setShowEditDialog] = useState(false);
+
+  const pointsRedeemed = sale.pointsRedeemed || 0;
+  const pointDiscount = pointsRedeemed * conversionRate;
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
@@ -105,7 +110,8 @@ export function SaleDetailsDialog({ sale, open, onOpenChange, onUpdate }: SaleDe
             <h3>PAYMENT INFO</h3>
             <p><strong>Method:</strong> ${sale.paymentMethod}</p>
             <p><strong>Cashier:</strong> ${sale.cashier.name}</p>
-            ${sale.customer ? `<p><strong>Points Earned:</strong> ${sale.pointsEarned}</p>` : ''}
+            ${sale.customer && sale.pointsEarned > 0 ? `<p><strong>Points Earned:</strong> ${sale.pointsEarned}</p>` : ''}
+            ${pointsRedeemed > 0 ? `<p style="color: purple;"><strong>Points Redeemed:</strong> ${pointsRedeemed} pts</p>` : ''}
           </div>
         </div>
 
@@ -142,6 +148,12 @@ export function SaleDetailsDialog({ sale, open, onOpenChange, onUpdate }: SaleDe
             <div class="totals-row" style="color: green;">
               <span>Discount:</span>
               <span>-${formatCurrency(sale.discount)}</span>
+            </div>
+          ` : ''}
+          ${pointsRedeemed > 0 ? `
+            <div class="totals-row" style="color: purple;">
+              <span>Point Discount (${pointsRedeemed} pts):</span>
+              <span>-${formatCurrency(pointDiscount)}</span>
             </div>
           ` : ''}
           ${sale.tax > 0 ? `
@@ -215,7 +227,15 @@ export function SaleDetailsDialog({ sale, open, onOpenChange, onUpdate }: SaleDe
                   <>
                     <p className="text-sm font-medium">{sale.customer.name}</p>
                     <p className="text-sm text-gray-600">{sale.customer.email}</p>
-                    <p className="text-sm text-blue-600 mt-2">+{sale.pointsEarned} poin bertambah</p>
+                    {sale.pointsEarned > 0 && (
+                      <p className="text-sm text-blue-600 mt-2">+{sale.pointsEarned} poin bertambah</p>
+                    )}
+                    {pointsRedeemed > 0 && (
+                      <div className="flex items-center gap-1 mt-1">
+                        <Gift className="w-4 h-4 text-purple-600" />
+                        <p className="text-sm text-purple-600 font-medium">-{pointsRedeemed} poin ditukar</p>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <p className="text-sm text-gray-600">Pelanggan Umum</p>
@@ -260,6 +280,12 @@ export function SaleDetailsDialog({ sale, open, onOpenChange, onUpdate }: SaleDe
                   <span className="font-medium">-{formatCurrency(sale.discount)}</span>
                 </div>
               )}
+              {pointsRedeemed > 0 && (
+                <div className="flex justify-between text-sm text-purple-600 font-medium">
+                  <span>Point Discount ({pointsRedeemed} pts)</span>
+                  <span>-{formatCurrency(pointDiscount)}</span>
+                </div>
+              )}
               {sale.tax > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600">Tax</span>
@@ -286,6 +312,7 @@ export function SaleDetailsDialog({ sale, open, onOpenChange, onUpdate }: SaleDe
       {showEditDialog && (
         <EditSaleDialog
           sale={sale}
+          conversionRate={conversionRate}
           open={showEditDialog}
           onOpenChange={setShowEditDialog}
           onSuccess={() => {

@@ -131,6 +131,7 @@ export default async function AdminSalesPage({
             currentPage={page}
             pageSize={limit}
             totalItems={total}
+            conversionRate={conversionRate}
           />
         </CardContent>
       </Card>

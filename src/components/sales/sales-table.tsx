@@ -14,9 +14,10 @@ interface SalesTableProps {
   currentPage: number;
   pageSize: number;
   totalItems: number;
+  conversionRate?: number;
 }
 
-export function SalesTable({ sales, currentPage, pageSize, totalItems }: SalesTableProps) {
+export function SalesTable({ sales, currentPage, pageSize, totalItems, conversionRate = 1000 }: SalesTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedSale, setSelectedSale] = useState<any>(null);
@@ -105,6 +106,7 @@ export function SalesTable({ sales, currentPage, pageSize, totalItems }: SalesTa
       {selectedSale && (
         <SaleDetailsDialog
           sale={selectedSale}
+          conversionRate={conversionRate}
           open={showDetailsDialog}
           onOpenChange={setShowDetailsDialog}
           onUpdate={() => window.location.reload()}

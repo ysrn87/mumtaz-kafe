@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { updateSaleAction } from '@/actions/sales';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Gift } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 interface EditSaleDialogProps {
@@ -19,6 +19,7 @@ interface EditSaleDialogProps {
     discount: number;
     tax: number;
     notes: string | null;
+    pointsRedeemed?: number;
     items: Array<{
       id: string;
       quantity: number;
@@ -33,6 +34,7 @@ interface EditSaleDialogProps {
       };
     }>;
   };
+  conversionRate?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
@@ -46,7 +48,7 @@ interface SaleItem {
   currentStock: number;
 }
 
-export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSaleDialogProps) {
+export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange, onSuccess }: EditSaleDialogProps) {
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<SaleItem[]>([]);
   const [customerId, setCustomerId] = useState<string>(sale.customerId || 'WALK_IN');
@@ -55,6 +57,10 @@ export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSale
   const [tax, setTax] = useState<number>(sale.tax);
   const [notes, setNotes] = useState<string>(sale.notes || '');
   const { toast } = useToast();
+
+  // Get points redeemed from original sale
+  const pointsRedeemed = sale.pointsRedeemed || 0;
+  const pointDiscount = pointsRedeemed * conversionRate;
 
   useEffect(() => {
     setItems(sale.items.map(item => ({
@@ -67,7 +73,7 @@ export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSale
   }, [sale]);
 
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const total = subtotal - discount + tax;
+  const total = subtotal - discount - pointDiscount + tax;
 
   const updateQuantity = (index: number, newQty: number) => {
     const newItems = [...items];
@@ -230,6 +236,27 @@ export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSale
             />
           </div>
 
+          {/* Point Redemption Info - Read Only */}
+          {pointsRedeemed > 0 && (
+            <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Gift className="w-5 h-5 text-purple-600" />
+                <h3 className="font-semibold text-purple-900">Point Redeemed (Cannot be changed)</h3>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-purple-700">
+                  <strong>{pointsRedeemed} points</strong> were redeemed in this transaction
+                </p>
+                <p className="text-sm text-purple-600">
+                  Point Discount: <strong>{formatCurrency(pointDiscount)}</strong>
+                </p>
+                <p className="text-xs text-orange-600 mt-1">
+                  ⚠️ Point redemption cannot be edited. The original points remain applied to this sale.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Summary */}
           <div className="bg-gray-50 rounded-lg p-4 space-y-2">
             <div className="flex justify-between text-sm">
@@ -240,6 +267,12 @@ export function EditSaleDialog({ sale, open, onOpenChange, onSuccess }: EditSale
               <div className="flex justify-between text-sm text-green-600">
                 <span>Discount:</span>
                 <span>-{formatCurrency(discount)}</span>
+              </div>
+            )}
+            {pointsRedeemed > 0 && (
+              <div className="flex justify-between text-sm text-purple-600 font-medium">
+                <span>Point Discount ({pointsRedeemed} pts):</span>
+                <span>-{formatCurrency(pointDiscount)}</span>
               </div>
             )}
             {tax > 0 && (

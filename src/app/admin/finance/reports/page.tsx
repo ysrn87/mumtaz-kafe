@@ -7,30 +7,34 @@ import { SalesReportTable } from '@/components/reports/sales-report-table';
 import { InventoryReportTable } from '@/components/reports/inventory-report-table';
 import { FinancialSummary } from '@/components/reports/financial-summary';
 
-async function getSalesReport() {
-  const sales = await db.sale.findMany({
-    orderBy: { createdAt: 'desc' },
-    take: 50,
-    include: {
-      customer: {
-        select: { name: true, email: true },
-      },
-      items: {
-        include: {
-          variant: {
-            include: {
-              product: true,
+async function getSalesReport(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+
+  const [sales, totalSales] = await Promise.all([
+    db.sale.findMany({
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        customer: {
+          select: { name: true, email: true },
+        },
+        items: {
+          include: {
+            variant: {
+              include: {
+                product: true,
+              },
             },
           },
         },
       },
-    },
-  });
-
-  const totalSales = await db.sale.aggregate({
-    _sum: { total: true },
-    _count: true,
-  });
+    }),
+    db.sale.aggregate({
+      _sum: { total: true },
+      _count: true,
+    }),
+  ]);
 
   // Convert ALL Decimal fields to numbers
   const serializedSales = sales.map(sale => ({
@@ -58,24 +62,29 @@ async function getSalesReport() {
   };
 }
 
-async function getInventoryReport() {
-  const inventory = await db.productVariant.findMany({
-    include: {
-      product: true,
-    },
-    orderBy: {
-      stock: 'asc',
-    },
-  });
+async function getInventoryReport(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
 
-  const totalProducts = await db.productVariant.count();
-  const lowStockCount = await db.productVariant.count({
-    where: {
-      stock: {
-        lte: db.productVariant.fields.lowStock,
+  const [inventory, totalProducts, lowStockCount] = await Promise.all([
+    db.productVariant.findMany({
+      skip,
+      take: limit,
+      include: {
+        product: true,
       },
-    },
-  });
+      orderBy: {
+        stock: 'asc',
+      },
+    }),
+    db.productVariant.count(),
+    db.productVariant.count({
+      where: {
+        stock: {
+          lte: db.productVariant.fields.lowStock,
+        },
+      },
+    }),
+  ]);
 
   // Convert ALL Decimal fields to numbers
   const serializedInventory = inventory.map(item => ({
@@ -124,10 +133,25 @@ async function getFinancialReport() {
   };
 }
 
-export default async function AdminReportsPage() {
+export default async function AdminReportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ 
+    salesPage?: string; 
+    salesLimit?: string;
+    page?: string; 
+    limit?: string;
+  }>;
+}) {
+  const params = await searchParams;
+  const salesPage = Number(params.salesPage) || 1;
+  const salesLimit = Number(params.salesLimit) || 10;
+  const inventoryPage = Number(params.page) || 1;
+  const inventoryLimit = Number(params.limit) || 10;
+
   const [salesData, inventoryData, financialData] = await Promise.all([
-    getSalesReport(),
-    getInventoryReport(),
+    getSalesReport(salesPage, salesLimit),
+    getInventoryReport(inventoryPage, inventoryLimit),
     getFinancialReport(),
   ]);
 
@@ -194,7 +218,12 @@ export default async function AdminReportsPage() {
               <CardTitle>Transaksi Penjualan Terbaru</CardTitle>
             </CardHeader>
             <CardContent>
-              <SalesReportTable sales={salesData.sales} /> 
+              <SalesReportTable 
+                sales={salesData.sales} 
+                currentPage={salesPage}
+                pageSize={salesLimit}
+                totalItems={salesData.totalTransactions}
+              /> 
             </CardContent>
           </Card>
         </TabsContent>
@@ -205,7 +234,12 @@ export default async function AdminReportsPage() {
               <CardTitle>Inventory Status</CardTitle>
             </CardHeader>
             <CardContent>
-              <InventoryReportTable inventory={inventoryData.inventory} />
+              <InventoryReportTable 
+                inventory={inventoryData.inventory} 
+                currentPage={inventoryPage}
+                pageSize={inventoryLimit}
+                totalItems={inventoryData.totalProducts}
+              />
             </CardContent>
           </Card>
         </TabsContent>

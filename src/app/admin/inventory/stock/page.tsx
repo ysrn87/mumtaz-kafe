@@ -1,11 +1,33 @@
 import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatDateTime } from '@/lib/utils';
-import { Package, AlertTriangle, TrendingUp, TrendingDown } from 'lucide-react';
+import { Package, AlertTriangle } from 'lucide-react';
 import { StockTable } from '@/components/stock/stock-table';
+import { StockMovementsTable } from '@/components/stock/stock-movements-table';
+
+async function getStockMovements(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+  
+  const [movements, total] = await Promise.all([
+    db.stockMovement.findMany({
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        variant: {
+          include: {
+            product: true,
+          },
+        },
+      },
+    }),
+    db.stockMovement.count(),
+  ]);
+
+  return { movements, total };
+}
 
 async function getStockData() {
-  const [totalVariants, lowStockCount, stockValue, recentMovements] = await Promise.all([
+  const [totalVariants, lowStockCount, stockValue] = await Promise.all([
     db.productVariant.count(),
     db.productVariant.count({
       where: {
@@ -19,24 +41,12 @@ async function getStockData() {
         stock: true,
       },
     }),
-    db.stockMovement.findMany({
-      take: 10,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        variant: {
-          include: {
-            product: true,
-          },
-        },
-      },
-    }),
   ]);
 
   return {
     totalVariants,
     lowStockCount,
     totalStock: stockValue._sum.stock || 0,
-    recentMovements,
   };
 }
 
@@ -71,14 +81,22 @@ async function getAllStock(page: number = 1, limit: number = 10) {
 export default async function AdminStockPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; limit?: string }>;
+  searchParams: Promise<{ 
+    page?: string; 
+    limit?: string;
+    movementPage?: string;
+    movementLimit?: string;
+  }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const limit = Number(params.limit) || 10;
+  const movementPage = Number(params.movementPage) || 1;
+  const movementLimit = Number(params.movementLimit) || 10;
 
   const stats = await getStockData();
   const { items: stockItems, total } = await getAllStock(page, limit);
+  const { movements, total: movementsTotal } = await getStockMovements(movementPage, movementLimit);
 
   return (
     <div className="space-y-8">
@@ -141,37 +159,12 @@ export default async function AdminStockPage({
           <CardTitle>Riwayat Sirkulasi Barang</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {stats.recentMovements.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Belum ada riwayat tercatat</p>
-            ) : (
-              stats.recentMovements.map((movement) => (
-                <div key={movement.id} className="flex items-center justify-between border-b pb-3">
-                  <div className="flex items-center gap-3">
-                    {movement.type === 'IN' ? (
-                      <TrendingUp className="h-5 w-5 text-green-600" />
-                    ) : movement.type === 'OUT' ? (
-                      <TrendingDown className="h-5 w-5 text-red-600" />
-                    ) : (
-                      <Package className="h-5 w-5 text-blue-600" />
-                    )}
-                    <div>
-                      <p className="text-xs font-medium">
-                        {movement.variant.product.name} - {movement.variant.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {movement.type} • {movement.quantity} units
-                        {movement.notes && ` • ${movement.notes}`}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {formatDateTime(movement.createdAt)}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+          <StockMovementsTable 
+            movements={movements}
+            currentPage={movementPage}
+            pageSize={movementLimit}
+            totalItems={movementsTotal}
+          />
         </CardContent>
       </Card>
     </div>

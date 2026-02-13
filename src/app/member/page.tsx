@@ -1,18 +1,20 @@
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatDate, formatCurrency } from '@/lib/utils';
-import { Award, TrendingUp, TrendingDown, ShoppingBag, ArrowUp, ArrowDown } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
+import { Award, ShoppingBag, ArrowUp, ArrowDown } from 'lucide-react';
 import { MemberCard } from '@/components/customers/member-card';
+import { PointsHistoryTable } from '@/components/customers/points-history-table';
 
-async function getMemberData(userId: string) {
+async function getMemberData(userId: string, page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  const [user, pointsHistory, todayPurchases, yesterdayPurchases] = await Promise.all([
+  const [user, pointsHistory, pointsTotal, todayPurchases, yesterdayPurchases] = await Promise.all([
     db.user.findUnique({
       where: { id: userId },
       select: {
@@ -28,8 +30,12 @@ async function getMemberData(userId: string) {
     }),
     db.pointHistory.findMany({
       where: { userId },
+      skip,
+      take: limit,
       orderBy: { createdAt: 'desc' },
-      take: 10,
+    }),
+    db.pointHistory.count({
+      where: { userId },
     }),
     db.sale.findMany({
       where: {
@@ -62,14 +68,22 @@ async function getMemberData(userId: string) {
     }),
   ]);
 
-  return { user, pointsHistory, todayPurchases, yesterdayPurchases };
+  return { user, pointsHistory, pointsTotal, todayPurchases, yesterdayPurchases };
 }
 
-export default async function MemberDashboard() {
+export default async function MemberDashboard({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; limit?: string }>;
+}) {
   const session = await auth();
   if (!session) return null;
 
-  const { user, pointsHistory, todayPurchases, yesterdayPurchases } = await getMemberData(session.user.id);
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const limit = Number(params.limit) || 10;
+
+  const { user, pointsHistory, pointsTotal, todayPurchases, yesterdayPurchases } = await getMemberData(session.user.id, page, limit);
 
   return (
     <div className="space-y-8">
@@ -169,46 +183,12 @@ export default async function MemberDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {pointsHistory.length === 0 ? (
-            <p className="text-muted-foreground text-center py-8">No points activity yet</p>
-          ) : (
-            <div className="space-y-4 text-xs">
-              {pointsHistory.map((history) => (
-                <div
-                  key={history.id}
-                  className="flex items-center justify-between border-b pb-4 last:border-0"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`p-2 rounded-full ${history.points > 0
-                        ? 'bg-green-100 text-green-600'
-                        : 'bg-red-100 text-red-600'
-                        }`}
-                    >
-                      {history.points > 0 ? (
-                        <TrendingUp className="w-4 h-4" />
-                      ) : (
-                        <TrendingDown className="w-4 h-4" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-medium">{history.description}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDate(history.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                  <div
-                    className={`text-lg font-bold ${history.points > 0 ? 'text-green-600' : 'text-red-600'
-                      }`}
-                  >
-                    {history.points > 0 ? '+' : ''}
-                    {history.points}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+          <PointsHistoryTable 
+            pointsHistory={pointsHistory}
+            currentPage={page}
+            pageSize={limit}
+            totalItems={pointsTotal}
+          />
         </CardContent>
       </Card>
     </div>

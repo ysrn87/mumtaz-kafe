@@ -56,24 +56,29 @@ async function getSalesReport() {
   };
 }
 
-async function getInventoryReport() {
-  const inventory = await db.productVariant.findMany({
-    include: {
-      product: true,
-    },
-    orderBy: {
-      stock: 'asc',
-    },
-  });
+async function getInventoryReport(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
 
-  const totalProducts = await db.productVariant.count();
-  const lowStockCount = await db.productVariant.count({
-    where: {
-      stock: {
-        lte: db.productVariant.fields.lowStock,
+  const [inventory, totalProducts, lowStockCount] = await Promise.all([
+    db.productVariant.findMany({
+      skip,
+      take: limit,
+      include: {
+        product: true,
       },
-    },
-  });
+      orderBy: {
+        stock: 'asc',
+      },
+    }),
+    db.productVariant.count(),
+    db.productVariant.count({
+      where: {
+        stock: {
+          lte: db.productVariant.fields.lowStock,
+        },
+      },
+    }),
+  ]);
 
   // Convert ALL Decimal fields to numbers
   const serializedInventory = inventory.map(item => ({
@@ -122,10 +127,18 @@ async function getFinancialReport() {
   };
 }
 
-export default async function AdminReportsPage() {
+export default async function AdminReportsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; limit?: string }>;
+}) {
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const limit = Number(params.limit) || 10;
+
   const [salesData, inventoryData, financialData] = await Promise.all([
     getSalesReport(),
-    getInventoryReport(),
+    getInventoryReport(page, limit),
     getFinancialReport(),
   ]);
 
@@ -176,7 +189,12 @@ export default async function AdminReportsPage() {
               <CardTitle>Inventory Status</CardTitle>
             </CardHeader>
             <CardContent>
-              <InventoryReportTable inventory={inventoryData.inventory} />
+              <InventoryReportTable 
+                inventory={inventoryData.inventory} 
+                currentPage={page}
+                pageSize={limit}
+                totalItems={inventoryData.totalProducts}
+              />
             </CardContent>
           </Card>
         </TabsContent>

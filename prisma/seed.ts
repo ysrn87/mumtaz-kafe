@@ -18,6 +18,7 @@ async function main() {
       password: hashedPassword,
       name: 'Admin User',
       phone: '+62812345678',
+      address: 'Jl. Admin No. 123, Jakarta',
       role: Role.ADMINISTRATOR,
       birthday: new Date('1990-01-15'),
     },
@@ -31,6 +32,7 @@ async function main() {
       password: hashedPassword,
       name: 'Manager User',
       phone: '+62898765432',
+      address: 'Jl. Manager No. 456, Bandung',
       role: Role.MANAGER,
       birthday: new Date('1992-05-20'),
     },
@@ -44,6 +46,7 @@ async function main() {
       password: hashedPassword,
       name: 'Member User',
       phone: '+62811223344',
+      address: 'Jl. Member No. 789, Surabaya',
       role: Role.MEMBER,
       points: 0,
       birthday: new Date('1995-08-10'),
@@ -58,6 +61,7 @@ async function main() {
       password: hashedPassword,
       name: 'John Doe',
       phone: '+62855667788',
+      address: 'Jl. Doe No. 321, Bekasi',
       role: Role.MEMBER,
       points: 0,
       birthday: new Date('1988-03-25'),
@@ -84,6 +88,7 @@ async function main() {
             cost: 75000,
             stock: 50,
             lowStock: 10,
+            points: 15,
           },
           {
             name: 'Medium - Black',
@@ -92,6 +97,7 @@ async function main() {
             cost: 75000,
             stock: 75,
             lowStock: 10,
+            points: 15,
           },
           {
             name: 'Large - Black',
@@ -100,6 +106,7 @@ async function main() {
             cost: 75000,
             stock: 60,
             lowStock: 10,
+            points: 15,
           },
           {
             name: 'Small - White',
@@ -108,6 +115,7 @@ async function main() {
             cost: 75000,
             stock: 45,
             lowStock: 10,
+            points: 15,
           },
           {
             name: 'Medium - White',
@@ -116,6 +124,7 @@ async function main() {
             cost: 75000,
             stock: 80,
             lowStock: 10,
+            points: 15,
           },
         ],
       },
@@ -137,6 +146,7 @@ async function main() {
             cost: 180000,
             stock: 30,
             lowStock: 5,
+            points: 35,
           },
           {
             name: '30 - Dark Blue',
@@ -145,6 +155,7 @@ async function main() {
             cost: 180000,
             stock: 40,
             lowStock: 5,
+            points: 35,
           },
           {
             name: '32 - Dark Blue',
@@ -153,6 +164,7 @@ async function main() {
             cost: 180000,
             stock: 35,
             lowStock: 5,
+            points: 35,
           },
           {
             name: '30 - Light Blue',
@@ -161,6 +173,7 @@ async function main() {
             cost: 180000,
             stock: 25,
             lowStock: 5,
+            points: 35,
           },
         ],
       },
@@ -182,6 +195,7 @@ async function main() {
             cost: 280000,
             stock: 20,
             lowStock: 5,
+            points: 50,
           },
           {
             name: 'Size 41 - White',
@@ -190,6 +204,7 @@ async function main() {
             cost: 280000,
             stock: 25,
             lowStock: 5,
+            points: 50,
           },
           {
             name: 'Size 42 - White',
@@ -198,6 +213,7 @@ async function main() {
             cost: 280000,
             stock: 30,
             lowStock: 5,
+            points: 50,
           },
           {
             name: 'Size 40 - Black',
@@ -206,6 +222,7 @@ async function main() {
             cost: 280000,
             stock: 18,
             lowStock: 5,
+            points: 50,
           },
           {
             name: 'Size 41 - Black',
@@ -214,6 +231,7 @@ async function main() {
             cost: 280000,
             stock: 22,
             lowStock: 5,
+            points: 50,
           },
         ],
       },
@@ -235,6 +253,7 @@ async function main() {
             cost: 150000,
             stock: 40,
             lowStock: 8,
+            points: 28,
           },
           {
             name: 'L - Grey',
@@ -243,6 +262,7 @@ async function main() {
             cost: 150000,
             stock: 35,
             lowStock: 8,
+            points: 28,
           },
           {
             name: 'XL - Grey',
@@ -251,6 +271,7 @@ async function main() {
             cost: 150000,
             stock: 30,
             lowStock: 8,
+            points: 28,
           },
         ],
       },
@@ -312,6 +333,7 @@ async function main() {
         points: 165,
         type: 'EARNED',
         description: `Earned from sale ${sale1.saleNumber}`,
+        expiresAt: new Date(new Date().getFullYear(), 11, 31, 23, 59, 59),
       },
     });
 
@@ -380,6 +402,7 @@ async function main() {
         points: 660,
         type: 'EARNED',
         description: `Earned from sale ${sale2.saleNumber}`,
+        expiresAt: new Date(new Date().getFullYear(), 11, 31, 23, 59, 59),
       },
     });
 
@@ -440,12 +463,47 @@ async function main() {
 
   console.log('   ✓ Created 5 cashflow records');
 
+  // Create system settings
+  console.log('\n⚙️  Creating system settings...');
+  await prisma.settings.upsert({
+    where: { key: 'pointsConversionRate' },
+    update: {},
+    create: {
+      key: 'pointsConversionRate',
+      value: '1000',
+      description: 'Points to Rupiah conversion rate (1 point = X Rupiah)',
+    },
+  });
+
+  await prisma.settings.upsert({
+    where: { key: 'minPointsForRedemption' },
+    update: {},
+    create: {
+      key: 'minPointsForRedemption',
+      value: '10',
+      description: 'Minimum points required to redeem',
+    },
+  });
+
+  await prisma.settings.upsert({
+    where: { key: 'maxPointsPerTransaction' },
+    update: {},
+    create: {
+      key: 'maxPointsPerTransaction',
+      value: '1000',
+      description: 'Maximum points that can be redeemed in a single transaction',
+    },
+  });
+
+  console.log('   ✓ Created 3 system settings');
+
   console.log('\n🎉 Database seeding completed successfully!\n');
   console.log('📊 Summary:');
   console.log('   • 4 users created');
   console.log('   • 4 products with 17 variants');
   console.log('   • 2 sample sales');
   console.log('   • 5 cashflow records');
+  console.log('   • 3 system settings');
   console.log('\n🔐 Login credentials:');
   console.log('   Admin:   admin@example.com / password123');
   console.log('   Manager: manager@example.com / password123');

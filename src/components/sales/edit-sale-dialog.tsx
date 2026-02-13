@@ -139,50 +139,52 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Sale</DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-6 py-4">
+        <div className="grid gap-4 sm:gap-6 py-4">
           {/* Items List */}
           <div className="space-y-2">
             <h3 className="font-semibold">Items</h3>
-            <div className="border rounded-lg divide-y max-h-[300px] overflow-y-auto">
+            <div className="border rounded-lg divide-y max-h-[250px] sm:max-h-[300px] overflow-y-auto">
               {items.map((item, index) => (
-                <div key={index} className="flex items-center gap-4 p-3">
+                <div key={index} className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3">
                   <div className="flex-1">
                     <p className="font-medium text-sm">{item.variantName}</p>
                     <p className="text-xs text-gray-600">Harga: {formatCurrency(item.price)} • Tersedia: {item.currentStock}</p>
                   </div>
-                  <Input
-                    type="number"
-                    min="0"
-                    max={item.currentStock}
-                    value={item.quantity}
-                    onChange={(e) => updateQuantity(index, parseInt(e.target.value) || 0)}
-                    className="w-20"
-                    disabled={loading}
-                  />
-                  <span className="font-semibold w-24 text-right">
-                    {formatCurrency(item.price * item.quantity)}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeItem(index)}
-                    disabled={loading || items.length === 1}
-                  >
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                  </Button>
+                  <div className="flex items-center gap-2 sm:gap-4">
+                    <Input
+                      type="number"
+                      min="0"
+                      max={item.currentStock}
+                      value={item.quantity}
+                      onChange={(e) => updateQuantity(index, parseInt(e.target.value) || 0)}
+                      className="w-16 sm:w-20"
+                      disabled={loading}
+                    />
+                    <span className="font-semibold w-20 sm:w-24 text-right">
+                      {formatCurrency(item.price * item.quantity)}
+                    </span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeItem(index)}
+                      disabled={loading || items.length === 1}
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Payment Details */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="paymentMethod">Metode Bayar</Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod} disabled={loading}>
@@ -238,16 +240,16 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
 
           {/* Point Redemption Info - Read Only */}
           {pointsRedeemed > 0 && (
-            <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
+            <div className="p-3 sm:p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
               <div className="flex items-center gap-2 mb-2">
-                <Gift className="w-5 h-5 text-purple-600" />
-                <h3 className="font-semibold text-purple-900">Point Redeemed (Cannot be changed)</h3>
+                <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+                <h3 className="font-semibold text-sm sm:text-base text-purple-900">Point Redeemed (Cannot be changed)</h3>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-purple-700">
+                <p className="text-xs sm:text-sm text-purple-700">
                   <strong>{pointsRedeemed} points</strong> were redeemed in this transaction
                 </p>
-                <p className="text-sm text-purple-600">
+                <p className="text-xs sm:text-sm text-purple-600">
                   Point Discount: <strong>{formatCurrency(pointDiscount)}</strong>
                 </p>
                 <p className="text-xs text-orange-600 mt-1">
@@ -258,7 +260,7 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
           )}
 
           {/* Summary */}
-          <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+          <div className="bg-gray-50 rounded-lg p-3 sm:p-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span>Subtotal:</span>
               <span>{formatCurrency(subtotal)}</span>
@@ -271,7 +273,7 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
             )}
             {pointsRedeemed > 0 && (
               <div className="flex justify-between text-sm text-purple-600 font-medium">
-                <span>Point Discount ({pointsRedeemed} pts):</span>
+                <span className="text-xs sm:text-sm">Point Discount ({pointsRedeemed} pts):</span>
                 <span>-{formatCurrency(pointDiscount)}</span>
               </div>
             )}
@@ -281,18 +283,18 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
                 <span>{formatCurrency(tax)}</span>
               </div>
             )}
-            <div className="flex justify-between text-lg font-bold pt-2 border-t">
+            <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t">
               <span>Total:</span>
               <span>{formatCurrency(total)}</span>
             </div>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading} className="w-full sm:w-auto">
             Cancel
           </Button>
-          <Button type="button" onClick={handleSubmit} disabled={loading || items.length === 0}>
+          <Button type="button" onClick={handleSubmit} disabled={loading || items.length === 0} className="w-full sm:w-auto">
             {loading ? 'Updating...' : 'Update Sale'}
           </Button>
         </DialogFooter>

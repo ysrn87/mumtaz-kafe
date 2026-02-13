@@ -196,9 +196,9 @@ export function SaleDetailsDialog({ sale, conversionRate = 1000, open, onOpenCha
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[700px]">
+        <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <div className="flex justify-between items-start">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
               <div>
                 <DialogTitle>Sale Details</DialogTitle>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -206,34 +206,34 @@ export function SaleDetailsDialog({ sale, conversionRate = 1000, open, onOpenCha
                 </p>
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handlePrint}>
-                  <Printer className="w-4 h-4 mr-2" />
-                  Print Invoice
+                <Button variant="outline" size="sm" onClick={handlePrint} className="flex-1 sm:flex-initial">
+                  <Printer className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Print Invoice</span>
                 </Button>
-                <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)}>
-                  <Pencil className="w-4 h-4 mr-2" />
-                  Edit
+                <Button variant="outline" size="sm" onClick={() => setShowEditDialog(true)} className="flex-1 sm:flex-initial">
+                  <Pencil className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Edit</span>
                 </Button>
               </div>
             </div>
           </DialogHeader>
 
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             {/* Customer Info */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-medium mb-2">Pelanggan</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                <h4 className="font-medium mb-2 text-sm sm:text-base">Pelanggan</h4>
                 {sale.customer ? (
                   <>
                     <p className="text-sm font-medium">{sale.customer.name}</p>
-                    <p className="text-sm text-gray-600">{sale.customer.email}</p>
+                    <p className="text-xs sm:text-sm text-gray-600">{sale.customer.email}</p>
                     {sale.pointsEarned > 0 && (
-                      <p className="text-sm text-blue-600 mt-2">+{sale.pointsEarned} poin bertambah</p>
+                      <p className="text-xs sm:text-sm text-blue-600 mt-2">+{sale.pointsEarned} poin bertambah</p>
                     )}
                     {pointsRedeemed > 0 && (
                       <div className="flex items-center gap-1 mt-1">
-                        <Gift className="w-4 h-4 text-purple-600" />
-                        <p className="text-sm text-purple-600 font-medium">-{pointsRedeemed} poin ditukar</p>
+                        <Gift className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
+                        <p className="text-xs sm:text-sm text-purple-600 font-medium">-{pointsRedeemed} poin ditukar</p>
                       </div>
                     )}
                   </>
@@ -242,26 +242,26 @@ export function SaleDetailsDialog({ sale, conversionRate = 1000, open, onOpenCha
                 )}
               </div>
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-medium mb-2">Pembayaran</h4>
-                <p className="text-sm"><span className="text-gray-600">Metode:</span> {sale.paymentMethod}</p>
-                <p className="text-sm"><span className="text-gray-600">Cashier:</span> {sale.cashier.name}</p>
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                <h4 className="font-medium mb-2 text-sm sm:text-base">Pembayaran</h4>
+                <p className="text-xs sm:text-sm"><span className="text-gray-600">Metode:</span> {sale.paymentMethod}</p>
+                <p className="text-xs sm:text-sm"><span className="text-gray-600">Cashier:</span> {sale.cashier.name}</p>
               </div>
             </div>
 
             {/* Items */}
             <div>
-              <h4 className="font-medium mb-3">Items</h4>
+              <h4 className="font-medium mb-3 text-sm sm:text-base">Items</h4>
               <div className="border rounded-lg divide-y">
                 {sale.items.map((item) => (
-                  <div key={item.id} className="p-4 flex justify-between">
+                  <div key={item.id} className="p-3 sm:p-4 flex flex-col sm:flex-row sm:justify-between gap-2">
                     <div className="flex-1">
-                      <p className="font-medium">{item.variant.product.name}</p>
-                      <p className="text-sm text-gray-600">{item.variant.name} • SKU: {item.variant.sku}</p>
-                      <p className="text-sm text-gray-600">{item.quantity} × {formatCurrency(item.price)}</p>
+                      <p className="font-medium text-sm sm:text-base">{item.variant.product.name}</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{item.variant.name} • SKU: {item.variant.sku}</p>
+                      <p className="text-xs sm:text-sm text-gray-600">{item.quantity} × {formatCurrency(item.price)}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium">{formatCurrency(item.subtotal)}</p>
+                    <div className="text-left sm:text-right">
+                      <p className="font-medium text-sm sm:text-base">{formatCurrency(item.subtotal)}</p>
                     </div>
                   </div>
                 ))}
@@ -269,30 +269,30 @@ export function SaleDetailsDialog({ sale, conversionRate = 1000, open, onOpenCha
             </div>
 
             {/* Totals */}
-            <div className="bg-gray-50 rounded-lg p-4 space-y-2">
-              <div className="flex justify-between text-sm">
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 space-y-2">
+              <div className="flex justify-between text-xs sm:text-sm">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="font-medium">{formatCurrency(sale.subtotal)}</span>
               </div>
               {sale.discount > 0 && (
-                <div className="flex justify-between text-sm text-green-600">
+                <div className="flex justify-between text-xs sm:text-sm text-green-600">
                   <span>Discount</span>
                   <span className="font-medium">-{formatCurrency(sale.discount)}</span>
                 </div>
               )}
               {pointsRedeemed > 0 && (
-                <div className="flex justify-between text-sm text-purple-600 font-medium">
+                <div className="flex justify-between text-xs sm:text-sm text-purple-600 font-medium">
                   <span>Point Discount ({pointsRedeemed} pts)</span>
                   <span>-{formatCurrency(pointDiscount)}</span>
                 </div>
               )}
               {sale.tax > 0 && (
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between text-xs sm:text-sm">
                   <span className="text-gray-600">Tax</span>
                   <span className="font-medium">{formatCurrency(sale.tax)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-lg font-bold pt-2 border-t">
+              <div className="flex justify-between text-base sm:text-lg font-bold pt-2 border-t">
                 <span>Total</span>
                 <span>{formatCurrency(sale.total)}</span>
               </div>
@@ -300,9 +300,9 @@ export function SaleDetailsDialog({ sale, conversionRate = 1000, open, onOpenCha
 
             {/* Notes */}
             {sale.notes && (
-              <div className="bg-blue-50 rounded-lg p-4">
-                <h4 className="font-medium mb-2 text-blue-900">Notes</h4>
-                <p className="text-sm text-blue-800">{sale.notes}</p>
+              <div className="bg-blue-50 rounded-lg p-3 sm:p-4">
+                <h4 className="font-medium mb-2 text-sm sm:text-base text-blue-900">Notes</h4>
+                <p className="text-xs sm:text-sm text-blue-800">{sale.notes}</p>
               </div>
             )}
           </div>

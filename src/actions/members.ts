@@ -163,16 +163,27 @@ export async function createCustomerAction(formData: FormData) {
     const photoUrl = formData.get('photoUrl') as string;
 
     if (!name || !phone || !password) {
-      return { success: false, error: 'Name, email, and password are required' };
+      return { success: false, error: 'Name, phone, and password are required' };
     }
 
-    // Check if email already exists
-    const existingUser = await db.user.findUnique({
-      where: { email },
+    // Check if phone already exists
+    const existingPhone = await db.user.findFirst({
+      where: { phone },
     });
 
-    if (existingUser) {
-      return { success: false, error: 'Email already exists' };
+    if (existingPhone) {
+      return { success: false, error: 'Phone number already registered' };
+    }
+
+    // Check if email exists (if provided)
+    if (email && email.trim() !== '') {
+      const existingEmail = await db.user.findFirst({
+        where: { email: email.trim() },
+      });
+
+      if (existingEmail) {
+        return { success: false, error: 'Email already registered' };
+      }
     }
 
     // Hash password
@@ -184,8 +195,8 @@ export async function createCustomerAction(formData: FormData) {
         name,
         phone,
         password: hashedPassword,
-        email: email,
-        address: address,
+        email: email && email.trim() !== '' ? email.trim() : null,
+        address: address || null,
         birthday: birthday ? new Date(birthday) : null,
         photoUrl: photoUrl || null,
         role: 'MEMBER',
@@ -220,7 +231,7 @@ export async function updateCustomerAction(id: string, formData: FormData) {
     const pointsReason = formData.get('pointsReason') as string;
 
     if (!name || !phone) {
-      return { success: false, error: 'Name and email are required' };
+      return { success: false, error: 'Name and phone are required' };
     }
 
     // Validate password length if provided
@@ -240,6 +251,20 @@ export async function updateCustomerAction(id: string, formData: FormData) {
       return { success: false, error: 'Phone already exists' };
     }
 
+    // Check if email exists on different user (if provided)
+    if (email && email.trim() !== '') {
+      const existingEmailUser = await db.user.findFirst({
+        where: {
+          email: email.trim(),
+          id: { not: id }
+        },
+      });
+
+      if (existingEmailUser) {
+        return { success: false, error: 'Email already registered' };
+      }
+    }
+
     if (address && address.length > 120) {
       return { success: false, error: 'Address cannot exceed 200 characters' };
     }
@@ -257,7 +282,7 @@ export async function updateCustomerAction(id: string, formData: FormData) {
     const updateData: any = {
       name,
       phone,
-      email: email || null,
+      email: email && email.trim() !== '' ? email.trim() : null,
       address: address || null,
       birthday: birthday ? new Date(birthday) : null,
       photoUrl: photoUrl || null,

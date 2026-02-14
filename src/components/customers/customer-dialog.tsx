@@ -129,6 +129,19 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
             </div>
 
             <div className="grid gap-2">
+              <Label htmlFor="phone">No. WhatsApp *</Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                required
+                defaultValue={customer?.phone}
+                placeholder="+62 812-3456-7890"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -136,18 +149,6 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 type="email"
                 defaultValue={customer?.email}
                 placeholder="john@example.com"
-                disabled={loading}
-              />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="phone">No. WhatsApp</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                defaultValue={customer?.phone}
-                placeholder="+62 812-3456-7890"
                 disabled={loading}
               />
             </div>

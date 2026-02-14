@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/components/ui/use-toast';
 import { createSaleAction } from '@/actions/sales';
-import { Plus, Trash2, Gift } from 'lucide-react';
+import { Plus, Trash2, Gift, X, User, Search, ChevronDown } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 interface SaleItem {
@@ -34,7 +34,7 @@ interface NewSaleDialogProps {
     name: string;
     points: number;
   }>;
-  conversionRate?: number; // Points to Rupiah conversion rate
+  conversionRate?: number;
 }
 
 export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: NewSaleDialogProps) {
@@ -49,17 +49,22 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
   const [tax, setTax] = useState<number>(0);
   const [pointsToRedeem, setPointsToRedeem] = useState<number>(0);
   const [notes, setNotes] = useState<string>('');
+  
+  // Improved UI states
+  const [customerSearch, setCustomerSearch] = useState('');
+  const [productSearch, setProductSearch] = useState('');
+  const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
+  const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
+  
   const { toast } = useToast();
 
-  // Get selected customer's available points
   const selectedCustomer = customers.find(c => c.id === customerId);
   const availablePoints = selectedCustomer?.points || 0;
-  const pointDiscount = pointsToRedeem * conversionRate; // Use configurable rate
+  const pointDiscount = pointsToRedeem * conversionRate;
 
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const total = subtotal - discount - pointDiscount + tax;
 
-  // Validate discount doesn't exceed subtotal
   const handleDiscountChange = (value: number) => {
     const totalDiscount = value + pointDiscount;
     
@@ -82,7 +87,6 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
     }
   };
 
-  // Handle point redemption
   const handlePointsRedeemChange = (value: number) => {
     const newPointDiscount = value * conversionRate;
     const totalDiscount = discount + newPointDiscount;
@@ -111,10 +115,17 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
     }
   };
 
-  // Reset points when customer changes
   const handleCustomerChange = (value: string) => {
     setCustomerId(value);
-    setPointsToRedeem(0); // Reset points when changing customer
+    setPointsToRedeem(0);
+    setIsCustomerDropdownOpen(false);
+    setCustomerSearch('');
+  };
+
+  const handleProductSelect = (variantId: string) => {
+    setSelectedVariantId(variantId);
+    setIsProductDropdownOpen(false);
+    setProductSearch('');
   };
 
   const addItem = () => {
@@ -139,7 +150,6 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       return;
     }
 
-    // Check if item already exists
     const existingItemIndex = items.findIndex(item => item.variantId === selectedVariantId);
     
     if (existingItemIndex >= 0) {
@@ -200,7 +210,6 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       return;
     }
 
-    // Validate total discount (regular + point) doesn't exceed subtotal
     const totalDiscount = discount + pointDiscount;
     if (totalDiscount > subtotal) {
       toast({
@@ -211,7 +220,6 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       return;
     }
 
-    // Prevent negative total
     if (total < 0) {
       toast({
         title: 'Error',
@@ -252,7 +260,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       } else {
         toast({
           title: 'Error',
-          description: result.error || 'Failed to process sale.',
+          description: result.error || 'Failed to create sale.',
           variant: 'destructive',
         });
       }
@@ -267,6 +275,30 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
     }
   };
 
+  // Get customer display name
+  const getCustomerDisplayName = () => {
+    if (!customerId) return null;
+    if (customerId === 'WALK_IN') return 'Pelanggan Umum';
+    return selectedCustomer?.name || '';
+  };
+
+  // Get selected variant
+  const selectedVariant = variants.find(v => v.id === selectedVariantId);
+
+  // Filter customers
+  const filteredCustomers = customers.filter(c => 
+    c.name.toLowerCase().includes(customerSearch.toLowerCase())
+  );
+
+  // Filter variants
+  const filteredVariants = variants
+    .filter(v => v.stock > 0)
+    .filter(v => 
+      !productSearch || 
+      v.product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
+      v.name.toLowerCase().includes(productSearch.toLowerCase())
+    );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -275,60 +307,222 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
           New Sale
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>New Sale</DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-6 py-4">
-          {/* Customer Selection - Required First */}
-          <div className="space-y-4 p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
-            <h3 className="font-semibold text-blue-900">Langkah 1: Pilih Pelanggan *</h3>
-            <div className="grid gap-2">
-              <Label htmlFor="customer">Cari member *</Label>
-              <Select value={customerId} onValueChange={handleCustomerChange}>
-                <SelectTrigger className="bg-white">
-                  <SelectValue placeholder="Pilih member" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="WALK_IN">Pelanggan Umum</SelectItem>
-                  {customers.map((customer) => (
-                    <SelectItem key={customer.id} value={customer.id}>
-                      {customer.name} ({customer.points} pts)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <div className="grid gap-4 py-4">
+          {/* Customer Selection - Improved Combobox Style */}
+          <div className="grid gap-2">
+            <Label className="text-sm font-medium">
+              Customer <span className="text-red-500">*</span>
+            </Label>
+            
+            <div className="relative">
+              {/* Combobox Button */}
+              <button
+                type="button"
+                onClick={() => setIsCustomerDropdownOpen(!isCustomerDropdownOpen)}
+                className={`flex items-center gap-2 w-full min-h-[44px] px-3 py-2 border rounded-md text-left transition-colors ${
+                  !customerId ? 'text-gray-400 hover:bg-gray-50' : 'hover:bg-gray-50'
+                } ${!customerId ? 'border-gray-300' : 'border-blue-300 bg-blue-50'}`}
+              >
+                {customerId ? (
+                  // Selected state - show as chip
+                  <div className="flex items-center gap-2 bg-blue-100 text-blue-900 px-2 py-1 rounded-md">
+                    <User className="w-4 h-4" />
+                    <span className="text-sm font-medium">{getCustomerDisplayName()}</span>
+                    {selectedCustomer && (
+                      <span className="text-xs text-blue-600">• {selectedCustomer.points} pts</span>
+                    )}
+                    <X 
+                      className="w-4 h-4 ml-1 cursor-pointer hover:text-blue-700" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCustomerId('');
+                        setPointsToRedeem(0);
+                      }}
+                    />
+                  </div>
+                ) : (
+                  // Empty state - show placeholder
+                  <span className="text-sm">Select customer...</span>
+                )}
+                <ChevronDown className="w-4 h-4 ml-auto text-gray-400" />
+              </button>
+
+              {/* Dropdown */}
+              {isCustomerDropdownOpen && (
+                <div className="absolute z-50 w-full mt-1 border rounded-md bg-white shadow-lg">
+                  {/* Search input */}
+                  <div className="p-2 border-b">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Input
+                        placeholder="Search customers..."
+                        value={customerSearch}
+                        onChange={(e) => setCustomerSearch(e.target.value)}
+                        className="pl-8 h-9"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+
+                  {/* Options list */}
+                  <div className="max-h-[240px] overflow-y-auto">
+                    {/* Walk-in option */}
+                    {(!customerSearch || 'pelanggan umum'.includes(customerSearch.toLowerCase())) && (
+                      <div
+                        onClick={() => handleCustomerChange('WALK_IN')}
+                        className={`flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 border-b ${
+                          customerId === 'WALK_IN' ? 'bg-blue-50' : ''
+                        }`}
+                      >
+                        <span className="text-sm">Pelanggan Umum</span>
+                        {customerId === 'WALK_IN' && (
+                          <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Customer list */}
+                    {filteredCustomers.map((customer) => (
+                      <div
+                        key={customer.id}
+                        onClick={() => handleCustomerChange(customer.id)}
+                        className={`flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 border-b last:border-b-0 ${
+                          customerId === customer.id ? 'bg-blue-50' : ''
+                        }`}
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium text-sm">{customer.name}</span>
+                          <span className="text-xs text-gray-500">{customer.points} points</span>
+                        </div>
+                        {customerId === customer.id && (
+                          <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    
+                    {/* No results */}
+                    {customerSearch && 
+                     filteredCustomers.length === 0 && 
+                     !'pelanggan umum'.includes(customerSearch.toLowerCase()) && (
+                      <div className="p-4 text-center text-sm text-gray-500">
+                        No customers found
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Product Selection - Only show if customer is selected */}
           {customerId && (
             <>
-              <div className="space-y-4">
-                <h3 className="font-semibold">Langkah 2: Tambah Item</h3>
-                <div className="grid grid-cols-[1fr,100px,auto] gap-2">
-                  <Select value={selectedVariantId} onValueChange={setSelectedVariantId}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih produk" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {variants.filter(v => v.stock > 0).map((variant) => (
-                        <SelectItem key={variant.id} value={variant.id}>
-                          {variant.product.name} - {variant.name} ({formatCurrency(variant.price)}) - Stock: {variant.stock}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div className="grid gap-2">
+                <Label className="text-sm font-medium">Add Product</Label>
+                
+                {/* Selected product chip - show above input */}
+                {selectedVariant && (
+                  <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-blue-900">
+                        {selectedVariant.product.name} - {selectedVariant.name}
+                      </p>
+                      <p className="text-xs text-blue-600">
+                        {formatCurrency(selectedVariant.price)} • Stock: {selectedVariant.stock}
+                      </p>
+                    </div>
+                    <X 
+                      className="w-4 h-4 cursor-pointer text-blue-600 hover:text-blue-700" 
+                      onClick={() => setSelectedVariantId('')}
+                    />
+                  </div>
+                )}
+
+                {/* Search input */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="Search products..."
+                    value={productSearch}
+                    onChange={(e) => {
+                      setProductSearch(e.target.value);
+                      setIsProductDropdownOpen(true);
+                    }}
+                    onFocus={() => setIsProductDropdownOpen(true)}
+                    className="pl-9"
+                  />
+                </div>
+
+                {/* Dropdown - only when searching */}
+                {isProductDropdownOpen && productSearch && (
+                  <div className="border rounded-md bg-white shadow-lg max-h-[200px] overflow-y-auto">
+                    {filteredVariants.map((variant) => (
+                      <div
+                        key={variant.id}
+                        onClick={() => handleProductSelect(variant.id)}
+                        className={`p-3 cursor-pointer hover:bg-gray-50 border-b last:border-b-0 ${
+                          selectedVariantId === variant.id ? 'bg-blue-50' : ''
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">
+                              {variant.product.name} - {variant.name}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {formatCurrency(variant.price)} • Stock: {variant.stock}
+                            </p>
+                          </div>
+                          {selectedVariantId === variant.id && (
+                            <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                              <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                              </svg>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {filteredVariants.length === 0 && (
+                      <div className="p-4 text-center text-sm text-gray-500">
+                        No products found
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Quantity and Add button */}
+                <div className="grid grid-cols-[1fr,auto] gap-2">
                   <Input
                     type="number"
-                    min="0"
+                    min="1"
                     value={quantity}
-                    onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                    placeholder="Qty"
+                    onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                    placeholder="Quantity"
+                    className="text-sm"
                   />
-                  <Button className="bg-blue-600 text-white" type="button" onClick={addItem} variant="outline">
-                    + Add
+                  <Button 
+                    type="button" 
+                    onClick={addItem} 
+                    disabled={!selectedVariantId || quantity <= 0}
+                    className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
+                  >
+                    <Plus className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Add</span>
                   </Button>
                 </div>
               </div>
@@ -336,18 +530,18 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
               {/* Items List */}
               {items.length > 0 && (
                 <div className="space-y-2">
-                  <h3 className="font-semibold">Items ({items.length})</h3>
-                  <div className="border rounded-lg divide-y">
+                  <Label className="text-sm font-medium">Cart Items ({items.length})</Label>
+                  <div className="border rounded-lg divide-y max-h-[250px] overflow-y-auto">
                     {items.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3">
-                        <div className="flex-1">
-                          <p className="font-medium">{item.variantName}</p>
-                          <p className="text-sm text-gray-600">
+                      <div key={index} className="flex items-center gap-3 p-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{item.variantName}</p>
+                          <p className="text-xs text-gray-600">
                             {item.quantity} × {formatCurrency(item.price)}
                           </p>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <span className="font-semibold">
+                        <div className="flex items-center gap-3">
+                          <span className="font-semibold text-sm whitespace-nowrap">
                             {formatCurrency(item.price * item.quantity)}
                           </span>
                           <Button
@@ -355,6 +549,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                             variant="ghost"
                             size="sm"
                             onClick={() => removeItem(index)}
+                            className="h-8 w-8 p-0"
                           >
                             <Trash2 className="w-4 h-4 text-red-600" />
                           </Button>
@@ -367,7 +562,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
 
               {/* Payment Method */}
               <div className="grid gap-2">
-                <Label htmlFor="paymentMethod">Metode Bayar</Label>
+                <Label htmlFor="paymentMethod" className="text-sm">Payment Method</Label>
                 <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                   <SelectTrigger>
                     <SelectValue />
@@ -383,7 +578,9 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
               {/* Discount & Tax */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="discount">Discount (Max: {formatCurrency(subtotal)})</Label>
+                  <Label htmlFor="discount" className="text-sm">
+                    Discount {subtotal > 0 && <span className="text-xs text-gray-500">(Max: {formatCurrency(subtotal)})</span>}
+                  </Label>
                   <Input
                     id="discount"
                     type="number"
@@ -397,7 +594,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="tax">Tax</Label>
+                  <Label htmlFor="tax" className="text-sm">Tax</Label>
                   <Input
                     id="tax"
                     type="number"
@@ -412,17 +609,18 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
 
               {/* Notes */}
               <div className="grid gap-2">
-                <Label htmlFor="notes">Catatan (Optional) - Max 30 karakter</Label>
+                <Label htmlFor="notes" className="text-sm">Notes (Optional)</Label>
                 <Textarea
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add notes for this sale..."
-                  rows={3}
-                  maxLength={30}
+                  rows={2}
+                  maxLength={500}
+                  className="text-sm"
                 />
-                <p className='text-xs text-gray-500 text-right'>
-                  {notes.length}/30 karakter
+                <p className="text-xs text-gray-500 text-right">
+                  {notes.length}/500 characters
                 </p>
               </div>
 
@@ -431,18 +629,18 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 <div className="space-y-3 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border-2 border-purple-200">
                   <div className="flex items-center gap-2">
                     <Gift className="w-5 h-5 text-purple-600" />
-                    <h3 className="font-semibold text-purple-900">Tukar Point</h3>
+                    <h3 className="font-semibold text-base text-purple-900">Redeem Points</h3>
                   </div>
                   
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-purple-700">Poin Tersedia:</span>
-                      <span className="font-semibold text-purple-900">{availablePoints} points</span>
+                      <span className="text-purple-700">Available Points:</span>
+                      <span className="font-semibold text-purple-900">{availablePoints} pts</span>
                     </div>
                     
                     <div className="grid gap-2">
-                      <Label htmlFor="pointsRedeem" className="text-purple-900">
-                        Point yang dapat ditukar (Max: {availablePoints})
+                      <Label htmlFor="pointsRedeem" className="text-sm text-purple-900">
+                        Points to Redeem (Max: {availablePoints})
                       </Label>
                       <Input
                         id="pointsRedeem"
@@ -455,7 +653,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                         className="bg-white"
                       />
                       <p className="text-xs text-purple-600">
-                        1 poin = Rp {conversionRate.toLocaleString('id-ID')} discount • {pointsToRedeem} points = {formatCurrency(pointDiscount)}
+                        1 point = {formatCurrency(conversionRate)} discount • {pointsToRedeem} pts = {formatCurrency(pointDiscount)}
                       </p>
                     </div>
 
@@ -466,7 +664,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                           <span className="text-lg font-bold text-purple-900">-{formatCurrency(pointDiscount)}</span>
                         </div>
                         <p className="text-xs text-orange-600 mt-1">
-                          ⚠️ Note: Member tidak mendapatkan poin saat menukar point
+                          ⚠️ Member will not earn points when redeeming
                         </p>
                       </div>
                     )}
@@ -479,28 +677,28 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 <div className="space-y-2 pt-4 border-t">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
-                    <span>{formatCurrency(subtotal)}</span>
+                    <span className="font-medium">{formatCurrency(subtotal)}</span>
                   </div>
-                  {discount > 0 && (
-                    <div className="flex justify-between text-sm text-green-600">
-                      <span>Discount:</span>
-                      <span>-{formatCurrency(discount)}</span>
-                    </div>
-                  )}
-                  {pointsToRedeem > 0 && (
-                    <div className="flex justify-between text-sm text-purple-600 font-medium">
-                      <span>Discount ({pointsToRedeem} poin):</span>
-                      <span>-{formatCurrency(pointDiscount)}</span>
-                    </div>
-                  )}
                   {tax > 0 && (
                     <div className="flex justify-between text-sm">
                       <span>Tax:</span>
-                      <span>{formatCurrency(tax)}</span>
+                      <span className="font-medium">{formatCurrency(tax)}</span>
+                    </div>
+                  )}
+                  {discount > 0 && (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Discount:</span>
+                      <span className="font-medium">-{formatCurrency(discount)}</span>
+                    </div>
+                  )}
+                  {pointsToRedeem > 0 && (
+                    <div className="flex justify-between text-sm text-purple-600">
+                      <span>Point Discount ({pointsToRedeem} pts):</span>
+                      <span className="font-medium">-{formatCurrency(pointDiscount)}</span>
                     </div>
                   )}
                   
-                  {/* Warning when total discount is too high */}
+                  {/* Warning when total discount is high */}
                   {(discount + pointDiscount) > subtotal * 0.8 && (discount + pointDiscount) <= subtotal && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded p-2 text-xs text-yellow-800">
                       ⚠️ Total discount is {Math.round((discount + pointDiscount) / subtotal * 100)}% of subtotal
@@ -510,11 +708,13 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   {/* Error when total discount exceeds subtotal */}
                   {(discount + pointDiscount) > subtotal && (
                     <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-800">
-                      ❌ Total discount exceeds subtotal! Please reduce discount or points.
+                      ❌ Total discount exceeds subtotal! Reduce discount or points.
                     </div>
                   )}
                   
-                  <div className={`flex justify-between text-lg font-bold pt-2 border-t ${total < 0 ? 'text-red-600' : total === 0 ? 'text-yellow-600' : ''}`}>
+                  <div className={`flex justify-between text-lg font-bold pt-2 border-t ${
+                    total < 0 ? 'text-red-600' : total === 0 ? 'text-yellow-600' : 'text-gray-900'
+                  }`}>
                     <span>Total:</span>
                     <span>{formatCurrency(Math.max(0, total))}</span>
                   </div>
@@ -524,16 +724,23 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
           )}
         </div>
 
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => setOpen(false)} disabled={loading}>
-            Batal
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => setOpen(false)} 
+            disabled={loading}
+            className="w-full sm:w-auto"
+          >
+            Cancel
           </Button>
           <Button 
             type="button" 
             onClick={handleSubmit} 
             disabled={loading || items.length === 0 || !customerId || (discount + pointDiscount) > subtotal || total < 0}
+            className="w-full sm:w-auto"
           >
-            {loading ? 'Processing...' : 'Simpan'}
+            {loading ? 'Processing...' : 'Complete Sale'}
           </Button>
         </DialogFooter>
       </DialogContent>

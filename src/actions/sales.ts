@@ -182,7 +182,7 @@ export async function createSaleAction(input: CreateSaleInput) {
           type: 'INCOME',
           category: 'Penjualan',
           amount: total,
-          description: `Sale ${newSale.saleNumber}${customerId ? ` - ${await tx.user.findUnique({ where: { id: customerId }, select: { name: true } }).then(u => u?.name || 'Customer')}` : ' - Walk-in'}`,
+          description: `Sale ${newSale.saleNumber}${customerId ? ` - ${await tx.user.findUnique({ where: { id: customerId }, select: { name: true } }).then(u => u?.name || 'Customer')}` : ' - Pelanggan umum'}`,
           date: new Date(),
           createdById: session.user.id,
         },

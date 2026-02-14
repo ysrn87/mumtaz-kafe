@@ -73,7 +73,7 @@ export function ManagerSalesTable({
             <TableRow key={sale.id}>
               <TableCell className="font-medium">{sale.saleNumber}</TableCell>
               <TableCell>{formatDateTime(sale.createdAt)}</TableCell>
-              <TableCell>{sale.customer?.name || 'Walk-in'}</TableCell>
+              <TableCell>{sale.customer?.name || 'pelanggan umum'}</TableCell>
               <TableCell>{sale.items.reduce((sum, item) => sum + item.quantity, 0)} unit</TableCell>
               <TableCell>{formatCurrency(sale.total)}</TableCell>
               <TableCell>

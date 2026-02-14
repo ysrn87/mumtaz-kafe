@@ -53,7 +53,7 @@ function LoginForm() {
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
             <ShoppingBag className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-2xl sm:text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <CardTitle className="text-xl sm:text-xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Tape Singkong Mumtaz Kafe
           </CardTitle>
           <CardDescription className="text-center text-base">

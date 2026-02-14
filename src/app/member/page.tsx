@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { Award, ShoppingBag, ArrowUp, ArrowDown } from 'lucide-react';
-import { MemberCard } from '@/components/customers/member-card';
+import { MemberCard } from '@/components/member/member-card';
 import { PointsHistoryTable } from '@/components/customers/points-history-table';
 
 async function getMemberData(userId: string, page: number = 1, limit: number = 10) {

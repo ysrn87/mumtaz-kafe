@@ -53,7 +53,7 @@ function LoginForm() {
           <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
             <ShoppingBag className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-xl sm:text-xl font-bold text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <CardTitle className="text-xl sm:text-xl font-bold text-center bg-gradient-to-l from-blue-600 to-purple-600 bg-clip-text text-transparent">
             Tape Singkong Mumtaz Kafe
           </CardTitle>
           <CardDescription className="text-center text-base">
@@ -72,7 +72,7 @@ function LoginForm() {
                 name="identifier"
                 type="text"
                 required
-                placeholder="you@example.com or +62812345678"
+                placeholder="you@example.com or 08123456789"
                 disabled={loading}
                 className="h-11 text-sm"
               />
@@ -118,7 +118,7 @@ function LoginForm() {
               ) : (
                 <>
                   <LogIn className="w-4 h-4 mr-2" />
-                  Sign In
+                  Masuk
                 </>
               )}
             </Button>
@@ -139,19 +139,10 @@ function LoginForm() {
               className="w-full h-11 font-semibold border-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200"
             >
               <UserPlus className="w-4 h-4 mr-2" />
-              Buat Akun Member
+              Register Member
             </Button>
           </Link>
 
-          <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
-            <p className="font-semibold mb-2 text-xs text-gray-700 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-600" />
-              Demo Credentials:
-            </p>
-            <div className="space-y-1 text-xs text-gray-600">
-              <p className="font-mono">Member: member@example.com / password123</p>
-            </div>
-          </div>
         </CardContent>
       </Card>
     </div>

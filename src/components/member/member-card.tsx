@@ -1,13 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { User, Mail, Phone, Calendar, Award, CreditCard, Sparkles, X, MapPin } from 'lucide-react';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { User, Mail, Phone, Calendar, CreditCard, Sparkles, X, MapPin } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 
 interface MemberCardProps {
   user: {
@@ -47,7 +46,7 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
         {/* Decorative circles */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
         <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-12 -translate-x-12"></div>
-        
+
         {/* Content - Stack on mobile, side-by-side on larger screens */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 relative z-10">
           {/* Avatar - Responsive sizing - Rounded rectangle - Clickable */}
@@ -82,7 +81,7 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 drop-shadow-md">
               {user.name}
             </h2>
-            
+
             {/* Points badge - Prominent and responsive */}
             <div className="inline-flex items-center gap-2 bg-white/25 backdrop-blur-sm rounded-full px-4 sm:px-5 py-2 sm:py-2.5 mb-3 shadow-lg border border-white/30">
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
@@ -105,7 +104,7 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
       {/* Card body with details - Responsive grid */}
       <CardContent className="p-3 sm:p-3 lg:p-8">
         <div className="grid gap-0 sm:gap-3">
-          
+
           {/* Phone */}
           {user.phone && (
             <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
@@ -118,7 +117,7 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
               </div>
             </div>
           )}
-          
+
           {/* Address */}
           {user.address && (
             <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
@@ -133,15 +132,17 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
           )}
 
           {/* Email */}
-          <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
-            <div className="p-2 sm:p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200 shrink-0">
-              <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+          {user.email && (
+            <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+              <div className="p-2 sm:p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200 shrink-0">
+                <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Email</p>
+                <p className="font-normal text-sm sm:text-base break-all">{user.email}</p>
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Email</p>
-              <p className="font-normal text-sm sm:text-base break-all">{user.email}</p>
-            </div>
-          </div>
+          )}
 
           {/* Birthday */}
           {user.birthday && (

@@ -7,46 +7,46 @@ async function cleanDatabase() {
   console.log('⚠️  WARNING: This will DELETE EVERYTHING including all users and settings!\n');
 
   try {
-    // Use transaction to ensure all or nothing
-    await prisma.$transaction(async (tx) => {
+    // Use transaction with longer timeout to ensure all or nothing
+    const result = await prisma.$transaction(async (tx) => {
       // Delete in order to respect foreign key constraints (child tables first)
       
-      console.log('  🗑️  Deleting cashflows...');
       const cashflowCount = await tx.cashflow.deleteMany({});
-      console.log(`     ✓ Deleted ${cashflowCount.count} cashflow records`);
-      
-      console.log('  🗑️  Deleting point history...');
       const pointHistoryCount = await tx.pointHistory.deleteMany({});
-      console.log(`     ✓ Deleted ${pointHistoryCount.count} point history records`);
-      
-      console.log('  🗑️  Deleting sale items...');
       const saleItemCount = await tx.saleItem.deleteMany({});
-      console.log(`     ✓ Deleted ${saleItemCount.count} sale items`);
-      
-      console.log('  🗑️  Deleting sales...');
       const salesCount = await tx.sale.deleteMany({});
-      console.log(`     ✓ Deleted ${salesCount.count} sales`);
-      
-      console.log('  🗑️  Deleting stock movements...');
       const stockMovementCount = await tx.stockMovement.deleteMany({});
-      console.log(`     ✓ Deleted ${stockMovementCount.count} stock movements`);
-      
-      console.log('  🗑️  Deleting product variants...');
       const variantCount = await tx.productVariant.deleteMany({});
-      console.log(`     ✓ Deleted ${variantCount.count} product variants`);
-      
-      console.log('  🗑️  Deleting products...');
       const productCount = await tx.product.deleteMany({});
-      console.log(`     ✓ Deleted ${productCount.count} products`);
-      
-      console.log('  🗑️  Deleting settings...');
       const settingsCount = await tx.settings.deleteMany({});
-      console.log(`     ✓ Deleted ${settingsCount.count} settings`);
-      
-      console.log('  🗑️  Deleting ALL users...');
       const userCount = await tx.user.deleteMany({});
-      console.log(`     ✓ Deleted ${userCount.count} users`);
+
+      return {
+        cashflowCount: cashflowCount.count,
+        pointHistoryCount: pointHistoryCount.count,
+        saleItemCount: saleItemCount.count,
+        salesCount: salesCount.count,
+        stockMovementCount: stockMovementCount.count,
+        variantCount: variantCount.count,
+        productCount: productCount.count,
+        settingsCount: settingsCount.count,
+        userCount: userCount.count,
+      };
+    }, {
+      timeout: 10000, // 10 seconds timeout
     });
+
+    // Show results after transaction completes
+    console.log('  🗑️  Deleted records:');
+    console.log(`     ✓ Cashflows: ${result.cashflowCount}`);
+    console.log(`     ✓ Point history: ${result.pointHistoryCount}`);
+    console.log(`     ✓ Sale items: ${result.saleItemCount}`);
+    console.log(`     ✓ Sales: ${result.salesCount}`);
+    console.log(`     ✓ Stock movements: ${result.stockMovementCount}`);
+    console.log(`     ✓ Product variants: ${result.variantCount}`);
+    console.log(`     ✓ Products: ${result.productCount}`);
+    console.log(`     ✓ Settings: ${result.settingsCount}`);
+    console.log(`     ✓ Users: ${result.userCount}`);
 
     console.log('\n✅ Database cleaned successfully!');
     console.log('   ✓ ALL data deleted (including users and settings)');

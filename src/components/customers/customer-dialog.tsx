@@ -164,7 +164,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 maxLength={120}
               />
             <p className="text-xs text-gray-500 text-right">
-              {customer?.address?.length}Maks. 120 karakter
+              {customer?.address?.length}/120 karakter
             </p>
             </div>
 

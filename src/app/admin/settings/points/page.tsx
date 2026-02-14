@@ -186,7 +186,7 @@ export default function PointsSettingsPage() {
             </div>
 
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h4 className="font-medium text-blue-900 mb-2">Example</h4>
+              <h4 className="font-medium text-blue-900 mb-2">Contoh:</h4>
               <p className="text-sm text-blue-700">
                 Jika member memiliki <strong>10 points</strong> maka dapat ditukar diskon
                 <strong> Rp {(parseInt(conversionRate) * 10).toLocaleString('id-ID')}</strong> 

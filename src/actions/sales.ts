@@ -456,7 +456,7 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
             type: cashflowDiff > 0 ? 'INCOME' : 'EXPENSE',
             category: 'Penyesuaian Penjualan',
             amount: Math.abs(cashflowDiff),
-            description: `Adjusted sale ${originalSale.saleNumber}`,
+            description: `Transaksi ${originalSale.saleNumber}`,
             date: new Date(),
             createdById: session.user.id,
           },

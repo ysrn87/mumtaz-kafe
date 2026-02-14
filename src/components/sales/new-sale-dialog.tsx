@@ -616,11 +616,11 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add notes for this sale..."
                   rows={2}
-                  maxLength={500}
+                  maxLength={50}
                   className="text-sm"
                 />
                 <p className="text-xs text-gray-500 text-right">
-                  {notes.length}/500 characters
+                  {notes.length}/50 characters
                 </p>
               </div>
 

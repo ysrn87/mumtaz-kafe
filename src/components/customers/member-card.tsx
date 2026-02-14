@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { User, Mail, Phone, Calendar, Award, CreditCard, Sparkles, X } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Award, CreditCard, Sparkles, X, MapPin } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
@@ -103,19 +103,9 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
       </div>
 
       {/* Card body with details - Responsive grid */}
-      <CardContent className="p-4 sm:p-3 lg:p-8">
-        <div className="grid gap-3 sm:gap-3">
-          {/* Email */}
-          <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
-            <div className="p-2 sm:p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200 shrink-0">
-              <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Email</p>
-              <p className="font-semibold text-sm sm:text-base break-all">{user.email}</p>
-            </div>
-          </div>
-
+      <CardContent className="p-3 sm:p-3 lg:p-8">
+        <div className="grid gap-0 sm:gap-3">
+          
           {/* Phone */}
           {user.phone && (
             <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
@@ -124,7 +114,7 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Phone</p>
-                <p className="font-semibold text-sm sm:text-base">{user.phone}</p>
+                <p className="font-normal text-sm sm:text-base">{user.phone}</p>
               </div>
             </div>
           )}
@@ -132,15 +122,26 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
           {/* Address */}
           {user.address && (
             <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
-              <div className="p-2 sm:p-2.5 bg-green-50 rounded-lg group-hover:bg-green-100 transition-colors duration-200 shrink-0">
-                <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+              <div className="p-2 sm:p-2.5 bg-red-50 rounded-lg group-hover:bg-red-100 transition-colors duration-200 shrink-0">
+                <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-red-600" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Alamat</p>
-                <p className="font-semibold text-sm sm:text-base">{user.address}</p>
+                <p className="font-normal text-sm sm:text-base">{user.address}</p>
               </div>
             </div>
           )}
+
+          {/* Email */}
+          <div className="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl hover:bg-gray-50 transition-colors duration-200 group">
+            <div className="p-2 sm:p-2 bg-blue-50 rounded-lg group-hover:bg-blue-100 transition-colors duration-200 shrink-0">
+              <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Email</p>
+              <p className="font-normal text-sm sm:text-base break-all">{user.email}</p>
+            </div>
+          </div>
 
           {/* Birthday */}
           {user.birthday && (
@@ -150,7 +151,7 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Birthday</p>
-                <p className="font-semibold text-sm sm:text-base">
+                <p className="font-normal text-sm sm:text-base">
                   {formatDate(user.birthday)}
                   {age && (
                     <span className="text-muted-foreground ml-2 text-xs sm:text-sm font-normal">
@@ -169,7 +170,7 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Member Since</p>
-              <p className="font-semibold text-sm sm:text-base">{formatDate(user.createdAt)}</p>
+              <p className="font-normal text-sm sm:text-base">{formatDate(user.createdAt)}</p>
             </div>
           </div>
         </div>

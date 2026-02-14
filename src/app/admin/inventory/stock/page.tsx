@@ -23,7 +23,22 @@ async function getStockMovements(page: number = 1, limit: number = 10) {
     db.stockMovement.count(),
   ]);
 
-  return { movements, total };
+  // Serialize to match StockMovementsTable expected type
+  const serializedMovements = movements.map(movement => ({
+    id: movement.id,
+    type: movement.type,
+    quantity: movement.quantity,
+    notes: movement.notes,
+    createdAt: movement.createdAt,
+    variant: {
+      name: movement.variant.name,
+      product: {
+        name: movement.variant.product.name,
+      },
+    },
+  }));
+
+  return { movements: serializedMovements, total };
 }
 
 async function getStockData() {

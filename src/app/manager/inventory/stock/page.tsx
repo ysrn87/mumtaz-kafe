@@ -32,11 +32,21 @@ async function getStockData() {
     }),
   ]);
 
+  // Convert Decimal to Number for client component
+  const serializedMovements = recentMovements.map(movement => ({
+    ...movement,
+    variant: {
+      ...movement.variant,
+      price: Number(movement.variant.price),
+      cost: Number(movement.variant.cost),
+    },
+  }));
+
   return {
     totalVariants,
     lowStockCount,
     totalStock: stockValue._sum.stock || 0,
-    recentMovements,
+    recentMovements: serializedMovements,
   };
 }
 

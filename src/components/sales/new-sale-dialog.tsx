@@ -307,7 +307,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
           New Sale
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>New Sale</DialogTitle>
         </DialogHeader>
@@ -330,14 +330,14 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
               >
                 {customerId ? (
                   // Selected state - show as chip
-                  <div className="flex items-center gap-2 bg-blue-100 text-blue-900 px-2 py-1 rounded-md">
-                    <User className="w-4 h-4" />
-                    <span className="text-sm font-medium">{getCustomerDisplayName()}</span>
+                  <div className="flex items-center gap-2 bg-blue-100 text-blue-900 px-2 py-1 rounded-md min-w-0">
+                    <User className="w-4 h-4 flex-shrink-0" />
+                    <span className="text-sm font-medium truncate">{getCustomerDisplayName()}</span>
                     {selectedCustomer && (
-                      <span className="text-xs text-blue-600">• {selectedCustomer.points} pts</span>
+                      <span className="text-xs text-blue-600 whitespace-nowrap">• {selectedCustomer.points} pts</span>
                     )}
                     <X 
-                      className="w-4 h-4 ml-1 cursor-pointer hover:text-blue-700" 
+                      className="w-4 h-4 ml-1 cursor-pointer hover:text-blue-700 flex-shrink-0" 
                       onClick={(e) => {
                         e.stopPropagation();
                         setCustomerId('');
@@ -349,7 +349,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   // Empty state - show placeholder
                   <span className="text-sm">Select customer...</span>
                 )}
-                <ChevronDown className="w-4 h-4 ml-auto text-gray-400" />
+                <ChevronDown className="w-4 h-4 ml-auto text-gray-400 flex-shrink-0" />
               </button>
 
               {/* Dropdown */}
@@ -381,7 +381,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                       >
                         <span className="text-sm">Pelanggan Umum</span>
                         {customerId === 'WALK_IN' && (
-                          <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                          <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
                             <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                             </svg>
@@ -399,12 +399,12 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                           customerId === customer.id ? 'bg-blue-50' : ''
                         }`}
                       >
-                        <div className="flex flex-col">
-                          <span className="font-medium text-sm">{customer.name}</span>
+                        <div className="flex flex-col min-w-0 flex-1 mr-2">
+                          <span className="font-medium text-sm truncate">{customer.name}</span>
                           <span className="text-xs text-gray-500">{customer.points} points</span>
                         </div>
                         {customerId === customer.id && (
-                          <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                          <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
                             <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                             </svg>
@@ -436,8 +436,8 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 {/* Selected product chip - show above input */}
                 {selectedVariant && (
                   <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-blue-900">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-blue-900 truncate">
                         {selectedVariant.product.name} - {selectedVariant.name}
                       </p>
                       <p className="text-xs text-blue-600">
@@ -445,7 +445,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                       </p>
                     </div>
                     <X 
-                      className="w-4 h-4 cursor-pointer text-blue-600 hover:text-blue-700" 
+                      className="w-4 h-4 cursor-pointer text-blue-600 hover:text-blue-700 flex-shrink-0" 
                       onClick={() => setSelectedVariantId('')}
                     />
                   </div>
@@ -477,9 +477,9 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                           selectedVariantId === variant.id ? 'bg-blue-50' : ''
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">
                               {variant.product.name} - {variant.name}
                             </p>
                             <p className="text-xs text-gray-500">
@@ -487,7 +487,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                             </p>
                           </div>
                           {selectedVariantId === variant.id && (
-                            <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
+                            <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
                               <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                               </svg>
@@ -527,20 +527,20 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 </div>
               </div>
 
-              {/* Items List */}
+              {/* Items List - FIXED FOR MOBILE */}
               {items.length > 0 && (
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Cart Items ({items.length})</Label>
-                  <div className="border rounded-lg divide-y max-h-[250px] overflow-y-auto">
+                  <div className="border rounded-lg divide-y max-h-[250px] overflow-y-auto overflow-x-hidden">
                     {items.map((item, index) => (
-                      <div key={index} className="flex items-center gap-3 p-3">
+                      <div key={index} className="flex items-start gap-2 p-3">
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{item.variantName}</p>
-                          <p className="text-xs text-gray-600">
+                          <p className="font-medium text-sm break-words line-clamp-2">{item.variantName}</p>
+                          <p className="text-xs text-gray-600 mt-0.5">
                             {item.quantity} × {formatCurrency(item.price)}
                           </p>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 flex-shrink-0">
                           <span className="font-semibold text-sm whitespace-nowrap">
                             {formatCurrency(item.price * item.quantity)}
                           </span>
@@ -549,7 +549,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                             variant="ghost"
                             size="sm"
                             onClick={() => removeItem(index)}
-                            className="h-8 w-8 p-0"
+                            className="h-8 w-8 p-0 flex-shrink-0"
                           >
                             <Trash2 className="w-4 h-4 text-red-600" />
                           </Button>
@@ -616,11 +616,11 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add notes for this sale..."
                   rows={2}
-                  maxLength={50}
-                  className="text-sm"
+                  maxLength={500}
+                  className="text-sm resize-none"
                 />
                 <p className="text-xs text-gray-500 text-right">
-                  {notes.length}/50 characters
+                  {notes.length}/500 characters
                 </p>
               </div>
 
@@ -679,12 +679,6 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     <span>Subtotal:</span>
                     <span className="font-medium">{formatCurrency(subtotal)}</span>
                   </div>
-                  {tax > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span>Tax:</span>
-                      <span className="font-medium">{formatCurrency(tax)}</span>
-                    </div>
-                  )}
                   {discount > 0 && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount:</span>
@@ -695,6 +689,12 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     <div className="flex justify-between text-sm text-purple-600">
                       <span>Point Discount ({pointsToRedeem} pts):</span>
                       <span className="font-medium">-{formatCurrency(pointDiscount)}</span>
+                    </div>
+                  )}
+                  {tax > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span>Tax:</span>
+                      <span className="font-medium">{formatCurrency(tax)}</span>
                     </div>
                   )}
                   

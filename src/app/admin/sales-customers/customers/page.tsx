@@ -2,15 +2,83 @@ import { db } from '@/lib/db';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CustomersTable } from '@/components/customers/customers-table';
 import { CustomerDialog } from '@/components/customers/customer-dialog';
+import { SearchFilterBar } from '@/components/filters/search-filter-bar';
 
-async function getCustomers(page: number = 1, limit: number = 10) {
+async function getCustomers(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  points?: string;
+  sort?: string;
+}) {
+  const { 
+    page = 1, 
+    limit = 10, 
+    search = '', 
+    points = 'all',
+    sort = 'name_asc'
+  } = params;
+  
   const skip = (page - 1) * limit;
+
+  // Build where clause
+  const where: any = { role: 'MEMBER' };
+  
+  // Search across name, phone, and email
+  if (search) {
+    where.OR = [
+      { name: { contains: search, mode: 'insensitive' as const } },
+      { phone: { contains: search, mode: 'insensitive' as const } },
+      { email: { contains: search, mode: 'insensitive' as const } },
+    ];
+  }
+
+  // Filter by points range
+  if (points !== 'all') {
+    switch (points) {
+      case 'low':
+        where.points = { lt: 100 };
+        break;
+      case 'medium':
+        where.points = { gte: 100, lt: 500 };
+        break;
+      case 'high':
+        where.points = { gte: 500 };
+        break;
+    }
+  }
+
+  // Build orderBy clause
+  const orderBy: any = [];
+  switch (sort) {
+    case 'name_asc':
+      orderBy.push({ name: 'asc' });
+      break;
+    case 'name_desc':
+      orderBy.push({ name: 'desc' });
+      break;
+    case 'points_asc':
+      orderBy.push({ points: 'asc' });
+      break;
+    case 'points_desc':
+      orderBy.push({ points: 'desc' });
+      break;
+    case 'joined_asc':
+      orderBy.push({ createdAt: 'asc' });
+      break;
+    case 'joined_desc':
+      orderBy.push({ createdAt: 'desc' });
+      break;
+    default:
+      orderBy.push({ name: 'asc' });
+  }
   
   const [customers, total] = await Promise.all([
     db.user.findMany({
-      where: { role: 'MEMBER' },
+      where,
       skip,
       take: limit,
+      orderBy,
       include: {
         sales: {
           select: {
@@ -24,9 +92,8 @@ async function getCustomers(page: number = 1, limit: number = 10) {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
     }),
-    db.user.count({ where: { role: 'MEMBER' } }),
+    db.user.count({ where }),
   ]);
 
   // Convert Decimal to Number for client component
@@ -44,13 +111,22 @@ async function getCustomers(page: number = 1, limit: number = 10) {
 export default async function AdminCustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; limit?: string }>;
+  searchParams: Promise<{ 
+    page?: string; 
+    limit?: string;
+    search?: string;
+    points?: string;
+    sort?: string;
+  }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const limit = Number(params.limit) || 10;
+  const search = params.search || '';
+  const points = params.points || 'all';
+  const sort = params.sort || 'name_asc';
 
-  const { customers, total } = await getCustomers(page, limit);
+  const { customers, total } = await getCustomers({ page, limit, search, points, sort });
 
   return (
     <div className="space-y-8">
@@ -62,7 +138,35 @@ export default async function AdminCustomersPage({
         <CardHeader>
           <CardTitle>Daftar Member</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Search & Filter Bar */}
+          <SearchFilterBar
+            searchPlaceholder="Search by name, phone, or email..."
+            filters={[
+              {
+                key: 'points',
+                label: 'Points Range',
+                defaultValue: 'all',
+                options: [
+                  { value: 'all', label: 'All Points' },
+                  { value: 'low', label: '< 100 points' },
+                  { value: 'medium', label: '100-499 points' },
+                  { value: 'high', label: '500+ points' },
+                ],
+              },
+            ]}
+            sortOptions={[
+              { value: 'name_asc', label: 'Name (A-Z)' },
+              { value: 'name_desc', label: 'Name (Z-A)' },
+              { value: 'points_desc', label: 'Highest Points' },
+              { value: 'points_asc', label: 'Lowest Points' },
+              { value: 'joined_desc', label: 'Recently Joined' },
+              { value: 'joined_asc', label: 'Oldest Members' },
+            ]}
+            defaultSort="name_asc"
+          />
+
+          {/* Customers Table */}
           <CustomersTable 
             customers={customers} 
             showActions={true}

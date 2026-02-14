@@ -3,15 +3,77 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { NewSaleDialog } from '@/components/sales/new-sale-dialog';
 import { SalesTable } from '@/components/sales/sales-table';
 import { getPointsConversionRate } from '@/actions/settings';
+import { SearchFilterBar } from '@/components/filters/search-filter-bar';
 
-async function getSales(page: number = 1, limit: number = 10) {
+async function getSales(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  payment?: string;
+  sort?: string;
+}) {
+  const { 
+    page = 1, 
+    limit = 10, 
+    search = '', 
+    payment = 'all',
+    sort = 'date_desc'
+  } = params;
+  
   const skip = (page - 1) * limit;
+
+  // Build where clause
+  const where: any = {};
+  
+  // Search across customer name and sale number
+  if (search) {
+    where.OR = [
+      { 
+        customer: { 
+          name: { contains: search, mode: 'insensitive' as const } 
+        } 
+      },
+      { 
+        saleNumber: { contains: search, mode: 'insensitive' as const } 
+      },
+      {
+        cashier: {
+          name: { contains: search, mode: 'insensitive' as const }
+        }
+      }
+    ];
+  }
+
+  // Filter by payment method
+  if (payment !== 'all') {
+    where.paymentMethod = payment;
+  }
+
+  // Build orderBy clause
+  const orderBy: any = [];
+  switch (sort) {
+    case 'date_asc':
+      orderBy.push({ createdAt: 'asc' });
+      break;
+    case 'date_desc':
+      orderBy.push({ createdAt: 'desc' });
+      break;
+    case 'total_asc':
+      orderBy.push({ total: 'asc' });
+      break;
+    case 'total_desc':
+      orderBy.push({ total: 'desc' });
+      break;
+    default:
+      orderBy.push({ createdAt: 'desc' });
+  }
   
   const [sales, total] = await Promise.all([
     db.sale.findMany({
+      where,
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
+      orderBy,
       include: {
         customer: {
           select: {
@@ -35,7 +97,7 @@ async function getSales(page: number = 1, limit: number = 10) {
         },
       },
     }),
-    db.sale.count(),
+    db.sale.count({ where }),
   ]);
 
   return {
@@ -102,14 +164,23 @@ async function getCustomers() {
 export default async function AdminSalesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; limit?: string }>;
+  searchParams: Promise<{ 
+    page?: string; 
+    limit?: string;
+    search?: string;
+    payment?: string;
+    sort?: string;
+  }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const limit = Number(params.limit) || 10;
+  const search = params.search || '';
+  const payment = params.payment || 'all';
+  const sort = params.sort || 'date_desc';
 
   const [{ sales, total }, variants, customers, conversionRate] = await Promise.all([
-    getSales(page, limit),
+    getSales({ page, limit, search, payment, sort }),
     getVariants(),
     getCustomers(),
     getPointsConversionRate(),
@@ -125,7 +196,33 @@ export default async function AdminSalesPage({
         <CardHeader>
           <CardTitle>Penjualan Terbaru</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Search & Filter Bar */}
+          <SearchFilterBar
+            searchPlaceholder="Search by customer name, sale number, or cashier..."
+            filters={[
+              {
+                key: 'payment',
+                label: 'Payment Method',
+                defaultValue: 'all',
+                options: [
+                  { value: 'all', label: 'All Methods' },
+                  { value: 'CASH', label: 'Cash' },
+                  { value: 'CARD', label: 'Card' },
+                  { value: 'TRANSFER', label: 'Bank Transfer' },
+                ],
+              },
+            ]}
+            sortOptions={[
+              { value: 'date_desc', label: 'Newest First' },
+              { value: 'date_asc', label: 'Oldest First' },
+              { value: 'total_desc', label: 'Highest Amount' },
+              { value: 'total_asc', label: 'Lowest Amount' },
+            ]}
+            defaultSort="date_desc"
+          />
+
+          {/* Sales Table */}
           <SalesTable 
             sales={sales} 
             currentPage={page}

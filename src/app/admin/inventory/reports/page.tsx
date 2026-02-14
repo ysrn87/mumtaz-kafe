@@ -91,11 +91,16 @@ async function getInventoryReport(page: number = 1, limit: number = 10) {
     return sum + (item.cost * item.stock);
   }, 0);
 
+  const inventoryPrice = serializedInventory.reduce((sum, item) => {
+    return sum + (item.price * item.stock);
+  }, 0)
+
   return {
     inventory: serializedInventory,
     totalProducts,
     lowStockCount,
     inventoryValue,
+    inventoryPrice,
   };
 }
 
@@ -156,6 +161,20 @@ export default async function AdminReportsPage({
           <CardContent>
             <div className="text-2xl font-bold">
               {formatCurrency(inventoryData.inventoryValue)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {inventoryData.totalProducts} produk
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Estimated Stock Price</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">
+              {formatCurrency(inventoryData.inventoryPrice)}
             </div>
             <p className="text-xs text-muted-foreground">
               {inventoryData.totalProducts} produk

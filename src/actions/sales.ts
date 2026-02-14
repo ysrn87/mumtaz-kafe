@@ -36,6 +36,10 @@ export async function createSaleAction(input: CreateSaleInput) {
       return { success: false, error: 'No items in sale' };
     }
 
+    if (notes && notes.length > 500) {
+      return { success: false, error: 'Notes cannot exceed 500 characters' };
+    }
+
     // Validate point redemption
     if (pointsRedeemed > 0 && customerId) {
       const availablePoints = await getAvailablePoints(customerId);
@@ -271,6 +275,10 @@ export async function updateSaleAction(id: string, input: CreateSaleInput) {
 
     if (!items || items.length === 0) {
       return { success: false, error: 'No items in sale' };
+    }
+
+    if (notes && notes.length > 500) {
+      return { success: false, error: 'Notes cannot exceed 500 characters' };
     }
 
     // Get original sale

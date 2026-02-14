@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/components/ui/use-toast';
 import { createCustomerAction, updateCustomerAction } from '@/actions/members';
 import { Plus, Pencil } from 'lucide-react';
+import { Textarea } from '../ui/textarea';
 
 interface CustomerDialogProps {
   mode: 'create' | 'edit';
@@ -153,14 +154,17 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
 
             <div className="grid gap-2">
               <Label htmlFor="address">Alamat</Label>
-              <Input
+              <Textarea
                 id="address"
                 name="address"
-                type="text"
                 defaultValue={customer?.address}
                 placeholder="Street, City, Postal Code"
                 disabled={loading}
+                maxLength={120}
               />
+            <p className="text-xs text-gray-500 text-right">
+              {customer?.address?.length}Maks. 120 karakter
+            </p>
             </div>
 
             <div className="grid gap-2">

@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { UserPlus, User, Phone, Mail, MapPin, Calendar, Lock, ArrowLeft, Gift, Sparkles } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -147,14 +148,17 @@ export default function RegisterPage() {
                 <MapPin className="w-4 h-4 text-gray-500" />
                 Alamat
               </Label>
-              <Input
+              <Textarea
                 id="address"
                 name="address"
-                type="text"
                 placeholder="Street, City, Postal Code"
                 disabled={loading}
+                maxLength={120}
                 className="h-11 text-sm"
               />
+              <p className='text-xs text-gray-500 text-right'>
+                Max. 120 karakter
+              </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

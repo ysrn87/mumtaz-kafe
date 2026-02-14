@@ -229,14 +229,18 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
 
           {/* Notes */}
           <div className="grid gap-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes">Notes - Max 30 karakter</Label>
             <Input
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Optional notes"
               disabled={loading}
+              maxLength={30}
             />
+            <p className="text-xs text-gray-500 text-right">
+              {notes.length}/30 characters
+            </p>
           </div>
 
           {/* Point Redemption Info - Read Only */}

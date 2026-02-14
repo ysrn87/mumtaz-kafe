@@ -412,14 +412,18 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
 
               {/* Notes */}
               <div className="grid gap-2">
-                <Label htmlFor="notes">Catatan (Optional)</Label>
+                <Label htmlFor="notes">Catatan (Optional) - Max 30 karakter</Label>
                 <Textarea
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add notes for this sale..."
                   rows={3}
+                  maxLength={30}
                 />
+                <p className='text-xs text-gray-500 text-right'>
+                  {notes.length}/30 karakter
+                </p>
               </div>
 
               {/* Point Redemption - Only for members */}

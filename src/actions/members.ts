@@ -158,10 +158,11 @@ export async function createCustomerAction(formData: FormData) {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const phone = formData.get('phone') as string;
+    const address = formData.get('address') as string;
     const birthday = formData.get('birthday') as string;
     const photoUrl = formData.get('photoUrl') as string;
 
-    if (!name || !email || !password) {
+    if (!name || !phone || !password) {
       return { success: false, error: 'Name, email, and password are required' };
     }
 
@@ -181,9 +182,10 @@ export async function createCustomerAction(formData: FormData) {
     await db.user.create({
       data: {
         name,
-        email,
+        phone,
         password: hashedPassword,
-        phone: phone,
+        email: email,
+        address: address,
         birthday: birthday ? new Date(birthday) : null,
         photoUrl: photoUrl || null,
         role: 'MEMBER',
@@ -217,7 +219,7 @@ export async function updateCustomerAction(id: string, formData: FormData) {
     const points = formData.get('points') ? parseInt(formData.get('points') as string) : undefined;
     const pointsReason = formData.get('pointsReason') as string;
 
-    if (!name || !email) {
+    if (!name || !phone) {
       return { success: false, error: 'Name and email are required' };
     }
 
@@ -226,16 +228,20 @@ export async function updateCustomerAction(id: string, formData: FormData) {
       return { success: false, error: 'Password must be at least 6 characters' };
     }
 
-    // Check if email exists on different user
+    // Check if phone exists on different user
     const existingUser = await db.user.findFirst({
-      where: { 
-        email,
+      where: {
+        phone,
         id: { not: id }
       },
     });
 
     if (existingUser) {
-      return { success: false, error: 'Email already exists' };
+      return { success: false, error: 'Phone already exists' };
+    }
+
+    if (address && address.length > 120) {
+      return { success: false, error: 'Address cannot exceed 200 characters' };
     }
 
     // Get current user data to track changes
@@ -272,10 +278,10 @@ export async function updateCustomerAction(id: string, formData: FormData) {
       }
 
       updateData.points = points;
-      
+
       // Calculate points difference
       const pointsDifference = points - currentUser.points;
-      
+
       // Create point history record with custom reason
       await db.pointHistory.create({
         data: {

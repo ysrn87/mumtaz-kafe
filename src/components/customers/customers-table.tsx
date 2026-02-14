@@ -104,7 +104,9 @@ export function CustomersTable({
                     <TableCell className="text-muted-foreground">
                       {customer.phone || '-'}
                     </TableCell>
-                    <TableCell>{customer.address}</TableCell>
+                    <TableCell className='max-w-72 truncate' title={customer.address || '-'}>
+                      {customer.address || '-'}
+                      </TableCell>
                     <TableCell>{customer.email}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">

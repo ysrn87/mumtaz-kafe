@@ -4,15 +4,66 @@ import { formatCurrency } from '@/lib/utils';
 import { CashflowDialog } from '@/components/cashflow/cashflow-dialog';
 import { CashflowTable } from '@/components/cashflow/cashflow-table';
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { SearchFilterBar } from '@/components/filters/search-filter-bar';
 
-async function getCashflowData(page: number = 1, limit: number = 10) {
+async function getCashflowData(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  type?: string;
+  sort?: string;
+}) {
+  const { 
+    page = 1, 
+    limit = 10, 
+    search = '', 
+    type = 'all',
+    sort = 'date_desc'
+  } = params;
+  
   const skip = (page - 1) * limit;
+
+  // Build where clause
+  const where: any = {};
+  
+  // Search across description and category
+  if (search) {
+    where.OR = [
+      { description: { contains: search, mode: 'insensitive' as const } },
+      { category: { contains: search, mode: 'insensitive' as const } },
+    ];
+  }
+
+  // Filter by type
+  if (type !== 'all') {
+    where.type = type;
+  }
+
+  // Build orderBy clause
+  const orderBy: any = [];
+  switch (sort) {
+    case 'date_asc':
+      orderBy.push({ date: 'asc' });
+      break;
+    case 'date_desc':
+      orderBy.push({ date: 'desc' });
+      break;
+    case 'amount_asc':
+      orderBy.push({ amount: 'asc' });
+      break;
+    case 'amount_desc':
+      orderBy.push({ amount: 'desc' });
+      break;
+    default:
+      orderBy.push({ date: 'desc' });
+  }
   
   const [transactions, total] = await Promise.all([
     db.cashflow.findMany({
+      where,
       skip,
       take: limit,
-      orderBy: { date: 'desc' },
+      orderBy,
       include: {
         createdBy: {
           select: {
@@ -21,7 +72,7 @@ async function getCashflowData(page: number = 1, limit: number = 10) {
         },
       },
     }),
-    db.cashflow.count(),
+    db.cashflow.count({ where }),
   ]);
 
   return {
@@ -55,13 +106,22 @@ async function getCashflowStats() {
 export default async function AdminCashflowPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; limit?: string }>;
+  searchParams: Promise<{ 
+    page?: string; 
+    limit?: string;
+    search?: string;
+    type?: string;
+    sort?: string;
+  }>;
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const limit = Number(params.limit) || 10;
+  const search = params.search || '';
+  const type = params.type || 'all';
+  const sort = params.sort || 'date_desc';
 
-  const { transactions, total } = await getCashflowData(page, limit);
+  const { transactions, total } = await getCashflowData({ page, limit, search, type, sort });
   const stats = await getCashflowStats();
 
   return (
@@ -117,7 +177,32 @@ export default async function AdminCashflowPage({
         <CardHeader>
           <CardTitle>Riwayat Transaksi</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Search & Filter Bar */}
+          <SearchFilterBar
+            searchPlaceholder="Search by description or category..."
+            filters={[
+              {
+                key: 'type',
+                label: 'Transaction Type',
+                defaultValue: 'all',
+                options: [
+                  { value: 'all', label: 'All Types' },
+                  { value: 'INCOME', label: 'Income' },
+                  { value: 'EXPENSE', label: 'Expense' },
+                ],
+              },
+            ]}
+            sortOptions={[
+              { value: 'date_desc', label: 'Newest First' },
+              { value: 'date_asc', label: 'Oldest First' },
+              { value: 'amount_desc', label: 'Highest Amount' },
+              { value: 'amount_asc', label: 'Lowest Amount' },
+            ]}
+            defaultSort="date_desc"
+          />
+
+          {/* Cashflow Table */}
           <CashflowTable 
             transactions={transactions}
             currentPage={page}

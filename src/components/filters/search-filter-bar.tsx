@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, SlidersHorizontal, X } from 'lucide-react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useDebounce } from '@/hooks/use-debounce';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface FilterOption {
   value: string;
@@ -47,22 +47,35 @@ export function SearchFilterBar({
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const [showFilters, setShowFilters] = useState(false);
   
+  // Track if this is the initial mount to avoid running effect on first render
+  const isInitialMount = useRef(true);
+  
   // Debounce search to avoid too many requests
   const debouncedSearch = useDebounce(search, 300);
 
-  // Update URL when search changes
+  // Update URL when search changes (but not on initial mount or when searchParams changes)
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    
-    if (debouncedSearch) {
-      params.set('search', debouncedSearch);
-      params.set('page', '1'); // Reset to page 1 on search
-    } else {
-      params.delete('search');
+    // Skip on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
     }
+
+    const params = new URLSearchParams(searchParams.toString());
+    const currentSearch = searchParams.get('search') || '';
     
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [debouncedSearch, pathname, router, searchParams]);
+    // Only update if the debounced search is different from URL
+    if (debouncedSearch !== currentSearch) {
+      if (debouncedSearch) {
+        params.set('search', debouncedSearch);
+        params.set('page', '1'); // Reset to page 1 on search
+      } else {
+        params.delete('search');
+      }
+      
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    }
+  }, [debouncedSearch]); // Only depend on debouncedSearch, not searchParams!
 
   // Handle filter change
   const handleFilterChange = (key: string, value: string) => {

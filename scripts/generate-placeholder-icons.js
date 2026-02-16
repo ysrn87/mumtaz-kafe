@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Simple canvas-based fallback if sharp is not available
-function generateSimpleSVGIcon(size, letter = 'S') {
+function generateSimpleSVGIcon(size, letter = 'MK') {
   return `<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
   <rect width="${size}" height="${size}" fill="#000000"/>
   <text x="50%" y="50%" font-size="${size * 0.6}" fill="#ffffff" 

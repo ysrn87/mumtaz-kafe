@@ -193,7 +193,7 @@ export function Navigation({ role, userName }: NavigationProps) {
           <div className="flex items-center flex-1 min-w-0 gap-3 sm:gap-4 lg:gap-6">
             <div className="flex-shrink-0">
               <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-green-600 bg-clip-text text-transparent whitespace-nowrap">
-                Sales System
+                Mumtaz Kafe
               </h1>
             </div>
 

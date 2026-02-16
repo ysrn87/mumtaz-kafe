@@ -437,7 +437,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 {selectedVariant && (
                   <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-blue-900 truncate">
+                      <p className="text-sm font-medium text-blue-900 break-words line-clamp-2">
                         {selectedVariant.product.name} - {selectedVariant.name}
                       </p>
                       <p className="text-xs text-blue-600">
@@ -479,7 +479,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm truncate">
+                            <p className="font-medium text-sm break-words line-clamp-2">
                               {variant.product.name} - {variant.name}
                             </p>
                             <p className="text-xs text-gray-500">

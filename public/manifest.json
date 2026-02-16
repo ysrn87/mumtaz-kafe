@@ -1,6 +1,6 @@
 {
-  "name": "Sales System",
-  "short_name": "Sales",
+  "name": "Mumtaz Kafe",
+  "short_name": "Mumtaz Points",
   "description": "Product and Sales Recording System",
   "start_url": "/",
   "display": "standalone",
@@ -36,10 +36,10 @@
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Products",
-      "short_name": "Products",
-      "description": "View products",
-      "url": "/admin/inventory/products",
+      "name": "Member Points",
+      "short_name": "Points",
+      "description": "View points",
+      "url": "/member",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
   ]

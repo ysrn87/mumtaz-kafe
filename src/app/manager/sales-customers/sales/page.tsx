@@ -84,10 +84,11 @@ async function getCustomers() {
 export default async function ManagerSalesPage({
   searchParams,
 }: {
-  searchParams: { page?: string; limit?: string };
+  searchParams: Promise<{ page?: string; limit?: string }>;
 }) {
-  const page = Number(searchParams.page) || 1;
-  const limit = Number(searchParams.limit) || 10;
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const limit = Number(params.limit) || 10;
 
   const [{ sales, total }, variants, customers, conversionRate] = await Promise.all([
     getSales(page, limit),

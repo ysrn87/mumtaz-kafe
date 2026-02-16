@@ -106,14 +106,14 @@ export function PWAInstallPrompt() {
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-semibold text-gray-900 mb-1">
-                Install Sales System
+                Instal Mumtaz Kafe
               </h3>
               <p className="text-xs text-gray-600 mb-2">
-                Install this app on your iPhone: tap{' '}
+                Instal aplikasi di iPhone: tap{' '}
                 <svg className="inline h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 3a1 1 0 00-1 1v5H4a1 1 0 100 2h5v5a1 1 0 102 0v-5h5a1 1 0 100-2h-5V4a1 1 0 00-1-1z" />
                 </svg>{' '}
-                and then <strong>Add to Home Screen</strong>.
+                kemudian <strong>Tambah to Home Screen</strong>.
               </p>
             </div>
           </div>
@@ -142,10 +142,10 @@ export function PWAInstallPrompt() {
           
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-gray-900 mb-1">
-              Install Sales System
+              Install Mumtaz Kafe
             </h3>
             <p className="text-xs text-gray-600 mb-3">
-              Install this app for quick access and offline use.
+              Pasang aplikasi untuk memudahkan melihat poin dan riwayat transaksi.
             </p>
             
             <div className="flex gap-2">

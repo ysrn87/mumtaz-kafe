@@ -91,6 +91,7 @@ export function ProductDialog({ mode, product, trigger }: ProductDialogProps) {
                 defaultValue={product?.name}
                 placeholder="e.g., T-Shirt, Jeans, Shoes"
                 disabled={loading}
+                maxLength={30}
               />
             </div>
 
@@ -103,6 +104,7 @@ export function ProductDialog({ mode, product, trigger }: ProductDialogProps) {
                 defaultValue={product?.sku}
                 placeholder="e.g., TSH-001"
                 disabled={loading}
+                maxLength={15}
               />
             </div>
 
@@ -114,6 +116,7 @@ export function ProductDialog({ mode, product, trigger }: ProductDialogProps) {
                 defaultValue={product?.description || ''}
                 placeholder="Brief product description"
                 disabled={loading}
+                maxLength={150}
               />
             </div>
           </div>
@@ -123,7 +126,7 @@ export function ProductDialog({ mode, product, trigger }: ProductDialogProps) {
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Saving...' : mode === 'create' ? 'Create Product' : 'Save Changes'}
+              {loading ? 'Saving...' : mode === 'create' ? 'Buat Produk' : 'Simpan'}
             </Button>
           </DialogFooter>
         </form>

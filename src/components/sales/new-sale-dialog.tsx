@@ -304,12 +304,12 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       <DialogTrigger asChild>
         <Button>
           <Plus className="w-4 h-4 mr-2" />
-          New Sale
+          Penjualan Baru
         </Button>
       </DialogTrigger>
       <DialogContent className="w-[95vw] max-w-[95vw] sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>New Sale</DialogTitle>
+          <DialogTitle>Penjualan Baru</DialogTitle>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
@@ -347,7 +347,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   </div>
                 ) : (
                   // Empty state - show placeholder
-                  <span className="text-sm">Select customer...</span>
+                  <span className="text-sm">Pilih pelanggan...</span>
                 )}
                 <ChevronDown className="w-4 h-4 ml-auto text-gray-400 flex-shrink-0" />
               </button>
@@ -431,7 +431,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
           {customerId && (
             <>
               <div className="grid gap-2">
-                <Label className="text-sm font-medium">Add Product</Label>
+                <Label className="text-sm font-medium">Tambah Produk</Label>
                 
                 {/* Selected product chip - show above input */}
                 {selectedVariant && (
@@ -511,7 +511,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     type="number"
                     min="1"
                     value={quantity}
-                    onChange={(e) => setQuantity(parseInt(e.target.value) || 1)}
+                    onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
                     placeholder="Quantity"
                     className="text-sm"
                   />
@@ -522,7 +522,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
                   >
                     <Plus className="w-4 h-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Add</span>
+                    <span className="hidden sm:inline">Tambah</span>
                   </Button>
                 </div>
               </div>
@@ -530,7 +530,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
               {/* Items List - FIXED FOR MOBILE */}
               {items.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Cart Items ({items.length})</Label>
+                  <Label className="text-sm font-medium">Keranjang ({items.length})</Label>
                   <div className="border rounded-lg divide-y max-h-[250px] overflow-y-auto overflow-x-hidden">
                     {items.map((item, index) => (
                       <div key={index} className="flex items-start gap-2 p-3">
@@ -609,18 +609,18 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
 
               {/* Notes */}
               <div className="grid gap-2">
-                <Label htmlFor="notes" className="text-sm">Notes (Optional)</Label>
+                <Label htmlFor="notes" className="text-sm">Notes (Opsional)</Label>
                 <Textarea
                   id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add notes for this sale..."
                   rows={2}
-                  maxLength={500}
+                  maxLength={50}
                   className="text-sm resize-none"
                 />
                 <p className="text-xs text-gray-500 text-right">
-                  {notes.length}/500 characters
+                  {notes.length}/50 characters
                 </p>
               </div>
 
@@ -634,8 +634,8 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-purple-700">Available Points:</span>
-                      <span className="font-semibold text-purple-900">{availablePoints} pts</span>
+                      <span className="text-purple-700">Poin Tersedia:</span>
+                      <span className="font-semibold text-purple-900">{availablePoints} poin</span>
                     </div>
                     
                     <div className="grid gap-2">
@@ -653,7 +653,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                         className="bg-white"
                       />
                       <p className="text-xs text-purple-600">
-                        1 point = {formatCurrency(conversionRate)} discount • {pointsToRedeem} pts = {formatCurrency(pointDiscount)}
+                        1 poin = {formatCurrency(conversionRate)} discount • {pointsToRedeem} poin = {formatCurrency(pointDiscount)}
                       </p>
                     </div>
 
@@ -664,7 +664,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                           <span className="text-lg font-bold text-purple-900">-{formatCurrency(pointDiscount)}</span>
                         </div>
                         <p className="text-xs text-orange-600 mt-1">
-                          ⚠️ Member will not earn points when redeeming
+                          ⚠️ Member tidak mendapatkan poin saat menukarkan poin
                         </p>
                       </div>
                     )}
@@ -687,7 +687,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   )}
                   {pointsToRedeem > 0 && (
                     <div className="flex justify-between text-sm text-purple-600">
-                      <span>Point Discount ({pointsToRedeem} pts):</span>
+                      <span>Point Discount ({pointsToRedeem} poin):</span>
                       <span className="font-medium">-{formatCurrency(pointDiscount)}</span>
                     </div>
                   )}
@@ -708,7 +708,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   {/* Error when total discount exceeds subtotal */}
                   {(discount + pointDiscount) > subtotal && (
                     <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-800">
-                      ❌ Total discount exceeds subtotal! Reduce discount or points.
+                      ❌ Total discount melebihi subtotal! Kurangi discount atau points.
                     </div>
                   )}
                   

@@ -236,10 +236,10 @@ export function EditSaleDialog({ sale, conversionRate = 1000, open, onOpenChange
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Optional notes"
               disabled={loading}
-              maxLength={30}
+              maxLength={50}
             />
             <p className="text-xs text-gray-500 text-right">
-              {notes.length}/30 characters
+              {notes.length}/50 characters
             </p>
           </div>
 

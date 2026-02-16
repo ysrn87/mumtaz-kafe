@@ -125,6 +125,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 defaultValue={customer?.name}
                 placeholder="John Doe"
                 disabled={loading}
+                maxLength={50}
               />
             </div>
 
@@ -138,6 +139,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 defaultValue={customer?.phone}
                 placeholder="+62 812-3456-7890"
                 disabled={loading}
+                maxLength={15}
               />
             </div>
 
@@ -161,10 +163,10 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 defaultValue={customer?.address}
                 placeholder="Street, City, Postal Code"
                 disabled={loading}
-                maxLength={120}
+                maxLength={150}
               />
             <p className="text-xs text-gray-500 text-right">
-              {customer?.address?.length}/120 karakter
+              {customer?.address?.length}/150 karakter
             </p>
             </div>
 

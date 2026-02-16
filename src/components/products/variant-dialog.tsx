@@ -100,6 +100,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
                 defaultValue={variant?.name}
                 placeholder="e.g., Small - Black, 32x32 - Blue"
                 disabled={loading}
+                maxLength={30}
               />
             </div>
 
@@ -112,6 +113,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
                 defaultValue={variant?.sku}
                 placeholder="e.g., TSH-001-S-BLK"
                 disabled={loading}
+                maxLength={15}
               />
             </div>
 

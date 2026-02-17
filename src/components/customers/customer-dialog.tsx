@@ -90,6 +90,32 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
     }
   };
 
+  
+  const [name, setName] = useState('');
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const capitalized = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+    setName(capitalized);
+  };
+
+  const [phone, setPhone] = useState('')
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9+]/g, '');
+    const formatted = raw.replace(/(.{4})/g, '$1 ').trim();
+    setPhone(formatted);
+  };
+
+  const [emailError, setEmailError] = useState('');
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    setEmailError(val && !valid ? 'Masukkan alamat email yang valid' : '');
+  };
+
+  const [address, setAddress] = useState('');
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -121,11 +147,14 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
               <Input
                 id="name"
                 name="name"
+                type="text"
                 required
                 defaultValue={customer?.name}
                 placeholder="John Doe"
+                value={name}
+                onChange={handleNameChange}
                 disabled={loading}
-                maxLength={50}
+                maxLength={80}
               />
             </div>
 
@@ -135,11 +164,22 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 id="phone"
                 name="phone"
                 type="tel"
+                
+                value={phone}
+                onChange={handlePhoneChange}
+                onKeyDown={(e) => {
+                  const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+                  if (!controlKeys.includes(e.key) && !/^[0-9+]$/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+                    e.preventDefault();
+                  }
+                }}
+                minLength={9}  // 7 digits + 2 auto-added spaces
+                maxLength={19} // 15 digits + 4 auto-added spaces
+                inputMode="tel"
                 required
                 defaultValue={customer?.phone}
-                placeholder="+62 812-3456-7890"
+                placeholder="0812 3456 7890"
                 disabled={loading}
-                maxLength={15}
               />
             </div>
 
@@ -150,9 +190,13 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 name="email"
                 type="email"
                 defaultValue={customer?.email}
-                placeholder="john@example.com"
+                placeholder="john@example.com"                
+                onChange={handleEmailChange}
+                pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
                 disabled={loading}
               />
+              {emailError && <p className="text-xs text-red-500">{emailError}</p>}
+              
             </div>
 
             <div className="grid gap-2">
@@ -161,12 +205,14 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 id="address"
                 name="address"
                 defaultValue={customer?.address}
-                placeholder="Street, City, Postal Code"
+                placeholder="Nama Jalan, Kota, Kode Pos"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
                 disabled={loading}
                 maxLength={150}
               />
             <p className="text-xs text-gray-500 text-right">
-              {customer?.address?.length}/150 karakter
+              {address.length}/150 karakter
             </p>
             </div>
 

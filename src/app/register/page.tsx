@@ -41,6 +41,31 @@ export default function RegisterPage() {
     }
   }
 
+  const [name, setName] = useState('');
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const capitalized = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+    setName(capitalized);
+  };
+
+  const [phone, setPhone] = useState('')
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9+]/g, '');
+    const formatted = raw.replace(/(.{4})/g, '$1 ').trim();
+    setPhone(formatted);
+  };
+
+  const [emailError, setEmailError] = useState('');
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    setEmailError(val && !valid ? 'Masukkan alamat email yang valid' : '');
+  };
+
+  const [address, setAddress] = useState('');
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 py-12">
       {/* Decorative background elements */}
@@ -80,7 +105,7 @@ export default function RegisterPage() {
             <div className="space-y-2">
               <Label htmlFor="name" className="text-xs font-medium flex items-center gap-2">
                 <User className="w-4 h-4 text-gray-500" />
-                Full Name <span className="text-red-500">*</span>
+                Nama Lengkap <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="name"
@@ -88,7 +113,10 @@ export default function RegisterPage() {
                 type="text"
                 required
                 placeholder="John Doe"
+                value={name}
+                onChange={handleNameChange}
                 disabled={loading}
+                maxLength={80}
                 className="h-11 text-sm"
               />
             </div>
@@ -102,8 +130,19 @@ export default function RegisterPage() {
                 id="phone"
                 name="phone"
                 type="tel"
+                value={phone}
+                onChange={handlePhoneChange}
+                onKeyDown={(e) => {
+                  const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
+                  if (!controlKeys.includes(e.key) && !/^[0-9+]$/.test(e.key) && !e.ctrlKey && !e.metaKey) {
+                    e.preventDefault();
+                  }
+                }}
+                minLength={9}  // 7 digits + 2 auto-added spaces
+                maxLength={19} // 15 digits + 4 auto-added spaces
+                inputMode="tel"
                 required
-                placeholder="+62 812-3456-7890"
+                placeholder="0812 3456 7890"
                 disabled={loading}
                 className="h-11 text-sm"
               />
@@ -116,7 +155,7 @@ export default function RegisterPage() {
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs font-medium flex items-center gap-2">
                   <Mail className="w-4 h-4 text-gray-500" />
-                  Email (Opsional)
+                  Email (Opsional - disarankan untuk login alternatif)
                 </Label>
                 <Input
                   id="email"
@@ -124,8 +163,11 @@ export default function RegisterPage() {
                   type="email"
                   placeholder="you@example.com"
                   disabled={loading}
+                  onChange={handleEmailChange}
+                  pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
                   className="h-11 text-sm"
                 />
+                {emailError && <p className="text-xs text-red-500">{emailError}</p>}
               </div>
 
               <div className="space-y-2">
@@ -151,13 +193,15 @@ export default function RegisterPage() {
               <Textarea
                 id="address"
                 name="address"
-                placeholder="Street, City, Postal Code"
+                placeholder="Nama Jalan, Kota, Kode Pos"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
                 disabled={loading}
-                maxLength={120}
+                maxLength={150}
                 className="h-11 text-sm"
               />
               <p className='text-xs text-gray-500 text-right'>
-                Max. 120 karakter
+                {address.length}/150 karakter
               </p>
             </div>
 
@@ -203,9 +247,9 @@ export default function RegisterPage() {
               </div>
             )}
 
-            <Button 
-              type="submit" 
-              className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl" 
+            <Button
+              type="submit"
+              className="w-full h-11 text-sm font-semibold bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               disabled={loading}
             >
               {loading ? (
@@ -232,8 +276,8 @@ export default function RegisterPage() {
           </div>
 
           <Link href="/login" className="block">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full h-11 text-sm font-semibold border-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />

@@ -307,6 +307,10 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       v.name.toLowerCase().includes(productSearch.toLowerCase())
     );
 
+  const [quantityDisplay, setQuantityDisplay] = useState('1');
+  const [discountDisplay, setDiscountDisplay] = useState('');
+  const [taxDisplay, setTaxDisplay] = useState('');
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -512,12 +516,16 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 {/* Quantity and Add button */}
                 <div className="grid grid-cols-[1fr,auto] gap-2">
                   <Input
-                    type="number"
-                    min="1"
-                    value={quantity}
-                    onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                    placeholder="Quantity"
-                    className="text-sm"
+                    type="text"
+                    inputMode="numeric"
+                    value={quantityDisplay}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '');
+                      const num = parseInt(raw) || 0;
+                      setQuantityDisplay(raw ? num.toLocaleString('en-US') : '');
+                      setQuantity(num);
+                    }}
+                    placeholder='0'
                   />
                   <Button
                     type="button"
@@ -594,13 +602,16 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   </Label>
                   <Input
                     id="discount"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max={subtotal}
-                    value={discount}
-                    onChange={(e) => handleDiscountChange(parseFloat(e.target.value) || 0)}
-                    placeholder="0.00"
+                    type="text"
+                    inputMode="numeric"
+                    value={discountDisplay}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '');
+                      const num = parseInt(raw) || 0;
+                      setDiscountDisplay(raw ? num.toLocaleString('en-US') : '');
+                      handleDiscountChange(num);
+                    }}
+                    placeholder="0"
                   />
                 </div>
 
@@ -608,12 +619,16 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   <Label htmlFor="tax" className="text-sm">Tax</Label>
                   <Input
                     id="tax"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={tax}
-                    onChange={(e) => setTax(parseFloat(e.target.value) || 0)}
-                    placeholder="0.00"
+                    type="text"
+                    inputMode="numeric"
+                    value={taxDisplay}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, '');
+                      const num = parseInt(raw) || 0;
+                      setTaxDisplay(raw ? num.toLocaleString('en-US') : '');
+                      setTax(num);
+                    }}
+                    placeholder="0"
                   />
                 </div>
               </div>
@@ -731,10 +746,10 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                   {/* Add this block */}
                   {items.length > 0 && customerId && customerId !== 'WALK_IN' && (
                     <div className={`flex items-center justify-between px-3 py-2 rounded-md text-sm mt-1 ${pointsToRedeem > 0
-                        ? 'bg-orange-50 border border-orange-200'
-                        : pointsEarned > 0
-                          ? 'bg-green-50 border border-green-200'
-                          : 'bg-gray-50 border border-gray-200'
+                      ? 'bg-orange-50 border border-orange-200'
+                      : pointsEarned > 0
+                        ? 'bg-green-50 border border-green-200'
+                        : 'bg-gray-50 border border-gray-200'
                       }`}>
                       <span className={`font-medium ${pointsToRedeem > 0 ? 'text-orange-700' : pointsEarned > 0 ? 'text-green-700' : 'text-gray-500'
                         }`}>

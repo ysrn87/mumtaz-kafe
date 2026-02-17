@@ -100,7 +100,7 @@ export function CustomersTable({
 
                 return (
                   <TableRow key={customer.id}>
-                    <TableCell className="font-medium">{customer.name}</TableCell>
+                    <TableCell className="font-medium truncate break-words max-w-32">{customer.name}</TableCell>
                     <TableCell className="text-muted-foreground">
                       {customer.phone || '-'}
                     </TableCell>

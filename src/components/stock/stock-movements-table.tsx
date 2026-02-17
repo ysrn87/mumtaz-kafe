@@ -59,15 +59,17 @@ export function StockMovementsTable({
           movements.map((movement) => (
             <div key={movement.id} className="flex items-center justify-between border-b pb-3">
               <div className="flex items-center gap-3">
-                {movement.type === 'IN' ? (
-                  <TrendingUp className="h-5 w-5 text-green-600" />
-                ) : movement.type === 'OUT' ? (
-                  <TrendingDown className="h-5 w-5 text-red-600" />
-                ) : (
-                  <Package className="h-5 w-5 text-blue-600" />
-                )}
                 <div>
-                  <p className="text-xs font-medium">
+                  {movement.type === 'IN' ? (
+                    <TrendingUp className="h-5 w-5 text-green-600" />
+                  ) : movement.type === 'OUT' ? (
+                    <TrendingDown className="h-5 w-5 text-red-600" />
+                  ) : (
+                    <Package className="h-5 w-5 text-blue-600" />
+                  )}
+                </div>
+                <div>
+                  <p className="text-xs font-medium flex-auto break-words line-clamp-2">
                     {movement.variant.product.name} - {movement.variant.name}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -75,9 +77,11 @@ export function StockMovementsTable({
                     {movement.notes && ` • ${movement.notes}`}
                   </p>
                 </div>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {formatDateTime(movement.createdAt)}
+                <div>
+                  <p className='text-xs text-muted-foreground text-right'>
+                    {formatDateTime(movement.createdAt)}
+                  </p>
+                </div>
               </div>
             </div>
           ))

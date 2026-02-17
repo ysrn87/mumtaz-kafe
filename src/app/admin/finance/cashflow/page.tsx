@@ -160,7 +160,7 @@ export default async function AdminCashflowPage({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Saldo Bersih</CardTitle>
+            <CardTitle className="text-sm font-medium">Profit Bersih</CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -170,6 +170,9 @@ export default async function AdminCashflowPage({
             <p className="text-xs text-muted-foreground">Pendapatan - Pengeluaran</p>
           </CardContent>
         </Card>
+      </div>
+      <div className={`text-sm font-medium ${stats.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+        <p>Bagi hasil system (10%) • {stats.balance >= 0 ? formatCurrency(stats.balance/10) : formatCurrency(0)}</p>
       </div>
 
       {/* Transactions Table */}

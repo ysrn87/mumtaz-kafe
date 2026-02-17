@@ -186,10 +186,10 @@ export default async function AdminProductsPage({
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Name</TableHead>
                           <TableHead>SKU</TableHead>
+                          <TableHead>Nama</TableHead>
                           <TableHead>Harga</TableHead>
-                          <TableHead>Cost</TableHead>
+                          {/* <TableHead>Cost</TableHead> */}
                           <TableHead>Stok</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead className="text-right">Actions</TableHead>
@@ -198,10 +198,10 @@ export default async function AdminProductsPage({
                       <TableBody className='text-xs'>
                         {product.variants.map((variant) => (
                           <TableRow key={variant.id}>
-                            <TableCell className="font-medium">{variant.name}</TableCell>
                             <TableCell>{variant.sku}</TableCell>
+                            <TableCell className="font-medium break-words line-clamp-2 max-w-32">{variant.name}</TableCell>
                             <TableCell>{formatCurrency(variant.price)}</TableCell>
-                            <TableCell>{formatCurrency(variant.cost)}</TableCell>
+                            {/* <TableCell>{formatCurrency(variant.cost)}</TableCell> */}
                             <TableCell>
                               <span className={variant.stock <= variant.lowStock ? 'text-red-600 font-medium' : ''}>
                                 {variant.stock}

@@ -54,16 +54,16 @@ export function StockTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Produk</TableHead>
-              <TableHead>Varian</TableHead>
-              <TableHead>Stok Tersedia</TableHead>
-              <TableHead>Stok Minimum</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead>SKU</TableHead>
+              <TableHead>Produk</TableHead>
+              <TableHead>Varian Produk</TableHead>
+              <TableHead>Stok Tersedia</TableHead>
+              <TableHead>Stok Min</TableHead>
+              <TableHead>Status</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className='text-xs'>
             {stockItems.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center text-muted-foreground">
@@ -75,7 +75,8 @@ export function StockTable({
                 const isLowStock = item.stock <= item.lowStock;
                 return (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.product.name}</TableCell>
+                    <TableCell className='font-mono'>{item.sku}</TableCell>
+                    <TableCell>{item.product.name}</TableCell>
                     <TableCell>{item.name}</TableCell>
                     <TableCell>
                       <span className={isLowStock ? 'text-red-600 font-bold' : ''}>
@@ -87,7 +88,7 @@ export function StockTable({
                       {isLowStock ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                           <AlertTriangle className="w-3 h-3 mr-1" />
-                          Stok rendah
+                          Stok menipis
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -95,7 +96,6 @@ export function StockTable({
                         </span>
                       )}
                     </TableCell>
-                    <TableCell>{item.sku}</TableCell>
                     <TableCell>
                       <StockAdjustmentDialog 
                         variantId={item.id} 

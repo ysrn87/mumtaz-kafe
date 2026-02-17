@@ -54,9 +54,9 @@ export function InventoryReportTable({
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead>SKU</TableHead>
               <TableHead>Product</TableHead>
               <TableHead>Variant</TableHead>
-              <TableHead>SKU</TableHead>
               <TableHead>Stock</TableHead>
               <TableHead>Cost</TableHead>
               <TableHead>Price</TableHead>
@@ -78,9 +78,9 @@ export function InventoryReportTable({
                 
                 return (
                   <TableRow key={item.id} className={isLowStock ? 'bg-red-50' : ''}>
+                    <TableCell>{item.sku}</TableCell>
                     <TableCell className="font-medium">{item.product.name}</TableCell>
                     <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.sku}</TableCell>
                     <TableCell>
                       <span className={isLowStock ? 'text-red-600 font-bold' : 'font-semibold'}>
                         {item.stock}
@@ -95,7 +95,7 @@ export function InventoryReportTable({
                       {isLowStock ? (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                           <AlertTriangle className="w-3 h-3 mr-1" />
-                          Stok Rendah
+                          Stok Menipis
                         </span>
                       ) : (
                         <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">

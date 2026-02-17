@@ -143,6 +143,7 @@ async function getVariants() {
     name: v.name,
     price: Number(v.price),
     stock: v.stock,
+    points: v.points,
     product: {
       name: v.product.name,
     },

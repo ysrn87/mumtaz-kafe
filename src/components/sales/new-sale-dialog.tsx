@@ -25,6 +25,7 @@ interface NewSaleDialogProps {
     name: string;
     price: number;
     stock: number;
+    points: number;
     product: {
       name: string;
     };
@@ -49,13 +50,13 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
   const [tax, setTax] = useState<number>(0);
   const [pointsToRedeem, setPointsToRedeem] = useState<number>(0);
   const [notes, setNotes] = useState<string>('');
-  
+
   // Improved UI states
   const [customerSearch, setCustomerSearch] = useState('');
   const [productSearch, setProductSearch] = useState('');
   const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
-  
+
   const { toast } = useToast();
 
   const selectedCustomer = customers.find(c => c.id === customerId);
@@ -65,9 +66,16 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const total = subtotal - discount - pointDiscount + tax;
 
+  const pointsEarned = (customerId && customerId !== 'WALK_IN' && pointsToRedeem === 0)
+    ? items.reduce((sum, item) => {
+      const variant = variants.find(v => v.id === item.variantId);
+      return sum + (variant?.points ?? 0) * item.quantity;
+    }, 0)
+    : 0;
+
   const handleDiscountChange = (value: number) => {
     const totalDiscount = value + pointDiscount;
-    
+
     if (value > subtotal) {
       toast({
         title: 'Invalid Discount',
@@ -103,7 +111,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
     } else if (totalDiscount > subtotal) {
       const maxPointDiscount = subtotal - discount;
       const maxPoints = Math.floor(maxPointDiscount / conversionRate);
-      
+
       toast({
         title: 'Total Discount Too High',
         description: `Combined discount and point discount cannot exceed subtotal. Maximum ${maxPoints} points can be redeemed.`,
@@ -151,7 +159,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
     }
 
     const existingItemIndex = items.findIndex(item => item.variantId === selectedVariantId);
-    
+
     if (existingItemIndex >= 0) {
       const newItems = [...items];
       newItems[existingItemIndex].quantity += quantity;
@@ -244,7 +252,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
         notes,
         pointsRedeemed: customerId !== 'WALK_IN' ? pointsToRedeem : 0,
       });
-      
+
       if (result.success) {
         toast({
           title: 'Success!',
@@ -286,15 +294,15 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
   const selectedVariant = variants.find(v => v.id === selectedVariantId);
 
   // Filter customers
-  const filteredCustomers = customers.filter(c => 
+  const filteredCustomers = customers.filter(c =>
     c.name.toLowerCase().includes(customerSearch.toLowerCase())
   );
 
   // Filter variants
   const filteredVariants = variants
     .filter(v => v.stock > 0)
-    .filter(v => 
-      !productSearch || 
+    .filter(v =>
+      !productSearch ||
       v.product.name.toLowerCase().includes(productSearch.toLowerCase()) ||
       v.name.toLowerCase().includes(productSearch.toLowerCase())
     );
@@ -311,33 +319,32 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
         <DialogHeader>
           <DialogTitle>Penjualan Baru</DialogTitle>
         </DialogHeader>
-        
+
         <div className="grid gap-4 py-4">
           {/* Customer Selection - Improved Combobox Style */}
           <div className="grid gap-2">
             <Label className="text-sm font-medium">
               Customer <span className="text-red-500">*</span>
             </Label>
-            
+
             <div className="relative">
               {/* Combobox Button */}
               <button
                 type="button"
                 onClick={() => setIsCustomerDropdownOpen(!isCustomerDropdownOpen)}
-                className={`flex items-center gap-2 w-full min-h-[44px] px-3 py-2 border rounded-md text-left transition-colors ${
-                  !customerId ? 'text-gray-400 hover:bg-gray-50' : 'hover:bg-gray-50'
-                } ${!customerId ? 'border-gray-300' : 'border-blue-300 bg-blue-50'}`}
+                className={`flex items-center gap-2 w-full min-h-[44px] px-3 py-2 border rounded-md text-left transition-colors ${!customerId ? 'text-gray-400 hover:bg-gray-50' : 'hover:bg-gray-50'
+                  } ${!customerId ? 'border-gray-300' : 'border-blue-300 bg-blue-50'}`}
               >
                 {customerId ? (
                   // Selected state - show as chip
-                  <div className="flex items-center gap-2 bg-blue-100 text-blue-900 px-2 py-1 rounded-md min-w-0">
+                  <div className="flex items-center gap-2 bg-blue-100 text-blue-900 px-2 py-1 rounded-md min-w-0 break-words line-clamp-2">
                     <User className="w-4 h-4 flex-shrink-0" />
-                    <span className="text-sm font-medium truncate">{getCustomerDisplayName()}</span>
+                    <span className="text-sm font-medium break-words line-clamp-2">{getCustomerDisplayName()}</span>
                     {selectedCustomer && (
-                      <span className="text-xs text-blue-600 whitespace-nowrap">• {selectedCustomer.points} pts</span>
+                      <span className="text-xs text-blue-600 whitespace-nowrap">• {selectedCustomer.points} poin</span>
                     )}
-                    <X 
-                      className="w-4 h-4 ml-1 cursor-pointer hover:text-blue-700 flex-shrink-0" 
+                    <X
+                      className="w-4 h-4 ml-1 cursor-pointer hover:text-blue-700 flex-shrink-0"
                       onClick={(e) => {
                         e.stopPropagation();
                         setCustomerId('');
@@ -375,9 +382,8 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     {(!customerSearch || 'pelanggan umum'.includes(customerSearch.toLowerCase())) && (
                       <div
                         onClick={() => handleCustomerChange('WALK_IN')}
-                        className={`flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 border-b ${
-                          customerId === 'WALK_IN' ? 'bg-blue-50' : ''
-                        }`}
+                        className={`flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 border-b ${customerId === 'WALK_IN' ? 'bg-blue-50' : ''
+                          }`}
                       >
                         <span className="text-sm">Pelanggan Umum</span>
                         {customerId === 'WALK_IN' && (
@@ -389,15 +395,14 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                         )}
                       </div>
                     )}
-                    
+
                     {/* Customer list */}
                     {filteredCustomers.map((customer) => (
                       <div
                         key={customer.id}
                         onClick={() => handleCustomerChange(customer.id)}
-                        className={`flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 border-b last:border-b-0 ${
-                          customerId === customer.id ? 'bg-blue-50' : ''
-                        }`}
+                        className={`flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 border-b last:border-b-0 ${customerId === customer.id ? 'bg-blue-50' : ''
+                          }`}
                       >
                         <div className="flex flex-col min-w-0 flex-1 mr-2">
                           <span className="font-medium text-sm truncate">{customer.name}</span>
@@ -412,15 +417,15 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                         )}
                       </div>
                     ))}
-                    
+
                     {/* No results */}
-                    {customerSearch && 
-                     filteredCustomers.length === 0 && 
-                     !'pelanggan umum'.includes(customerSearch.toLowerCase()) && (
-                      <div className="p-4 text-center text-sm text-gray-500">
-                        No customers found
-                      </div>
-                    )}
+                    {customerSearch &&
+                      filteredCustomers.length === 0 &&
+                      !'pelanggan umum'.includes(customerSearch.toLowerCase()) && (
+                        <div className="p-4 text-center text-sm text-gray-500">
+                          No customers found
+                        </div>
+                      )}
                   </div>
                 </div>
               )}
@@ -432,7 +437,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
             <>
               <div className="grid gap-2">
                 <Label className="text-sm font-medium">Tambah Produk</Label>
-                
+
                 {/* Selected product chip - show above input */}
                 {selectedVariant && (
                   <div className="flex items-center gap-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
@@ -444,8 +449,8 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                         {formatCurrency(selectedVariant.price)} • Stock: {selectedVariant.stock}
                       </p>
                     </div>
-                    <X 
-                      className="w-4 h-4 cursor-pointer text-blue-600 hover:text-blue-700 flex-shrink-0" 
+                    <X
+                      className="w-4 h-4 cursor-pointer text-blue-600 hover:text-blue-700 flex-shrink-0"
                       onClick={() => setSelectedVariantId('')}
                     />
                   </div>
@@ -473,9 +478,8 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                       <div
                         key={variant.id}
                         onClick={() => handleProductSelect(variant.id)}
-                        className={`p-3 cursor-pointer hover:bg-gray-50 border-b last:border-b-0 ${
-                          selectedVariantId === variant.id ? 'bg-blue-50' : ''
-                        }`}
+                        className={`p-3 cursor-pointer hover:bg-gray-50 border-b last:border-b-0 ${selectedVariantId === variant.id ? 'bg-blue-50' : ''
+                          }`}
                       >
                         <div className="flex items-center justify-between gap-2">
                           <div className="flex-1 min-w-0">
@@ -496,7 +500,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                         </div>
                       </div>
                     ))}
-                    
+
                     {filteredVariants.length === 0 && (
                       <div className="p-4 text-center text-sm text-gray-500">
                         No products found
@@ -515,9 +519,9 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     placeholder="Quantity"
                     className="text-sm"
                   />
-                  <Button 
-                    type="button" 
-                    onClick={addItem} 
+                  <Button
+                    type="button"
+                    onClick={addItem}
                     disabled={!selectedVariantId || quantity <= 0}
                     className="bg-blue-600 hover:bg-blue-700 whitespace-nowrap"
                   >
@@ -539,6 +543,13 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                           <p className="text-xs text-gray-600 mt-0.5">
                             {item.quantity} × {formatCurrency(item.price)}
                           </p>
+                          {customerId && customerId !== 'WALK_IN' && pointsToRedeem === 0 && (() => {
+                            const variant = variants.find(v => v.id === item.variantId);
+                            const itemPoints = (variant?.points ?? 0) * item.quantity;
+                            return itemPoints > 0 ? (
+                              <p className="text-xs text-green-600 mt-0.5">🎁 +{itemPoints} poin</p>
+                            ) : null;
+                          })()}
                         </div>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           <span className="font-semibold text-sm whitespace-nowrap">
@@ -631,13 +642,13 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     <Gift className="w-5 h-5 text-purple-600" />
                     <h3 className="font-semibold text-base text-purple-900">Redeem Points</h3>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-purple-700">Poin Tersedia:</span>
                       <span className="font-semibold text-purple-900">{availablePoints} poin</span>
                     </div>
-                    
+
                     <div className="grid gap-2">
                       <Label htmlFor="pointsRedeem" className="text-sm text-purple-900">
                         Points to Redeem (Max: {availablePoints})
@@ -697,46 +708,64 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                       <span className="font-medium">{formatCurrency(tax)}</span>
                     </div>
                   )}
-                  
+
                   {/* Warning when total discount is high */}
                   {(discount + pointDiscount) > subtotal * 0.8 && (discount + pointDiscount) <= subtotal && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded p-2 text-xs text-yellow-800">
                       ⚠️ Total discount is {Math.round((discount + pointDiscount) / subtotal * 100)}% of subtotal
                     </div>
                   )}
-                  
+
                   {/* Error when total discount exceeds subtotal */}
                   {(discount + pointDiscount) > subtotal && (
                     <div className="bg-red-50 border border-red-200 rounded p-2 text-xs text-red-800">
                       ❌ Total discount melebihi subtotal! Kurangi discount atau points.
                     </div>
                   )}
-                  
-                  <div className={`flex justify-between text-lg font-bold pt-2 border-t ${
-                    total < 0 ? 'text-red-600' : total === 0 ? 'text-yellow-600' : 'text-gray-900'
-                  }`}>
+
+                  <div className={`flex justify-between text-lg font-bold pt-2 border-t ${total < 0 ? 'text-red-600' : total === 0 ? 'text-yellow-600' : 'text-gray-900'
+                    }`}>
                     <span>Total:</span>
                     <span>{formatCurrency(Math.max(0, total))}</span>
                   </div>
+                  {/* Add this block */}
+                  {items.length > 0 && customerId && customerId !== 'WALK_IN' && (
+                    <div className={`flex items-center justify-between px-3 py-2 rounded-md text-sm mt-1 ${pointsToRedeem > 0
+                        ? 'bg-orange-50 border border-orange-200'
+                        : pointsEarned > 0
+                          ? 'bg-green-50 border border-green-200'
+                          : 'bg-gray-50 border border-gray-200'
+                      }`}>
+                      <span className={`font-medium ${pointsToRedeem > 0 ? 'text-orange-700' : pointsEarned > 0 ? 'text-green-700' : 'text-gray-500'
+                        }`}>
+                        🎁 Poin Diperoleh:
+                      </span>
+                      <span className={`font-bold ${pointsToRedeem > 0 ? 'text-orange-600' : pointsEarned > 0 ? 'text-green-800' : 'text-gray-400'
+                        }`}>
+                        {pointsToRedeem > 0 ? '0 poin (penukaran aktif)' : `+${pointsEarned} poin`}
+                      </span>
+                    </div>
+                  )}
                 </div>
+
               )}
             </>
           )}
         </div>
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button 
-            type="button" 
-            variant="outline" 
-            onClick={() => setOpen(false)} 
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
             disabled={loading}
             className="w-full sm:w-auto"
           >
             Cancel
           </Button>
-          <Button 
-            type="button" 
-            onClick={handleSubmit} 
+          <Button
+            type="button"
+            onClick={handleSubmit}
             disabled={loading || items.length === 0 || !customerId || (discount + pointDiscount) > subtotal || total < 0}
             className="w-full sm:w-auto"
           >

@@ -83,7 +83,7 @@ export function CustomersTable({
               <TableHead>Email</TableHead>
               <TableHead>Poin</TableHead>
               <TableHead>Total Pembelian</TableHead>
-              <TableHead>Total Spent</TableHead>
+              <TableHead>Total Belanja</TableHead>
               <TableHead>Member Since</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>

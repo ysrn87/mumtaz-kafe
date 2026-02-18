@@ -109,7 +109,15 @@ export function CustomersTable({
                       {customer.address || '-'}
                       </TableCell>
                     <TableCell>{customer.email || '-'}</TableCell>
-                    <TableCell>{customer.birthday ? new Date(customer.birthday).toLocaleDateString() : '-'}</TableCell>
+                    <TableCell>
+                      {customer.birthday 
+                        ? new Date(customer.birthday).toLocaleDateString('en-GB', { 
+                            day: '2-digit', 
+                            month: 'long', 
+                            year: 'numeric' 
+                          }) 
+                        : '-'}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Award className="h-4 w-4 text-yellow-600" />

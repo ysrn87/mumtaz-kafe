@@ -179,6 +179,7 @@ export default function RegisterPage() {
                   id="birthday"
                   name="birthday"
                   type="date"
+                  max={new Date().toISOString().split('T')[0]}
                   disabled={loading}
                   className="h-11 text-sm"
                 />

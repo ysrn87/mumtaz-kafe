@@ -78,9 +78,9 @@ export function CustomersTable({
             <TableRow>
               <TableHead>Nama</TableHead>
               <TableHead>Telepon</TableHead>
+              <TableHead>Tanggal Lahir</TableHead>
               <TableHead>Alamat</TableHead>
               <TableHead>Email</TableHead>
-              <TableHead>Tanggal Lahir</TableHead>
               <TableHead>Poin</TableHead>
               <TableHead>Total Pembelian</TableHead>
               <TableHead>Total Spent</TableHead>
@@ -105,10 +105,6 @@ export function CustomersTable({
                     <TableCell className="text-muted-foreground">
                       {customer.phone || '-'}
                     </TableCell>
-                    <TableCell className='max-w-72 truncate' title={customer.address || '-'}>
-                      {customer.address || '-'}
-                      </TableCell>
-                    <TableCell>{customer.email || '-'}</TableCell>
                     <TableCell>
                       {customer.birthday 
                         ? new Date(customer.birthday).toLocaleDateString('en-GB', { 
@@ -118,6 +114,10 @@ export function CustomersTable({
                           }) 
                         : '-'}
                     </TableCell>
+                    <TableCell className='max-w-72 truncate' title={customer.address || '-'}>
+                      {customer.address || '-'}
+                      </TableCell>
+                    <TableCell>{customer.email || '-'}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
                         <Award className="h-4 w-4 text-yellow-600" />

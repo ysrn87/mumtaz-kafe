@@ -151,7 +151,6 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 required
                 defaultValue={customer?.name}
                 placeholder="John Doe"
-                value={name}
                 onChange={handleNameChange}
                 disabled={loading}
                 maxLength={80}
@@ -164,8 +163,6 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 id="phone"
                 name="phone"
                 type="tel"
-                
-                value={phone}
                 onChange={handlePhoneChange}
                 onKeyDown={(e) => {
                   const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End'];
@@ -206,7 +203,6 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 name="address"
                 defaultValue={customer?.address}
                 placeholder="Nama Jalan, Kota, Kode Pos"
-                value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 disabled={loading}
                 maxLength={150}
@@ -222,6 +218,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 id="birthday"
                 name="birthday"
                 type="date"
+                max={new Date().toISOString().split('T')[0]}
                 defaultValue={customer?.birthday ? new Date(customer.birthday).toISOString().split('T')[0] : ''}
                 disabled={loading}
               />
@@ -265,7 +262,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                   name="password"
                   type="password"
                   required
-                  placeholder="Min. 6 characters"
+                  placeholder="Min. 6 karakter"
                   minLength={6}
                   disabled={loading}
                 />
@@ -293,7 +290,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 {pointsChanged && (
                   <div className="grid gap-2">
                     <Label htmlFor="pointsReason" className="flex items-center gap-1">
-                      Reason for Points Change
+                      Keterangan perubahan poin
                       <span className="text-red-500">*</span>
                     </Label>
                     <Input

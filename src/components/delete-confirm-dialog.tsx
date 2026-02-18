@@ -32,7 +32,7 @@ export function DeleteConfirmDialog({ title, description, onConfirm, trigger }: 
       } else {
         toast({
           title: 'Error',
-          description: result.error || 'Failed to delete item.',
+          description: result.error || 'Gagal menghapus.',
           variant: 'destructive',
         });
       }

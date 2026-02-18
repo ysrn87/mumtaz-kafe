@@ -20,7 +20,7 @@ export function CustomerDeleteButton({ customerId, onSuccess }: CustomerDeleteBu
   return (
     <DeleteConfirmDialog
       title="Hapus Member"
-      description="Are you sure you want to delete this customer? This action cannot be undone if the customer has no sales history."
+      description="Yakin ingin menghapus member ini? Member tidak akan terhapus jika pernah melakukan transaksi."
       onConfirm={handleDelete}
     />
   );

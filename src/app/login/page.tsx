@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { LogIn, Mail, Lock, UserPlus, ShoppingBag, Sparkles } from 'lucide-react';
+import { LogIn, Mail, Lock, UserPlus, ShoppingBag, Sparkles, Eye, EyeOff } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
@@ -16,6 +16,7 @@ function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (searchParams.get('registered') === 'true') {
@@ -82,15 +83,29 @@ function LoginForm() {
                 <Lock className="w-4 h-4 text-gray-500" />
                 Password
               </Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                placeholder="••••••••"
-                disabled={loading}
-                className="h-11 text-sm"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  placeholder="••••••••"
+                  disabled={loading}
+                  className="h-11 text-sm pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  disabled={loading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             </div>
             
             {successMessage && (

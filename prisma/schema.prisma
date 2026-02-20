@@ -1,4 +1,3 @@
-// This is your Prisma schema file with PHONE UNIQUE CONSTRAINT added
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,135 +7,117 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMINISTRATOR
-  MANAGER
-  MEMBER
-}
-
-enum TransactionType {
-  INCOME
-  EXPENSE
-}
-
 model User {
-  id        String    @id @default(cuid())
-  email     String?   @unique // Optional
-  password  String
-  name      String
-  phone     String    @unique // ✅ ADDED: Unique constraint on phone
-  address   String?   // New field
-  birthday  DateTime? // (optional)
-  photoUrl  String?   // (optional)
-  role      Role      @default(MEMBER)
-  points    Int       @default(0)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  sales            Sale[]           @relation("CustomerSales")
-  cashierSales     Sale[]           @relation("CashierSales")
-  pointsHistory    PointHistory[]
-  createdProducts  Product[]        @relation("CreatedBy")
-  updatedProducts  Product[]        @relation("UpdatedBy")
+  id               String         @id @default(cuid())
+  email            String?        @unique
+  password         String
+  name             String
+  phone            String         @unique(map: "users_phone_unique")
+  birthday         DateTime?
+  photoUrl         String?
+  role             Role           @default(MEMBER)
+  points           Int            @default(0)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  address          String?
   createdCashflows Cashflow[]
+  pointsHistory    PointHistory[]
+  createdProducts  Product[]      @relation("CreatedBy")
+  updatedProducts  Product[]      @relation("UpdatedBy")
+  cashierSales     Sale[]         @relation("CashierSales")
+  sales            Sale[]         @relation("CustomerSales")
 
   @@map("users")
 }
 
 model Product {
-  id          String    @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
   description String?
-  sku         String    @unique
+  sku         String           @unique
   createdById String
   updatedById String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  createdBy User            @relation("CreatedBy", fields: [createdById], references: [id])
-  updatedBy User?           @relation("UpdatedBy", fields: [updatedById], references: [id])
-  variants  ProductVariant[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  variants    ProductVariant[]
+  createdBy   User             @relation("CreatedBy", fields: [createdById], references: [id])
+  updatedBy   User?            @relation("UpdatedBy", fields: [updatedById], references: [id])
 
   @@map("products")
 }
 
 model ProductVariant {
-  id          String   @id @default(cuid())
-  productId   String
-  name        String
-  sku         String   @unique
-  price       Decimal  @db.Decimal(10, 2)
-  cost        Decimal  @db.Decimal(10, 2)
-  stock       Int      @default(0)
-  lowStock    Int      @default(10)
-  points      Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
-  saleItems     SaleItem[]
+  id             String          @id @default(cuid())
+  productId      String
+  name           String
+  sku            String          @unique
+  price          Decimal         @db.Decimal(10, 2)
+  cost           Decimal         @db.Decimal(10, 2)
+  stock          Int             @default(0)
+  lowStock       Int             @default(10)
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  points         Int             @default(0)
+  product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  saleItems      SaleItem[]
   stockMovements StockMovement[]
 
   @@map("product_variants")
 }
 
 model StockMovement {
-  id        String   @id @default(cuid())
+  id        String         @id @default(cuid())
   variantId String
   quantity  Int
-  type      String   // IN, OUT, ADJUSTMENT
+  type      String
   notes     String?
-  createdAt DateTime @default(now())
-
-  variant ProductVariant @relation(fields: [variantId], references: [id])
+  createdAt DateTime       @default(now())
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
 
   @@map("stock_movements")
 }
 
 model Settings {
-  id                      String   @id @default(cuid())
-  key                     String   @unique
-  value                   String
-  description             String?
-  updatedAt               DateTime @updatedAt
-  
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
   @@map("settings")
 }
 
-
 model Sale {
-  id            String   @id @default(cuid())
-  saleNumber    String   @unique
-  customerId    String?
-  cashierId     String
-  subtotal      Decimal  @db.Decimal(10, 2)
-  discount      Decimal  @db.Decimal(10, 2) @default(0)
-  tax           Decimal  @db.Decimal(10, 2) @default(0)
-  total         Decimal  @db.Decimal(10, 2)
-  paymentMethod String   // CASH, CARD, TRANSFER
-  notes         String?
-  pointsEarned  Int      @default(0)
-  pointsRedeemed Int     @default(0) // Points used as discount
-  createdAt     DateTime @default(now())
-
-  customer  User?      @relation("CustomerSales", fields: [customerId], references: [id])
-  cashier   User       @relation("CashierSales", fields: [cashierId], references: [id])
-  items     SaleItem[]
+  id             String     @id @default(cuid())
+  saleNumber     String     @unique
+  customerId     String?
+  cashierId      String
+  subtotal       Decimal    @db.Decimal(10, 2)
+  discount       Decimal    @default(0) @db.Decimal(10, 2)
+  tax            Decimal    @default(0) @db.Decimal(10, 2)
+  total          Decimal    @db.Decimal(10, 2)
+  paymentMethod  String
+  notes          String?
+  pointsEarned   Int        @default(0)
+  createdAt      DateTime   @default(now())
+  pointsRedeemed Int        @default(0)
+  items          SaleItem[]
+  cashier        User       @relation("CashierSales", fields: [cashierId], references: [id])
+  customer       User?      @relation("CustomerSales", fields: [customerId], references: [id])
 
   @@map("sales")
 }
 
 model SaleItem {
-  id        String  @id @default(cuid())
+  id        String         @id @default(cuid())
   saleId    String
   variantId String
   quantity  Int
-  price     Decimal @db.Decimal(10, 2)
-  subtotal  Decimal @db.Decimal(10, 2)
-
-  sale    Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  variant ProductVariant @relation(fields: [variantId], references: [id])
+  price     Decimal        @db.Decimal(10, 2)
+  subtotal  Decimal        @db.Decimal(10, 2)
+  sale      Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
 
   @@map("sale_items")
 }
@@ -145,12 +126,11 @@ model PointHistory {
   id          String    @id @default(cuid())
   userId      String
   points      Int
-  type        String    // EARNED, REDEEMED, ADJUSTED, EXPIRED
+  type        String
   description String
-  expiresAt   DateTime? // Points expire on Dec 31 of earning year
   createdAt   DateTime  @default(now())
-
-  user User @relation(fields: [userId], references: [id])
+  expiresAt   DateTime?
+  user        User      @relation(fields: [userId], references: [id])
 
   @@map("point_history")
 }
@@ -164,8 +144,18 @@ model Cashflow {
   date        DateTime        @default(now())
   createdById String
   createdAt   DateTime        @default(now())
-
-  createdBy User @relation(fields: [createdById], references: [id])
+  createdBy   User            @relation(fields: [createdById], references: [id])
 
   @@map("cashflows")
+}
+
+enum Role {
+  ADMINISTRATOR
+  MANAGER
+  MEMBER
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
 }

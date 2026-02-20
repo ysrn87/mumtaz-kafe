@@ -181,7 +181,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
                 <Input
                   id="price"
                   name="price"
-                  type="text"
+                  type="tel"
                   required
                   value={price}
                   onChange={(e) => handleNumberChange(e.target.value, setPrice)}
@@ -195,7 +195,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
                 <Input
                   id="cost"
                   name="cost"
-                  type="text"
+                  type="tel"
                   required
                   value={cost}
                   onChange={(e) => handleNumberChange(e.target.value, setCost)}
@@ -210,7 +210,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
               <Input
                 id="points"
                 name="points"
-                type="text"
+                type="tel"
                 value={points}
                 onChange={(e) => handleNumberChange(e.target.value, setPoints)}
                 placeholder="0"
@@ -228,7 +228,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
                   <Input
                     id="stock"
                     name="stock"
-                    type="text"
+                    type="tel"
                     required
                     value={stock}
                     onChange={(e) => handleNumberChange(e.target.value, setStock)}
@@ -242,7 +242,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
                   <Input
                     id="lowStock"
                     name="lowStock"
-                    type="text"
+                    type="tel"
                     required
                     value={lowStock}
                     onChange={(e) => handleNumberChange(e.target.value, setLowStock)}
@@ -259,7 +259,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
                 <Input
                   id="lowStock"
                   name="lowStock"
-                  type="text"
+                  type="tel"
                   required
                   value={lowStock}
                   onChange={(e) => handleNumberChange(e.target.value, setLowStock)}

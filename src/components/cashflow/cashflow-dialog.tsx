@@ -141,7 +141,7 @@ export function CashflowDialog({ mode = 'create', transaction, trigger }: Cashfl
               <Input
                 id="amount"
                 name="amount"
-                type="text"
+                type="tel"
                 required
                 value={amount}
                 onChange={(e) => handleNumberChange(e.target.value)}

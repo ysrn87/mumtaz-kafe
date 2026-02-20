@@ -141,7 +141,7 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
               <Input
                 id="quantity"
                 name="quantity"
-                type="text"
+                type="tel"
                 required
                 value={quantity}
                 onChange={(e) => handleNumberChange(e.target.value)}

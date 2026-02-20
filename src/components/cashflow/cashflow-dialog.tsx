@@ -26,11 +26,41 @@ interface CashflowDialogProps {
 export function CashflowDialog({ mode = 'create', transaction, trigger }: CashflowDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [amount, setAmount] = useState(transaction?.amount?.toString() || '');
   const { toast } = useToast();
+
+  // Helper function to format number with commas
+  const formatNumber = (value: string): string => {
+    // Remove all non-digit characters except decimal point
+    const cleanValue = value.replace(/[^\d.]/g, '');
+    
+    // Split by decimal point
+    const parts = cleanValue.split('.');
+    
+    // Add commas to the integer part
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    
+    // Return formatted value (limit to 2 decimal places)
+    return parts.length > 1 ? `${parts[0]}.${parts[1].slice(0, 2)}` : parts[0];
+  };
+
+  // Helper function to parse formatted number back to raw number
+  const parseNumber = (value: string): string => {
+    return value.replace(/,/g, '');
+  };
+
+  // Handle number input change
+  const handleNumberChange = (value: string) => {
+    const formatted = formatNumber(value);
+    setAmount(formatted);
+  };
 
   const handleSubmit = async (formData: FormData) => {
     setLoading(true);
     try {
+      // Parse formatted number back to raw number
+      formData.set('amount', parseNumber(amount));
+      
       const result = mode === 'create'
         ? await createCashflowAction(formData)
         : await updateCashflowAction(transaction!.id, formData);
@@ -59,8 +89,16 @@ export function CashflowDialog({ mode = 'create', transaction, trigger }: Cashfl
     }
   };
 
+  // Reset form values when dialog opens
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      setAmount(transaction?.amount?.toString() || '');
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant={mode === 'create' ? 'default' : 'ghost'} size={mode === 'create' ? 'default' : 'sm'}>
@@ -80,7 +118,7 @@ export function CashflowDialog({ mode = 'create', transaction, trigger }: Cashfl
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Record Cashflow Transaction' : 'Edit Transaction'}
+            {mode === 'create' ? 'Pencatatan Arus Kas' : 'Edit Transaction'}
           </DialogTitle>
         </DialogHeader>
         <form action={handleSubmit}>
@@ -103,12 +141,11 @@ export function CashflowDialog({ mode = 'create', transaction, trigger }: Cashfl
               <Input
                 id="amount"
                 name="amount"
-                type="number"
-                step="0.01"
-                min="0.01"
+                type="text"
                 required
-                defaultValue={transaction?.amount}
-                placeholder="0.00"
+                value={amount}
+                onChange={(e) => handleNumberChange(e.target.value)}
+                placeholder="0"
                 disabled={loading}
               />
             </div>

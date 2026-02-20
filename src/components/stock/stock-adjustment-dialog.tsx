@@ -19,17 +19,41 @@ interface StockAdjustmentDialogProps {
 export function StockAdjustmentDialog({ variantId, variantName, currentStock }: StockAdjustmentDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [quantity, setQuantity] = useState('');
   const { toast } = useToast();
+
+  // Helper function to format number with commas
+  const formatNumber = (value: string): string => {
+    // Remove all non-digit characters
+    const cleanValue = value.replace(/\D/g, '');
+    
+    // Add commas to the integer part
+    return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  // Helper function to parse formatted number back to raw number
+  const parseNumber = (value: string): string => {
+    return value.replace(/,/g, '');
+  };
+
+  // Handle number input change
+  const handleNumberChange = (value: string) => {
+    const formatted = formatNumber(value);
+    setQuantity(formatted);
+  };
 
   const handleSubmit = async (formData: FormData) => {
     setLoading(true);
     try {
+      // Parse formatted number back to raw number
+      formData.set('quantity', parseNumber(quantity));
+      
       const result = await adjustStockAction(formData);
       
       if (result.success) {
         toast({
           title: 'Success!',
-          description: 'Stock adjusted successfully.',
+          description: 'Penyesuaian stok berhasil.',
         });
         setOpen(false);
       } else {
@@ -50,8 +74,16 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
     }
   };
 
+  // Reset form values when dialog opens
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen) {
+      setQuantity('');
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           Atur Stok
@@ -72,11 +104,11 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
 
             <div className="grid gap-2">
               <Label>Stok Saat Ini</Label>
-              <p className="text-2xl font-bold">{currentStock} units</p>
+              <p className="text-2xl font-bold">{currentStock.toLocaleString()} units</p>
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="type">Movement Type</Label>
+              <Label htmlFor="type">Movement Type *</Label>
               <Select name="type" required>
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
@@ -85,13 +117,13 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
                   <SelectItem value="IN">
                     <div className="flex items-center gap-2">
                       <Plus className="h-4 w-4 text-green-600" />
-                      Stock In (Tambah)
+                      Stock Masuk (Tambah)
                     </div>
                   </SelectItem>
                   <SelectItem value="OUT">
                     <div className="flex items-center gap-2">
                       <Minus className="h-4 w-4 text-red-600" />
-                      Stock Out (Kurangi)
+                      Stok Keluar (Kurangi)
                     </div>
                   </SelectItem>
                   <SelectItem value="ADJUSTMENT">
@@ -105,14 +137,16 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="quantity">Kuantitas</Label>
+              <Label htmlFor="quantity">Kuantitas *</Label>
               <Input
                 id="quantity"
                 name="quantity"
-                type="number"
-                min="1"
+                type="text"
                 required
+                value={quantity}
+                onChange={(e) => handleNumberChange(e.target.value)}
                 placeholder="Input jumlah"
+                disabled={loading}
               />
             </div>
 
@@ -122,6 +156,7 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
                 id="reason"
                 name="reason"
                 placeholder="e.g., Restocking, Barang rusak"
+                disabled={loading}
               />
             </div>
           </div>

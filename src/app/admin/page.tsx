@@ -146,7 +146,7 @@ export default async function AdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Peringatan Stok Menipis ({stats.lowStockItems})</CardTitle>
+            <CardTitle>Stok Menipis ({stats.lowStockItems})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">

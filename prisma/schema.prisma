@@ -1,4 +1,4 @@
-// This is your Prisma schema file
+// This is your Prisma schema file with PHONE UNIQUE CONSTRAINT added
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,10 +21,10 @@ enum TransactionType {
 
 model User {
   id        String    @id @default(cuid())
-  email     String?   @unique // Now optional
+  email     String?   @unique // Optional
   password  String
   name      String
-  phone     String    // Now required for members
+  phone     String    @unique // ✅ ADDED: Unique constraint on phone
   address   String?   // New field
   birthday  DateTime? // (optional)
   photoUrl  String?   // (optional)

@@ -91,14 +91,13 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
   };
 
   
-  const [name, setName] = useState('');
+  const [name, setName] = useState(mode === 'edit' ? (customer?.name || '') : '');
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const capitalized = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
-    setName(capitalized);
+    setName(e.target.value.replace(/\b\w/g, (c) => c.toUpperCase()));
   };
 
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState(mode === 'edit' ? (customer?.phone || '') : '')
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^0-9+]/g, '');
@@ -137,7 +136,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Add New Member' : 'Edit Member'}
+            {mode === 'create' ? 'Tambah Member' : 'Edit Member'}
           </DialogTitle>
         </DialogHeader>
         <form action={handleSubmit}>
@@ -149,8 +148,8 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 name="name"
                 type="text"
                 required
-                defaultValue={customer?.name}
-                placeholder="John Doe"
+                value={name}
+                placeholder="Ziyad Imana"
                 onChange={handleNameChange}
                 disabled={loading}
                 maxLength={80}
@@ -174,7 +173,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 maxLength={19} // 15 digits + 4 auto-added spaces
                 inputMode="tel"
                 required
-                defaultValue={customer?.phone}
+                value={phone}
                 placeholder="0812 3456 7890"
                 disabled={loading}
               />

@@ -4,6 +4,18 @@ import { db } from '@/lib/db';
 import { auth } from '@/auth';
 import { revalidatePath } from 'next/cache';
 
+// 🔧 Helper Functions for Data Normalization
+const normalizePhone = (phone: string): string => {
+  // Remove all spaces and keep only digits and +
+  return phone.replace(/\s+/g, '').replace(/[^0-9+]/g, '');
+};
+
+const normalizeEmail = (email: string | null | undefined): string | null => {
+  if (!email || email.trim() === '') return null;
+  // Trim whitespace and convert to lowercase for case-insensitive comparison
+  return email.trim().toLowerCase();
+};
+
 export async function getMemberPoints() {
   const session = await auth();
   if (!session || session.user.role !== 'MEMBER') {
@@ -155,18 +167,32 @@ export async function createCustomerAction(formData: FormData) {
     }
 
     const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
+    const rawEmail = formData.get('email') as string;
     const password = formData.get('password') as string;
-    const phone = formData.get('phone') as string;
+    const rawPhone = formData.get('phone') as string;
     const address = formData.get('address') as string;
     const birthday = formData.get('birthday') as string;
     const photoUrl = formData.get('photoUrl') as string;
 
+    // 🔧 Normalize phone and email
+    const phone = normalizePhone(rawPhone);
+    const email = normalizeEmail(rawEmail);
+
+    // Validation
     if (!name || !phone || !password) {
       return { success: false, error: 'Name, phone, and password are required' };
     }
 
-    // Check if phone already exists
+    if (password.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters' };
+    }
+
+    // Validate phone number format
+    if (phone.length < 10 || phone.length > 15) {
+      return { success: false, error: 'Please enter a valid phone number' };
+    }
+
+    // ✅ Check for duplicate phone (now checks against normalized phone numbers)
     const existingPhone = await db.user.findFirst({
       where: { phone },
     });
@@ -175,10 +201,10 @@ export async function createCustomerAction(formData: FormData) {
       return { success: false, error: 'Phone number already registered' };
     }
 
-    // Check if email exists (if provided)
-    if (email && email.trim() !== '') {
+    // ✅ Check for duplicate email (case-insensitive, if provided)
+    if (email) {
       const existingEmail = await db.user.findFirst({
-        where: { email: email.trim() },
+        where: { email },
       });
 
       if (existingEmail) {
@@ -190,12 +216,13 @@ export async function createCustomerAction(formData: FormData) {
     const bcrypt = require('bcryptjs');
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // ✅ Create customer with normalized data
     await db.user.create({
       data: {
         name,
-        phone,
+        phone,        // ✅ Saved without spaces: "081234567890"
         password: hashedPassword,
-        email: email && email.trim() !== '' ? email.trim() : null,
+        email,        // ✅ Saved trimmed & lowercase: "john@example.com"
         address: address || null,
         birthday: birthday ? new Date(birthday) : null,
         photoUrl: photoUrl || null,
@@ -221,8 +248,8 @@ export async function updateCustomerAction(id: string, formData: FormData) {
     }
 
     const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const phone = formData.get('phone') as string;
+    const rawEmail = formData.get('email') as string;
+    const rawPhone = formData.get('phone') as string;
     const address = formData.get('address') as string;
     const birthday = formData.get('birthday') as string;
     const photoUrl = formData.get('photoUrl') as string;
@@ -230,6 +257,11 @@ export async function updateCustomerAction(id: string, formData: FormData) {
     const points = formData.get('points') ? parseInt(formData.get('points') as string) : undefined;
     const pointsReason = formData.get('pointsReason') as string;
 
+    // 🔧 Normalize phone and email
+    const phone = normalizePhone(rawPhone);
+    const email = normalizeEmail(rawEmail);
+
+    // Validation
     if (!name || !phone) {
       return { success: false, error: 'Name and phone are required' };
     }
@@ -239,7 +271,12 @@ export async function updateCustomerAction(id: string, formData: FormData) {
       return { success: false, error: 'Password must be at least 6 characters' };
     }
 
-    // Check if phone exists on different user
+    // Validate phone number format
+    if (phone.length < 10 || phone.length > 15) {
+      return { success: false, error: 'Please enter a valid phone number' };
+    }
+
+    // ✅ Check for duplicate phone on different user (normalized)
     const existingUser = await db.user.findFirst({
       where: {
         phone,
@@ -251,11 +288,11 @@ export async function updateCustomerAction(id: string, formData: FormData) {
       return { success: false, error: 'Phone already exists' };
     }
 
-    // Check if email exists on different user (if provided)
-    if (email && email.trim() !== '') {
+    // ✅ Check for duplicate email on different user (case-insensitive, if provided)
+    if (email) {
       const existingEmailUser = await db.user.findFirst({
         where: {
-          email: email.trim(),
+          email,
           id: { not: id }
         },
       });
@@ -279,10 +316,11 @@ export async function updateCustomerAction(id: string, formData: FormData) {
       return { success: false, error: 'Customer not found' };
     }
 
+    // ✅ Prepare update data with normalized values
     const updateData: any = {
       name,
-      phone,
-      email: email && email.trim() !== '' ? email.trim() : null,
+      phone,        // ✅ Saved without spaces: "081234567890"
+      email,        // ✅ Saved trimmed & lowercase: "john@example.com"
       address: address || null,
       birthday: birthday ? new Date(birthday) : null,
       photoUrl: photoUrl || null,

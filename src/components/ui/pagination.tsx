@@ -53,8 +53,9 @@ export function Pagination({
           <p className="text-muted-foreground pt-3">
             Menampilkan {startItem} - {endItem} dari {totalItems} data
           </p>
+          <p className="text-muted-foreground">___</p>
           <p className="text-muted-foreground">
-            Baris per halaman:
+            Atur jumlah baris data per halaman:
           </p>
           <Select
             value={pageSize.toString()}

@@ -399,3 +399,26 @@ export async function deleteCustomerAction(id: string) {
     return { success: false, error: 'Failed to delete customer' };
   }
 }
+
+export async function getCustomerPointsHistory(customerId: string, page: number = 1, pageSize: number = 10) {
+  const session = await auth();
+  if (!session || (session.user.role !== 'ADMINISTRATOR' && session.user.role !== 'MANAGER')) {
+    throw new Error('Unauthorized');
+  }
+
+  const skip = (page - 1) * pageSize;
+
+  const [history, total] = await Promise.all([
+    db.pointHistory.findMany({
+      where: { userId: customerId },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: pageSize,
+    }),
+    db.pointHistory.count({
+      where: { userId: customerId },
+    }),
+  ]);
+
+  return { history, total };
+}

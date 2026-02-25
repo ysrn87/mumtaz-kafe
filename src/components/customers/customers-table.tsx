@@ -9,6 +9,7 @@ import { Eye, Award } from 'lucide-react';
 import { CustomerDetailsDialog } from './customer-details-dialog';
 import { CustomerDialog } from './customer-dialog';
 import { CustomerDeleteButton } from './customer-delete-button';
+import { PointsHistoryDialog } from './points-history-dialog';
 import { Pagination } from '@/components/ui/pagination';
 
 interface Customer {
@@ -49,6 +50,8 @@ export function CustomersTable({
   const searchParams = useSearchParams();
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [pointsHistoryCustomer, setPointsHistoryCustomer] = useState<Customer | null>(null);
+  const [pointsHistoryOpen, setPointsHistoryOpen] = useState(false);
 
   const totalPages = Math.ceil(totalItems / pageSize);
 
@@ -70,14 +73,19 @@ export function CustomersTable({
     setDetailsOpen(true);
   };
 
+  const handleViewPoints = (customer: Customer) => {
+    setPointsHistoryCustomer(customer);
+    setPointsHistoryOpen(true);
+  };
+
   return (
     <>
       <div className="overflow-x-auto">
         <Table>
-          <TableHeader>
+          <TableHeader className="text-center">
             <TableRow>
               <TableHead>Nama</TableHead>
-              <TableHead>Telepon</TableHead>
+              <TableHead>Telpon/WA</TableHead>
               <TableHead>Tanggal Lahir</TableHead>
               <TableHead>Alamat</TableHead>
               <TableHead>Email</TableHead>
@@ -85,7 +93,7 @@ export function CustomersTable({
               <TableHead>Total Pembelian</TableHead>
               <TableHead>Total Belanja</TableHead>
               <TableHead>Member Since</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody className='text-xs'>
@@ -101,28 +109,42 @@ export function CustomersTable({
 
                 return (
                   <TableRow key={customer.id}>
-                    <TableCell className="font-medium truncate break-words max-w-32">{customer.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <p className='line-clamp-2 min-w-32'>
+                        {customer.name}
+                      </p>  
+                    </TableCell>
                     <TableCell className="text-muted-foreground">
                       {customer.phone || '-'}
                     </TableCell>
                     <TableCell>
-                      {customer.birthday 
+                      <p className='line-clamp-2 min-w-20'>
+                        {customer.birthday 
                         ? new Date(customer.birthday).toLocaleDateString('en-GB', { 
                             day: '2-digit', 
-                            month: 'long', 
+                            month: 'short', 
                             year: 'numeric' 
                           }) 
                         : '-'}
+                      </p>                      
                     </TableCell>
-                    <TableCell className='max-w-72 truncate' title={customer.address || '-'}>
-                      {customer.address || '-'}
-                      </TableCell>
+                    <TableCell title={customer.address || '-'}>
+                      <p className='line-clamp-2 min-w-60'>
+                        {customer.address || '-'}
+                      </p>  
+                    </TableCell>
                     <TableCell>{customer.email || '-'}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Award className="h-4 w-4 text-yellow-600" />
-                        <span className="font-semibold">{customer.points}</span>
-                      </div>
+                      <button
+                        onClick={() => handleViewPoints(customer)}
+                        className="flex items-center gap-1 hover:text-yellow-700 transition-colors cursor-pointer group"
+                        title="Lihat riwayat poin"
+                      >
+                        <Award className="h-4 w-4 text-yellow-600 group-hover:scale-110 transition-transform" />
+                        <span className="font-semibold underline decoration-dotted underline-offset-2">
+                          {customer.points}
+                        </span>
+                      </button>
                     </TableCell>
                     <TableCell>{customer._count.sales}</TableCell>
                     <TableCell className="font-semibold">
@@ -191,6 +213,16 @@ export function CustomersTable({
           customer={selectedCustomer}
           open={detailsOpen}
           onOpenChange={setDetailsOpen}
+        />
+      )}
+
+      {pointsHistoryCustomer && (
+        <PointsHistoryDialog
+          customerId={pointsHistoryCustomer.id}
+          customerName={pointsHistoryCustomer.name}
+          currentPoints={pointsHistoryCustomer.points}
+          open={pointsHistoryOpen}
+          onOpenChange={setPointsHistoryOpen}
         />
       )}
     </>

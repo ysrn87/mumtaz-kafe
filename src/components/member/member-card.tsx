@@ -34,9 +34,24 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
     .toUpperCase()
     .slice(0, 2);
 
-  // Calculate age if birthday is provided
-  const age = user.birthday
-    ? new Date().getFullYear() - new Date(user.birthday).getFullYear()
+  // Calculate accurate age in years, months, and days
+  const birthdayInfo = user.birthday
+    ? (() => {
+        const bday = new Date(user.birthday);
+        const today = new Date();
+        let years = today.getFullYear() - bday.getFullYear();
+        let months = today.getMonth() - bday.getMonth();
+        let days = today.getDate() - bday.getDate();
+        if (days < 0) {
+          months--;
+          days += new Date(today.getFullYear(), today.getMonth(), 0).getDate();
+        }
+        if (months < 0) {
+          years--;
+          months += 12;
+        }
+        return { years, months, days };
+      })()
     : null;
 
   return (
@@ -154,9 +169,9 @@ export function MemberCard({ user, showMembershipId = false }: MemberCardProps) 
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium mb-0.5">Birthday</p>
                 <p className="font-normal text-sm sm:text-base">
                   {formatDate(user.birthday)}
-                  {age && (
+                  {birthdayInfo && (
                     <span className="text-muted-foreground ml-2 text-xs sm:text-sm font-normal">
-                      ({age} years old)
+                      ({birthdayInfo.years} tahun {birthdayInfo.months} bulan {birthdayInfo.days} hari)
                     </span>
                   )}
                 </p>

@@ -22,8 +22,8 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Relax 'unsafe-*' once you audit your scripts
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob:",
+      "font-src 'self' https://fonts.gstatic.com",   
+      "img-src 'self' data: blob: https://tapesingkongmumtazkafe.wordpress.com https://i0.wp.com https://i1.wp.com https://i2.wp.com",
       "connect-src 'self'",
       "frame-ancestors 'none'",
     ].join('; '),

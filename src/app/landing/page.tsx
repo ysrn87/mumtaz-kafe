@@ -107,10 +107,17 @@ export default async function LandingPage() {  const product = await getProduct(
               Tentang
             </a>
             <Link
+              href="/register"
+              style={{textDecoration:"underline"}}
+              className="text-sm font-medium hover:text-blue-600 transition-all px-4 py-1.5 rounded-md"
+            >
+              Daftar
+            </Link>
+            <Link
               href="/login"
               className="text-sm font-medium border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white transition-all px-4 py-1.5 rounded-md"
             >
-              Login Member
+              Login
             </Link>
           </nav>
         </div>
@@ -149,7 +156,7 @@ export default async function LandingPage() {  const product = await getProduct(
 
             <div className="flex flex-wrap gap-3 animate-fade-up-delay-3">
               <a
-                href="https://wa.me/6281234567890?text=Halo%20Mumtaz%20Kafe!%20Saya%20ingin%20memesan%20Tape%20Singkong."
+                href="https://wa.me/6282302312687?text=Halo%20Mumtaz%20Kafe!%20Saya%20ingin%20memesan%20Tape%20Singkong."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2.5 bg-green-500 hover:bg-green-600 text-white font-semibold text-sm px-6 py-3 rounded-lg transition-all hover:shadow-lg hover:shadow-green-500/25 hover:-translate-y-0.5"
@@ -298,7 +305,7 @@ export default async function LandingPage() {  const product = await getProduct(
                         )}
                       </div>
                       <a
-                        href={`https://wa.me/6281234567890?text=Halo%20Mumtaz%20Kafe!%20Saya%20ingin%20memesan%3A%20${encodeURIComponent(variant.name)}.`}
+                        href={`https://wa.me/6282302312687?text=Halo%20Mumtaz%20Kafe!%20Saya%20ingin%20memesan%3A%20${encodeURIComponent(variant.name)}.`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-blue-600 text-white text-xs font-medium px-3 py-2 rounded-lg transition-all"
@@ -330,7 +337,7 @@ export default async function LandingPage() {  const product = await getProduct(
 
           <div className="text-center">
             <a
-              href="https://wa.me/6281234567890?text=Halo%20Mumtaz%20Kafe!%20Saya%20ingin%20tahu%20lebih%20lanjut%20tentang%20produk."
+              href="https://wa.me/6282302312687?text=Halo%20Mumtaz%20Kafe!%20Saya%20ingin%20tahu%20lebih%20lanjut%20tentang%20produk."
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-semibold text-sm px-8 py-3.5 rounded-lg transition-all hover:shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5"
@@ -410,7 +417,7 @@ export default async function LandingPage() {  const product = await getProduct(
 
           <div className="mt-14 text-center">
             <a
-              href="https://wa.me/6281234567890"
+              href="https://wa.me/6282302312687"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2.5 bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-3.5 rounded-lg text-sm transition-all hover:shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5"
@@ -566,7 +573,7 @@ export default async function LandingPage() {  const product = await getProduct(
               href="/login"
               className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium text-sm px-8 py-3.5 rounded-lg transition-all"
             >
-              Login Member
+              Login
             </Link>
           </div>
         </div>

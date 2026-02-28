@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { UserPlus, User, Phone, Mail, MapPin, Calendar, Lock, ArrowLeft, Gift, Sparkles, ChevronDown, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, User, Phone, Mail, MapPin, Calendar, Lock, ArrowLeft, Gift, Sparkles, ChevronDown, Eye, EyeOff, Notebook } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
 export default function RegisterPage() {
@@ -453,12 +453,12 @@ export default function RegisterPage() {
               {loading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
-                  Creating account...
+                  Mendaftarkan akun...
                 </>
               ) : (
                 <>
                   <UserPlus className="w-4 h-4 mr-2" />
-                  Create Account
+                  Daftar Member
                 </>
               )}
             </Button>
@@ -469,7 +469,7 @@ export default function RegisterPage() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="px-4 bg-white text-gray-500">Already a member?</span>
+              <span className="px-4 bg-white text-gray-500">Sudah menjadi member?</span>
             </div>
           </div>
 
@@ -479,9 +479,21 @@ export default function RegisterPage() {
               className="w-full h-11 text-sm font-semibold border-2 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Sign In
+              Login
             </Button>
           </Link>
+
+          <Link href="/landing" className="block">
+            <Button 
+              variant="outline" 
+              className="w-full h-7 font-normal"
+              style={{ textDecoration: 'underline'}}
+            >
+              <Notebook className="w-2 h-2 mr-0" />
+              lihat produk
+            </Button>
+          </Link>
+
         </CardContent>
       </Card>
     </div>

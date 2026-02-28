@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
-import { LogIn, Mail, Lock, UserPlus, ShoppingBag, Sparkles, Eye, EyeOff } from 'lucide-react';
+import { LogIn, Mail, Lock, UserPlus, ShoppingBag, Sparkles, Eye, EyeOff, Notebook, Italic } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
@@ -155,6 +155,17 @@ function LoginForm() {
             >
               <UserPlus className="w-4 h-4 mr-2" />
               Register Member
+            </Button>
+          </Link>
+
+          <Link href="/landing" className="block">
+            <Button 
+              variant="outline" 
+              className="w-full h-7 font-normal"
+              style={{ textDecoration: 'underline'}}
+            >
+              <Notebook className="w-2 h-2 mr-0" />
+              lihat produk
             </Button>
           </Link>
 

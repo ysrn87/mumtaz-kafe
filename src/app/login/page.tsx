@@ -158,7 +158,7 @@ function LoginForm() {
             </Button>
           </Link>
 
-          <Link href="/landing" className="block">
+          {/* <Link href="/landing" className="block">
             <Button 
               variant="outline" 
               className="w-full h-7 font-normal"
@@ -167,7 +167,7 @@ function LoginForm() {
               <Notebook className="w-2 h-2 mr-0" />
               lihat produk
             </Button>
-          </Link>
+          </Link> */}
 
         </CardContent>
       </Card>

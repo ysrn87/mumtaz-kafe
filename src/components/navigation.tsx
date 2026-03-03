@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Home, Package, ShoppingCart, DollarSign, Settings, Menu, X, LogOut } from 'lucide-react';
+import { Home, Package, ShoppingCart, Settings, Menu, X, LogOut, Coins } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { logoutAction } from '@/actions/auth';
 
@@ -47,7 +47,7 @@ export function Navigation({ role, userName }: NavigationProps) {
     { 
       href: '/admin/finance/cashflow', 
       label: 'Keuangan', 
-      icon: <DollarSign className="w-4 h-4" />,
+      icon: <Coins className="w-4 h-4" />,
       matchPaths: ['/admin/finance/cashflow', '/admin/finance/reports']
     },
     { 

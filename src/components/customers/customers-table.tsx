@@ -118,11 +118,11 @@ export function CustomersTable({
                       {customer.phone || '-'}
                     </TableCell>
                     <TableCell>
-                      <p className='line-clamp-2 min-w-20'>
+                      <p className='line-clamp-2 min-w-32'>
                         {customer.birthday 
-                        ? new Date(customer.birthday).toLocaleDateString('en-GB', { 
+                        ? new Date(customer.birthday).toLocaleDateString('id-ID', { 
                             day: '2-digit', 
-                            month: 'short', 
+                            month: 'long', 
                             year: 'numeric' 
                           }) 
                         : '-'}

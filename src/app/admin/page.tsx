@@ -69,7 +69,7 @@ export default async function AdminDashboard() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold">Beranda Admin</h1>
-        <p className="text-gray-600">Selamat datang! Berikut adalah pratinjau keadaan toko kamu.</p>
+        <p className="text-gray-600">Selamat datang! Berikut adalah ringkasan toko kamu.</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -4,6 +4,24 @@ import { CustomersTable } from '@/components/customers/customers-table';
 import { CustomerDialog } from '@/components/customers/customer-dialog';
 import { SearchFilterBar } from '@/components/filters/search-filter-bar';
 
+// ✅ Calculate days until next birthday (month+day only, year-agnostic)
+function getDaysUntilNextBirthday(birthday: Date | null): number {
+  if (!birthday) return Number.MAX_SAFE_INTEGER; // No birthday → goes to the end
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let next = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate());
+  next.setHours(0, 0, 0, 0);
+
+  // If birthday already passed this year, use next year
+  if (next < today) {
+    next = new Date(today.getFullYear() + 1, birthday.getMonth(), birthday.getDate());
+  }
+
+  return Math.round((next.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+}
+
 async function getCustomers(params: {
   page?: number;
   limit?: number;
@@ -24,7 +42,6 @@ async function getCustomers(params: {
   // Build where clause
   const where: any = { role: 'MEMBER' };
   
-  // Search across name, phone, and email
   if (search) {
     where.OR = [
       { name: { contains: search, mode: 'insensitive' as const } },
@@ -33,79 +50,57 @@ async function getCustomers(params: {
     ];
   }
 
-  // Filter by points range
   if (points !== 'all') {
     switch (points) {
-      case 'low':
-        where.points = { lt: 100 };
-        break;
-      case 'medium':
-        where.points = { gte: 100, lt: 500 };
-        break;
-      case 'high':
-        where.points = { gte: 500 };
-        break;
+      case 'low':    where.points = { lt: 100 };            break;
+      case 'medium': where.points = { gte: 100, lt: 500 }; break;
+      case 'high':   where.points = { gte: 500 };           break;
     }
   }
 
-  // Build orderBy clause
+  const includeClause = {
+    sales: { select: { id: true, total: true } },
+    _count: { select: { sales: true } },
+  };
+
+  const serialize = (customers: any[]) =>
+    customers.map(c => ({
+      ...c,
+      sales: c.sales.map((s: any) => ({ id: s.id, total: Number(s.total) })),
+    }));
+
+  // ✅ Birthday sort: fetch all matching rows, sort in app, then paginate manually
+  if (sort === 'birthday_asc') {
+    const all = await db.user.findMany({ where, orderBy: { name: 'asc' }, include: includeClause });
+
+    const sorted = all.sort(
+      (a, b) => getDaysUntilNextBirthday(a.birthday) - getDaysUntilNextBirthday(b.birthday)
+    );
+
+    return {
+      customers: serialize(sorted.slice(skip, skip + limit)),
+      total: sorted.length,
+    };
+  }
+
+  // Normal DB-level sort for all other options
   const orderBy: any = [];
   switch (sort) {
-    case 'name_asc':
-      orderBy.push({ name: 'asc' });
-      break;
-    case 'name_desc':
-      orderBy.push({ name: 'desc' });
-      break;
-    case 'points_asc':
-      orderBy.push({ points: 'asc' });
-      break;
-    case 'points_desc':
-      orderBy.push({ points: 'desc' });
-      break;
-    case 'joined_asc':
-      orderBy.push({ createdAt: 'asc' });
-      break;
-    case 'joined_desc':
-      orderBy.push({ createdAt: 'desc' });
-      break;
-    default:
-      orderBy.push({ name: 'asc' });
+    case 'name_asc':     orderBy.push({ name: 'asc' });       break;
+    case 'name_desc':    orderBy.push({ name: 'desc' });      break;
+    case 'points_asc':   orderBy.push({ points: 'asc' });     break;
+    case 'points_desc':  orderBy.push({ points: 'desc' });    break;
+    case 'joined_asc':   orderBy.push({ createdAt: 'asc' });  break;
+    case 'joined_desc':  orderBy.push({ createdAt: 'desc' }); break;
+    default:             orderBy.push({ name: 'asc' });
   }
   
   const [customers, total] = await Promise.all([
-    db.user.findMany({
-      where,
-      skip,
-      take: limit,
-      orderBy,
-      include: {
-        sales: {
-          select: {
-            id: true,
-            total: true,
-          },
-        },
-        _count: {
-          select: {
-            sales: true,
-          },
-        },
-      },
-    }),
+    db.user.findMany({ where, skip, take: limit, orderBy, include: includeClause }),
     db.user.count({ where }),
   ]);
 
-  // Convert Decimal to Number for client component
-  const serializedCustomers = customers.map(customer => ({
-    ...customer,
-    sales: customer.sales.map(sale => ({
-      id: sale.id,
-      total: Number(sale.total),
-    })),
-  }));
-
-  return { customers: serializedCustomers, total };
+  return { customers: serialize(customers), total };
 }
 
 export default async function AdminCustomersPage({
@@ -139,7 +134,6 @@ export default async function AdminCustomersPage({
           <CardTitle>Daftar Member</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Search & Filter Bar */}
           <SearchFilterBar
             searchPlaceholder="Search by name, phone, or email..."
             filters={[
@@ -162,11 +156,12 @@ export default async function AdminCustomersPage({
               { value: 'points_asc', label: 'Lowest Points' },
               { value: 'joined_desc', label: 'Recently Joined' },
               { value: 'joined_asc', label: 'Oldest Members' },
+              // ✅ New sort option
+              { value: 'birthday_asc', label: '🎂 Ulang Tahun Terdekat' },
             ]}
             defaultSort="name_asc"
           />
 
-          {/* Customers Table */}
           <CustomersTable 
             customers={customers} 
             showActions={true}

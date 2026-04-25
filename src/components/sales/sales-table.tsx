@@ -57,30 +57,30 @@ export function SalesTable({ sales, currentPage, pageSize, totalItems, conversio
         <TableHeader>
           <TableRow>
             <TableHead>Sale ID #</TableHead>
-            <TableHead>Tanggal</TableHead>
             <TableHead>Member</TableHead>
-            <TableHead>Cashier</TableHead>
             <TableHead>Item</TableHead>
             <TableHead>Total</TableHead>
+            <TableHead>Cashier</TableHead>
             <TableHead>Pembayaran</TableHead>
+            <TableHead>Tanggal</TableHead>
             <TableHead>Note</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody className='text-xs'>
+        <TableBody className='text-xs truncate break-words'>
           {sales.map((sale) => (
             <TableRow key={sale.id}>
-              <TableCell className="font-medium">{sale.saleNumber}</TableCell>
-              <TableCell>{formatDateTime(sale.createdAt)}</TableCell>
-              <TableCell>{sale.customer?.name || 'Pelanggan-umum'}</TableCell>
-              <TableCell>{sale.cashier.name}</TableCell>
+              <TableCell className="font-medium font-mono max-w-28 truncate">{sale.saleNumber}</TableCell>
+              <TableCell className='max-w-40 truncate'>{sale.customer?.name || 'Pelanggan-umum'}</TableCell>
               <TableCell>{sale.items.reduce((sum: any, item: any) => sum + item.quantity, 0)} unit</TableCell>
               <TableCell>{formatCurrency(sale.total)}</TableCell>
+              <TableCell>{sale.cashier.name}</TableCell>
               <TableCell>
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   {sale.paymentMethod}
                 </span>
               </TableCell>
+              <TableCell>{formatDateTime(sale.createdAt)}</TableCell>
               <TableCell>{sale.notes || '-'}</TableCell>
               <TableCell className="text-right">
                 <Button

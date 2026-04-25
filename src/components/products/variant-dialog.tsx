@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,9 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // ✅ useRef guard to prevent duplicate submission (synchronous, unlike useState)
+  const isSubmittingRef = useRef(false);
+
   // State for formatted number inputs
   const [price, setPrice] = useState(variant?.price?.toString() || '');
   const [cost, setCost] = useState(variant?.cost?.toString() || '');
@@ -39,16 +42,9 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
 
   // Helper function to format number with commas
   const formatNumber = (value: string): string => {
-    // Remove all non-digit characters except decimal point
     const cleanValue = value.replace(/[^\d.]/g, '');
-    
-    // Split by decimal point
     const parts = cleanValue.split('.');
-    
-    // Add commas to the integer part
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    
-    // Return formatted value (limit to 2 decimal places)
     return parts.length > 1 ? `${parts[0]}.${parts[1].slice(0, 2)}` : parts[0];
   };
 
@@ -67,6 +63,9 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
   };
 
   const handleSubmit = async (formData: FormData) => {
+    // ✅ Guard: reject if already submitting
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setLoading(true);
     try {
       // Parse formatted numbers back to raw numbers
@@ -108,6 +107,7 @@ export function VariantDialog({ mode, productId, variant, trigger }: VariantDial
       });
     } finally {
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 

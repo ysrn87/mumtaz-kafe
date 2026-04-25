@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,13 +35,27 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
   const [initialPoints] = useState(customer?.points || 0);
   const { toast } = useToast();
 
-  // Sync photoUrl and points state when dialog opens or customer changes
+  // ✅ useRef guard to prevent duplicate submission (synchronous, unlike useState)
+  const isSubmittingRef = useRef(false);
+
+  // ✅ Fix: initialize name, phone, address from customer props so reset on reopen works correctly
+  const [name, setName] = useState(mode === 'edit' ? (customer?.name || '') : '');
+  const [phone, setPhone] = useState(mode === 'edit' ? (customer?.phone || '') : '');
+  // ✅ Fix: initialize address from customer so character counter is correct in edit mode
+  const [address, setAddress] = useState(mode === 'edit' ? (customer?.address || '') : '');
+  const [emailError, setEmailError] = useState('');
+
+  // ✅ Fix: reset ALL controlled fields when dialog opens (not just photoUrl and points)
   useEffect(() => {
     if (open) {
       setPhotoUrl(customer?.photoUrl || '');
       setPoints(customer?.points || 0);
+      setName(mode === 'edit' ? (customer?.name || '') : '');
+      setPhone(mode === 'edit' ? (customer?.phone || '') : '');
+      setAddress(mode === 'edit' ? (customer?.address || '') : '');
+      setEmailError('');
     }
-  }, [open, customer?.photoUrl, customer?.points]);
+  }, [open, customer?.photoUrl, customer?.points, customer?.name, customer?.phone, customer?.address, mode]);
 
   const pointsChanged = mode === 'edit' && points !== initialPoints;
 
@@ -59,6 +73,9 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
       }
     }
 
+    // ✅ Guard: reject if already submitting
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setLoading(true);
     try {
       const result = mode === 'create'
@@ -87,17 +104,13 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
       });
     } finally {
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
-
-  
-  const [name, setName] = useState(mode === 'edit' ? (customer?.name || '') : '');
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value.replace(/\b\w/g, (c) => c.toUpperCase()));
   };
-
-  const [phone, setPhone] = useState(mode === 'edit' ? (customer?.phone || '') : '')
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^0-9+]/g, '');
@@ -105,15 +118,11 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
     setPhone(formatted);
   };
 
-  const [emailError, setEmailError] = useState('');
-
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
     setEmailError(val && !valid ? 'Masukkan alamat email yang valid' : '');
   };
-
-  const [address, setAddress] = useState('');
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -169,8 +178,8 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                     e.preventDefault();
                   }
                 }}
-                minLength={9}  // 7 digits + 2 auto-added spaces
-                maxLength={19} // 15 digits + 4 auto-added spaces
+                minLength={9}
+                maxLength={19}
                 inputMode="tel"
                 required
                 value={phone}
@@ -186,13 +195,12 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 name="email"
                 type="email"
                 defaultValue={customer?.email}
-                placeholder="john@example.com"                
+                placeholder="john@example.com"
                 onChange={handleEmailChange}
                 pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
                 disabled={loading}
               />
               {emailError && <p className="text-xs text-red-500">{emailError}</p>}
-              
             </div>
 
             <div className="grid gap-2">
@@ -200,15 +208,16 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
               <Textarea
                 id="address"
                 name="address"
-                defaultValue={customer?.address}
+                value={address}
                 placeholder="Nama Jalan, Kota, Kode Pos"
                 onChange={(e) => setAddress(e.target.value)}
                 disabled={loading}
                 maxLength={150}
               />
-            <p className="text-xs text-gray-500 text-right">
-              {address.length}/150 karakter
-            </p>
+              {/* ✅ Fix: counter now reflects actual address length in both create and edit modes */}
+              <p className="text-xs text-gray-500 text-right">
+                {address.length}/150 karakter
+              </p>
             </div>
 
             <div className="grid gap-2">

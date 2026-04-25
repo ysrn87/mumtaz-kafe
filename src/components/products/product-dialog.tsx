@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,7 +25,13 @@ export function ProductDialog({ mode, product, trigger }: ProductDialogProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // ✅ useRef guard to prevent duplicate submission (synchronous, unlike useState)
+  const isSubmittingRef = useRef(false);
+
   const handleSubmit = async (formData: FormData) => {
+    // ✅ Guard: reject if already submitting
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setLoading(true);
     try {
       const result = mode === 'create' 
@@ -53,6 +59,7 @@ export function ProductDialog({ mode, product, trigger }: ProductDialogProps) {
       });
     } finally {
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 

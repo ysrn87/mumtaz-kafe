@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,12 +22,12 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
   const [quantity, setQuantity] = useState('');
   const { toast } = useToast();
 
+  // ✅ useRef guard to prevent duplicate submission (synchronous, unlike useState)
+  const isSubmittingRef = useRef(false);
+
   // Helper function to format number with commas
   const formatNumber = (value: string): string => {
-    // Remove all non-digit characters
     const cleanValue = value.replace(/\D/g, '');
-    
-    // Add commas to the integer part
     return cleanValue.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   };
 
@@ -43,6 +43,9 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
   };
 
   const handleSubmit = async (formData: FormData) => {
+    // ✅ Guard: reject if already submitting
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setLoading(true);
     try {
       // Parse formatted number back to raw number
@@ -71,6 +74,7 @@ export function StockAdjustmentDialog({ variantId, variantName, currentStock }: 
       });
     } finally {
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 

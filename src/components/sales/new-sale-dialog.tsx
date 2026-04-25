@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +50,9 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
   const [tax, setTax] = useState<number>(0);
   const [pointsToRedeem, setPointsToRedeem] = useState<number>(0);
   const [notes, setNotes] = useState<string>('');
+  const [quantityDisplay, setQuantityDisplay] = useState('1');
+  const [discountDisplay, setDiscountDisplay] = useState('');
+  const [taxDisplay, setTaxDisplay] = useState('');
 
   // Improved UI states
   const [customerSearch, setCustomerSearch] = useState('');
@@ -58,6 +61,9 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
   const [isProductDropdownOpen, setIsProductDropdownOpen] = useState(false);
 
   const { toast } = useToast();
+
+  // ✅ useRef guard to prevent duplicate submission (synchronous, unlike useState)
+  const isSubmittingRef = useRef(false);
 
   const selectedCustomer = customers.find(c => c.id === customerId);
   const availablePoints = selectedCustomer?.points || 0;
@@ -72,6 +78,34 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       return sum + (variant?.points ?? 0) * item.quantity;
     }, 0)
     : 0;
+
+  // ✅ Reset all dialog state — called on close (cancel or success)
+  const resetState = () => {
+    setItems([]);
+    setCustomerId('');
+    setPaymentMethod('CASH');
+    setDiscount(0);
+    setTax(0);
+    setPointsToRedeem(0);
+    setNotes('');
+    setSelectedVariantId('');
+    setQuantity(1);
+    setQuantityDisplay('1');
+    setDiscountDisplay('');
+    setTaxDisplay('');
+    setCustomerSearch('');
+    setProductSearch('');
+    setIsCustomerDropdownOpen(false);
+    setIsProductDropdownOpen(false);
+  };
+
+  // ✅ Proper onOpenChange: reset state when dialog is closed
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      resetState();
+    }
+    setOpen(isOpen);
+  };
 
   const handleDiscountChange = (value: number) => {
     const totalDiscount = value + pointDiscount;
@@ -175,6 +209,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
 
     setSelectedVariantId('');
     setQuantity(1);
+    setQuantityDisplay('1');
   };
 
   const removeItem = (index: number) => {
@@ -237,6 +272,9 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       return;
     }
 
+    // ✅ Guard: reject if already submitting
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
     setLoading(true);
     try {
       const result = await createSaleAction({
@@ -258,12 +296,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
           title: 'Success!',
           description: `Sale completed. Total: ${formatCurrency(total)}`,
         });
-        setItems([]);
-        setCustomerId('');
-        setDiscount(0);
-        setTax(0);
-        setPointsToRedeem(0);
-        setNotes('');
+        // ✅ setOpen(false) will trigger handleOpenChange(false) which calls resetState()
         setOpen(false);
       } else {
         toast({
@@ -280,6 +313,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       });
     } finally {
       setLoading(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -307,12 +341,8 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
       v.name.toLowerCase().includes(productSearch.toLowerCase())
     );
 
-  const [quantityDisplay, setQuantityDisplay] = useState('1');
-  const [discountDisplay, setDiscountDisplay] = useState('');
-  const [taxDisplay, setTaxDisplay] = useState('');
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button>
           <Plus className="w-4 h-4 mr-2" />
@@ -539,7 +569,7 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                 </div>
               </div>
 
-              {/* Items List - FIXED FOR MOBILE */}
+              {/* Items List */}
               {items.length > 0 && (
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Keranjang ({items.length})</Label>
@@ -743,7 +773,6 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     <span>Total:</span>
                     <span>{formatCurrency(Math.max(0, total))}</span>
                   </div>
-                  {/* Add this block */}
                   {items.length > 0 && customerId && customerId !== 'WALK_IN' && (
                     <div className={`flex items-center justify-between px-3 py-2 rounded-md text-sm mt-1 ${pointsToRedeem > 0
                       ? 'bg-orange-50 border border-orange-200'
@@ -762,7 +791,6 @@ export function NewSaleDialog({ variants, customers, conversionRate = 1000 }: Ne
                     </div>
                   )}
                 </div>
-
               )}
             </>
           )}

@@ -6,27 +6,61 @@ import { CashflowTable } from '@/components/cashflow/cashflow-table';
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 import { SearchFilterBar } from '@/components/filters/search-filter-bar';
 
+// ─── helpers ────────────────────────────────────────────────────────────────
+
+function buildDateWhere(dateFrom?: string, dateTo?: string) {
+  if (!dateFrom && !dateTo) return undefined;
+
+  const range: { gte?: Date; lte?: Date } = {};
+  if (dateFrom) {
+    range.gte = new Date(dateFrom);
+  }
+  if (dateTo) {
+    const end = new Date(dateTo);
+    end.setHours(23, 59, 59, 999);
+    range.lte = end;
+  }
+  return range;
+}
+
+function formatDateLabel(dateFrom?: string, dateTo?: string): string | null {
+  if (!dateFrom && !dateTo) return null;
+  const fmt = (d: string) =>
+    new Date(d).toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    });
+  if (dateFrom && dateTo) return `${fmt(dateFrom)} – ${fmt(dateTo)}`;
+  if (dateFrom) return `Dari ${fmt(dateFrom)}`;
+  return `Sampai ${fmt(dateTo!)}`;
+}
+
+// ─── data fetchers ───────────────────────────────────────────────────────────
+
 async function getCashflowData(params: {
   page?: number;
   limit?: number;
   search?: string;
   type?: string;
   sort?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }) {
-  const { 
-    page = 1, 
-    limit = 10, 
-    search = '', 
+  const {
+    page = 1,
+    limit = 10,
+    search = '',
     type = 'all',
-    sort = 'date_desc'
+    sort = 'date_desc',
+    dateFrom,
+    dateTo,
   } = params;
-  
+
   const skip = (page - 1) * limit;
 
-  // Build where clause
   const where: any = {};
-  
-  // Search across description and category
+
   if (search) {
     where.OR = [
       { description: { contains: search, mode: 'insensitive' as const } },
@@ -34,12 +68,15 @@ async function getCashflowData(params: {
     ];
   }
 
-  // Filter by type
   if (type !== 'all') {
     where.type = type;
   }
 
-  // Build orderBy clause
+  const dateRange = buildDateWhere(dateFrom, dateTo);
+  if (dateRange) {
+    where.date = dateRange;
+  }
+
   const orderBy: any = [];
   switch (sort) {
     case 'date_asc':
@@ -57,7 +94,7 @@ async function getCashflowData(params: {
     default:
       orderBy.push({ date: 'desc' });
   }
-  
+
   const [transactions, total] = await Promise.all([
     db.cashflow.findMany({
       where,
@@ -84,14 +121,28 @@ async function getCashflowData(params: {
   };
 }
 
-async function getCashflowStats() {
+async function getCashflowStats(params: {
+  dateFrom?: string;
+  dateTo?: string;
+} = {}) {
+  const { dateFrom, dateTo } = params;
+  const dateRange = buildDateWhere(dateFrom, dateTo);
+
+  const incomeWhere: any = { type: 'INCOME' };
+  const expenseWhere: any = { type: 'EXPENSE' };
+
+  if (dateRange) {
+    incomeWhere.date = dateRange;
+    expenseWhere.date = dateRange;
+  }
+
   const [totalIncome, totalExpense] = await Promise.all([
     db.cashflow.aggregate({
-      where: { type: 'INCOME' },
+      where: incomeWhere,
       _sum: { amount: true },
     }),
     db.cashflow.aggregate({
-      where: { type: 'EXPENSE' },
+      where: expenseWhere,
       _sum: { amount: true },
     }),
   ]);
@@ -103,15 +154,19 @@ async function getCashflowStats() {
   return { income, expense, balance };
 }
 
+// ─── page ────────────────────────────────────────────────────────────────────
+
 export default async function AdminCashflowPage({
   searchParams,
 }: {
-  searchParams: Promise<{ 
-    page?: string; 
+  searchParams: Promise<{
+    page?: string;
     limit?: string;
     search?: string;
     type?: string;
     sort?: string;
+    dateFrom?: string;
+    dateTo?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -120,9 +175,26 @@ export default async function AdminCashflowPage({
   const search = params.search || '';
   const type = params.type || 'all';
   const sort = params.sort || 'date_desc';
+  const dateFrom = params.dateFrom || '';
+  const dateTo = params.dateTo || '';
 
-  const { transactions, total } = await getCashflowData({ page, limit, search, type, sort });
-  const stats = await getCashflowStats();
+  const { transactions, total } = await getCashflowData({
+    page,
+    limit,
+    search,
+    type,
+    sort,
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
+  });
+
+  const stats = await getCashflowStats({
+    dateFrom: dateFrom || undefined,
+    dateTo: dateTo || undefined,
+  });
+
+  const isDateFiltered = !!(dateFrom || dateTo);
+  const dateLabel = formatDateLabel(dateFrom || undefined, dateTo || undefined);
 
   return (
     <div className="space-y-8">
@@ -141,7 +213,9 @@ export default async function AdminCashflowPage({
             <div className="text-2xl font-bold text-green-600">
               {formatCurrency(stats.income)}
             </div>
-            <p className="text-xs text-muted-foreground">Total pendapatan</p>
+            <p className="text-xs text-muted-foreground">
+              {isDateFiltered ? dateLabel : 'Total pendapatan'}
+            </p>
           </CardContent>
         </Card>
 
@@ -154,7 +228,9 @@ export default async function AdminCashflowPage({
             <div className="text-2xl font-bold text-red-600">
               {formatCurrency(stats.expense)}
             </div>
-            <p className="text-xs text-muted-foreground">Total biaya</p>
+            <p className="text-xs text-muted-foreground">
+              {isDateFiltered ? dateLabel : 'Total biaya'}
+            </p>
           </CardContent>
         </Card>
 
@@ -167,12 +243,15 @@ export default async function AdminCashflowPage({
             <div className={`text-2xl font-bold ${stats.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {formatCurrency(stats.balance)}
             </div>
-            <p className="text-xs text-muted-foreground">Pendapatan - Pengeluaran</p>
+            <p className="text-xs text-muted-foreground">
+              {isDateFiltered ? dateLabel : 'Pendapatan - Pengeluaran'}
+            </p>
           </CardContent>
         </Card>
       </div>
+
       <div className={`text-sm font-medium ${stats.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-        <p>Bagi hasil system (10%) • {stats.balance >= 0 ? formatCurrency(stats.balance/10) : formatCurrency(0)}</p>
+        <p>Bagi hasil system (10%) • {stats.balance >= 0 ? formatCurrency(stats.balance / 10) : formatCurrency(0)}</p>
       </div>
 
       {/* Transactions Table */}
@@ -184,6 +263,12 @@ export default async function AdminCashflowPage({
           {/* Search & Filter Bar */}
           <SearchFilterBar
             searchPlaceholder="Search by description or category..."
+            dateRange={{
+              fromKey: 'dateFrom',
+              toKey: 'dateTo',
+              fromLabel: 'Dari Tanggal',
+              toLabel: 'Sampai Tanggal',
+            }}
             filters={[
               {
                 key: 'type',
@@ -206,7 +291,7 @@ export default async function AdminCashflowPage({
           />
 
           {/* Cashflow Table */}
-          <CashflowTable 
+          <CashflowTable
             transactions={transactions}
             currentPage={page}
             pageSize={limit}

@@ -201,20 +201,19 @@ export function SearchFilterBar({
                 <CalendarRange className="w-4 h-4 text-gray-400 shrink-0" />
                 <div className="flex items-center gap-1 w-full sm:w-auto">
                   <Input
-                    type="date"
+                    type="datetime-local"
                     value={searchParams.get(dateRange.fromKey) || ''}
                     onChange={(e) => handleDateChange(dateRange.fromKey, e.target.value)}
-                    className="w-full sm:w-[150px] text-sm"
-                    placeholder={dateRange.fromLabel || 'Dari'}
+                    className="w-full sm:w-[185px] text-sm"
                     title={dateRange.fromLabel || 'Dari Tanggal'}
+                    max={searchParams.get(dateRange.toKey) || undefined}  // ← tambah ini
                   />
                   <span className="text-muted-foreground text-sm shrink-0">–</span>
                   <Input
-                    type="date"
+                    type="datetime-local"
                     value={searchParams.get(dateRange.toKey) || ''}
                     onChange={(e) => handleDateChange(dateRange.toKey, e.target.value)}
-                    className="w-full sm:w-[150px] text-sm"
-                    placeholder={dateRange.toLabel || 'Sampai'}
+                    className="w-full sm:w-[185px] text-sm"
                     title={dateRange.toLabel || 'Sampai Tanggal'}
                     min={searchParams.get(dateRange.fromKey) || undefined}
                   />
@@ -294,7 +293,7 @@ export function SearchFilterBar({
           {/* Date range badges */}
           {dateRange && searchParams.get(dateRange.fromKey) && (
             <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs">
-              Dari: {new Date(searchParams.get(dateRange.fromKey)!).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+              Dari: {new Date(searchParams.get(dateRange.fromKey)!).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
               <button
                 onClick={() => handleDateChange(dateRange.fromKey, '')}
                 className="hover:bg-blue-200 rounded p-0.5"
@@ -305,7 +304,7 @@ export function SearchFilterBar({
           )}
           {dateRange && searchParams.get(dateRange.toKey) && (
             <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs">
-              Sampai: {new Date(searchParams.get(dateRange.toKey)!).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+              Sampai: {new Date(searchParams.get(dateRange.toKey)!).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
               <button
                 onClick={() => handleDateChange(dateRange.toKey, '')}
                 className="hover:bg-blue-200 rounded p-0.5"

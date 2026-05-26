@@ -23,11 +23,11 @@ interface CashflowTableProps {
   totalItems: number;
 }
 
-export function CashflowTable({ 
-  transactions, 
-  currentPage, 
-  pageSize, 
-  totalItems 
+export function CashflowTable({
+  transactions,
+  currentPage,
+  pageSize,
+  totalItems
 }: CashflowTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -71,8 +71,14 @@ export function CashflowTable({
             ) : (
               transactions.map((transaction) => (
                 <TableRow key={transaction.id}>
-                  <TableCell>
-                    {new Date(transaction.date).toLocaleDateString()}
+                  <TableCell className="truncate">
+                    {new Date(transaction.date).toLocaleString('id-ID', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -89,17 +95,17 @@ export function CashflowTable({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell className="font-medium">{transaction.category}</TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="font-medium truncate">{transaction.category}</TableCell>
+                  <TableCell className="text-muted-foreground truncate max-w-72">
                     {transaction.description || '-'}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right truncate">
                     <span className={transaction.type === 'INCOME' ? 'text-green-600 font-semibold' : 'text-red-600 font-semibold'}>
                       {transaction.type === 'INCOME' ? '+' : '-'}
                       {formatCurrency(transaction.amount)}
                     </span>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className="text-muted-foreground truncate">
                     {transaction.createdBy.name}
                   </TableCell>
                 </TableRow>

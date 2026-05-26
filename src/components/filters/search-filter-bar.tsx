@@ -64,7 +64,6 @@ export function SearchFilterBar({
 
   // Update URL when search changes (but not on initial mount or when searchParams changes)
   useEffect(() => {
-    // Skip on initial mount
     if (isInitialMount.current) {
       isInitialMount.current = false;
       return;
@@ -73,18 +72,17 @@ export function SearchFilterBar({
     const params = new URLSearchParams(searchParams.toString());
     const currentSearch = searchParams.get('search') || '';
 
-    // Only update if the debounced search is different from URL
     if (debouncedSearch !== currentSearch) {
       if (debouncedSearch) {
         params.set('search', debouncedSearch);
-        params.set('page', '1'); // Reset to page 1 on search
+        params.set('page', '1');
       } else {
         params.delete('search');
       }
 
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     }
-  }, [debouncedSearch]); // Only depend on debouncedSearch, not searchParams!
+  }, [debouncedSearch]);
 
   // Handle filter change
   const handleFilterChange = (key: string, value: string) => {
@@ -95,7 +93,7 @@ export function SearchFilterBar({
 
     if (value && value !== defaultValue) {
       params.set(key, value);
-      params.set('page', '1'); // Reset to page 1 on filter change
+      params.set('page', '1');
     } else {
       params.delete(key);
     }
@@ -116,11 +114,19 @@ export function SearchFilterBar({
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  // Handle date range change
+  // Convert ISO string (from URL) back to datetime-local input format using local timezone
+  const toInputValue = (iso: string) => {
+    const d = new Date(iso);
+    return new Date(d.getTime() - d.getTimezoneOffset() * 60000)
+      .toISOString()
+      .slice(0, 16);
+  };
+
+  // Handle date range change — store as UTC ISO so server always parses correctly
   const handleDateChange = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (value) {
-      params.set(key, value);
+      params.set(key, new Date(value).toISOString());
       params.set('page', '1');
     } else {
       params.delete(key);
@@ -149,6 +155,9 @@ export function SearchFilterBar({
     activeDateFilters;
 
   const hasFiltersOrSort = filters.length > 0 || sortOptions.length > 0 || !!dateRange;
+
+  const fromIso = dateRange ? searchParams.get(dateRange.fromKey) : null;
+  const toIso = dateRange ? searchParams.get(dateRange.toKey) : null;
 
   return (
     <div className="space-y-4">
@@ -202,20 +211,20 @@ export function SearchFilterBar({
                 <div className="flex items-center gap-1 w-full sm:w-auto">
                   <Input
                     type="datetime-local"
-                    value={searchParams.get(dateRange.fromKey) || ''}
+                    value={fromIso ? toInputValue(fromIso) : ''}
                     onChange={(e) => handleDateChange(dateRange.fromKey, e.target.value)}
                     className="w-full sm:w-[185px] text-sm"
                     title={dateRange.fromLabel || 'Dari Tanggal'}
-                    max={searchParams.get(dateRange.toKey) || undefined}  // ← tambah ini
+                    max={toIso ? toInputValue(toIso) : undefined}
                   />
                   <span className="text-muted-foreground text-sm shrink-0">–</span>
                   <Input
                     type="datetime-local"
-                    value={searchParams.get(dateRange.toKey) || ''}
+                    value={toIso ? toInputValue(toIso) : ''}
                     onChange={(e) => handleDateChange(dateRange.toKey, e.target.value)}
                     className="w-full sm:w-[185px] text-sm"
                     title={dateRange.toLabel || 'Sampai Tanggal'}
-                    min={searchParams.get(dateRange.fromKey) || undefined}
+                    min={fromIso ? toInputValue(fromIso) : undefined}
                   />
                 </div>
               </div>
@@ -291,9 +300,9 @@ export function SearchFilterBar({
             </div>
           )}
           {/* Date range badges */}
-          {dateRange && searchParams.get(dateRange.fromKey) && (
+          {dateRange && fromIso && (
             <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs">
-              Dari: {new Date(searchParams.get(dateRange.fromKey)!).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              Dari: {new Date(fromIso).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
               <button
                 onClick={() => handleDateChange(dateRange.fromKey, '')}
                 className="hover:bg-blue-200 rounded p-0.5"
@@ -302,9 +311,9 @@ export function SearchFilterBar({
               </button>
             </div>
           )}
-          {dateRange && searchParams.get(dateRange.toKey) && (
+          {dateRange && toIso && (
             <div className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 rounded-md text-xs">
-              Sampai: {new Date(searchParams.get(dateRange.toKey)!).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              Sampai: {new Date(toIso).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
               <button
                 onClick={() => handleDateChange(dateRange.toKey, '')}
                 className="hover:bg-blue-200 rounded p-0.5"

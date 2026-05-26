@@ -16,9 +16,7 @@ function buildDateWhere(dateFrom?: string, dateTo?: string) {
     range.gte = new Date(dateFrom);
   }
   if (dateTo) {
-    const end = new Date(dateTo);
-    end.setHours(23, 59, 59, 999);
-    range.lte = end;
+  range.lte = new Date(dateTo);
   }
   return range;
 }

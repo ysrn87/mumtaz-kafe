@@ -17,6 +17,7 @@ interface Customer {
   photoUrl?: string | null;
   points: number;
   createdAt: Date;
+  internalNotes?: string | null;
   sales: Array<{
     id: string;
     total: any;
@@ -49,7 +50,7 @@ export function CustomerDetailsDialog({ customer, open, onOpenChange }: Customer
             <TabsTrigger value="statistics">Statistics</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="profile" className="mt-4">
+          <TabsContent value="profile" className="mt-4 space-y-4">
             <MemberCard 
               user={{
                 id: customer.id,
@@ -64,6 +65,19 @@ export function CustomerDetailsDialog({ customer, open, onOpenChange }: Customer
               }}
               showMembershipId={true}
             />
+
+            {customer.internalNotes && (
+              <Card className="bg-amber-50 border-amber-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium text-amber-800 flex items-center gap-2">
+                    📝 Catatan Internal <span className="text-xs font-normal text-amber-700">(hanya admin)</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-amber-900 whitespace-pre-wrap">{customer.internalNotes}</p>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
           
           <TabsContent value="statistics" className="mt-4 space-y-4">

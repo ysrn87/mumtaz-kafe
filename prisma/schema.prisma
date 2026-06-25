@@ -20,6 +20,7 @@ model User {
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   address          String?
+  internalNotes    String?
   createdCashflows Cashflow[]
   pointsHistory    PointHistory[]
   createdProducts  Product[]      @relation("CreatedBy")

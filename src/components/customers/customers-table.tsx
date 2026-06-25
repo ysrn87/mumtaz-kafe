@@ -22,6 +22,7 @@ interface Customer {
   photoUrl?: string | null;
   points: number;
   createdAt: Date;
+  internalNotes?: string | null;
   sales: Array<{
     id: string;
     total: any;
@@ -175,6 +176,7 @@ export function CustomersTable({
                               birthday: customer.birthday ?? undefined,
                               photoUrl: customer.photoUrl ?? undefined,
                               points: customer.points,
+                              internalNotes: customer.internalNotes,
                             }}
                           />
                           <CustomerDeleteButton customerId={customer.id} />

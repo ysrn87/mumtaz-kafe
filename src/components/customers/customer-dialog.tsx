@@ -22,6 +22,7 @@ interface CustomerDialogProps {
     birthday?: Date;
     photoUrl?: string;
     points: number;
+    internalNotes?: string | null;
   };
   trigger?: React.ReactNode;
   onSuccess?: () => void;
@@ -43,6 +44,7 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
   const [phone, setPhone] = useState(mode === 'edit' ? (customer?.phone || '') : '');
   // ✅ Fix: initialize address from customer so character counter is correct in edit mode
   const [address, setAddress] = useState(mode === 'edit' ? (customer?.address || '') : '');
+  const [internalNotes, setInternalNotes] = useState(mode === 'edit' ? (customer?.internalNotes || '') : '');
   const [emailError, setEmailError] = useState('');
 
   // ✅ Fix: reset ALL controlled fields when dialog opens (not just photoUrl and points)
@@ -53,9 +55,10 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
       setName(mode === 'edit' ? (customer?.name || '') : '');
       setPhone(mode === 'edit' ? (customer?.phone || '') : '');
       setAddress(mode === 'edit' ? (customer?.address || '') : '');
+      setInternalNotes(mode === 'edit' ? (customer?.internalNotes || '') : '');
       setEmailError('');
     }
-  }, [open, customer?.photoUrl, customer?.points, customer?.name, customer?.phone, customer?.address, mode]);
+  }, [open, customer?.photoUrl, customer?.points, customer?.name, customer?.phone, customer?.address, customer?.internalNotes, mode]);
 
   const pointsChanged = mode === 'edit' && points !== initialPoints;
 
@@ -276,6 +279,26 @@ export function CustomerDialog({ mode, customer, trigger, onSuccess }: CustomerD
                 />
               </div>
             )}
+            
+            <div className="grid gap-2">
+              <Label htmlFor="internalNotes">
+                📝 Catatan Internal <span className="text-xs text-muted-foreground font-normal">(hanya admin, tidak terlihat member)</span>
+              </Label>
+              <Textarea
+                id="internalNotes"
+                name="internalNotes"
+                value={internalNotes}
+                placeholder="Simpan catatan internal member ini."
+                onChange={(e) => setInternalNotes(e.target.value)}
+                disabled={loading}
+                maxLength={500}
+                className="bg-amber-50 border-amber-200 focus-visible:ring-amber-400"
+              />
+              <p className="text-xs text-muted-foreground text-right">
+                {internalNotes.length}/500 karakter
+              </p>
+            </div>
+
 
             {mode === 'edit' && (
               <>

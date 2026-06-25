@@ -119,6 +119,7 @@ export async function getAllCustomers() {
       photoUrl: true,
       points: true,
       createdAt: true,
+      internalNotes: true,
     },
   });
 
@@ -173,6 +174,7 @@ export async function createCustomerAction(formData: FormData) {
     const address = formData.get('address') as string;
     const birthday = formData.get('birthday') as string;
     const photoUrl = formData.get('photoUrl') as string;
+    const internalNotes = formData.get('internalNotes') as string;
 
     // 🔧 Normalize phone and email
     const phone = normalizePhone(rawPhone);
@@ -226,6 +228,7 @@ export async function createCustomerAction(formData: FormData) {
         address: address || null,
         birthday: birthday ? new Date(birthday) : null,
         photoUrl: photoUrl || null,
+        internalNotes: internalNotes?.trim() || null,
         role: 'MEMBER',
         points: 0,
       },
@@ -253,6 +256,7 @@ export async function updateCustomerAction(id: string, formData: FormData) {
     const address = formData.get('address') as string;
     const birthday = formData.get('birthday') as string;
     const photoUrl = formData.get('photoUrl') as string;
+    const internalNotes = formData.get('internalNotes') as string;
     const newPassword = formData.get('password') as string;
     const points = formData.get('points') ? parseInt(formData.get('points') as string) : undefined;
     const pointsReason = formData.get('pointsReason') as string;
@@ -324,6 +328,7 @@ export async function updateCustomerAction(id: string, formData: FormData) {
       address: address || null,
       birthday: birthday ? new Date(birthday) : null,
       photoUrl: photoUrl || null,
+      internalNotes: internalNotes?.trim() || null,
     };
 
     // Hash password if provided
